@@ -1,16 +1,16 @@
 export interface Session {
-  character: string
+  characterId: number
   isCorrect: boolean
   gainedPoints: number
 }
 
 export interface User {
   name: string
-  level: "Beginner" | "Intermediate" | "Advanced"
+  level: Level
   points: number
   streak: number
   badges: string[]
-  todayCharacter: string
+  learnedCharacterIds: number[]
   todayReward: number
   lastSession: Session | null
   justCompletedSession: boolean
@@ -20,3 +20,15 @@ export interface LeaderboardEntry {
   name: string
   points: number
 }
+
+export type Level = "Beginner" | "Intermediate" | "Advanced"
+
+export interface Character {
+  id: number
+  character: string     
+  pinyin: string       
+  meaning: string      
+  story: string         
+  level: Level
+}
+

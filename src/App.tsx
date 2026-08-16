@@ -6,6 +6,7 @@ import type { User, LeaderboardEntry } from './types'
 import { TodayCard } from './components/TodayCard'
 import { BadgeList } from './components/BadgeList'
 import { Leaderboard } from './components/Leaderboard'
+import { getTodayCharacter } from './utils/characters'
 
 
 function App() {
@@ -16,11 +17,13 @@ function App() {
     points: 600,
     streak: 0,
     badges: ["600 Points Club"],
-    todayCharacter: "龙",
+    learnedCharacterIds: [],
     todayReward: 0,
     lastSession: null,
     justCompletedSession: true
   })
+
+  const todayCharacter = getTodayCharacter()
 
   const others: LeaderboardEntry[] = [
     { name: "Junwei Ji", points: 750 },
@@ -53,7 +56,7 @@ function App() {
           </section>
 
           <TodayCard 
-            character={user.todayCharacter} 
+            character={todayCharacter.character} 
             onStart={() => console.log("start clicked")} 
           />
 
