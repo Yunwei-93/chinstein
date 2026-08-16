@@ -1,75 +1,70 @@
-# React + TypeScript + Vite
+# Chinstein
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Learn one Chinese character a day — a small, gamified learning app with streaks, badges, and a short daily quiz.
 
-Currently, two official plugins are available:
+**Live demo:** [chinstein.vercel.app](https://chinstein.vercel.app)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## React Compiler
+![Chinstein home page](docs/screenshot.png)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Why I built this
 
-## Expanding the ESLint configuration
+I kept watching people around me download a language app, use it enthusiastically for two weeks, and then quit. The apps weren't bad — but a session felt like homework. Long word lists, big daily goals, and a streak you feel guilty about breaking.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+I wanted to see what happens if a session is deliberately tiny: one character a day, a short story about where it comes from, and a single quiz question. Two or three minutes, not twenty.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+This started as a Figma prototype for a human-computer interaction course. I'm now rebuilding it properly — React and TypeScript on the front end, with a real backend and character dataset in progress.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Features
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Daily character card with a short story and quiz
+- Points, streaks, and unlockable badges
+- Leaderboard that re-sorts as your score changes
+- Responsive layout (two columns on desktop, single column on mobile)
 
+## Tech Stack
+
+| Layer | Technology |
+| ---   | ---        |
+| Frontend | React 19, TypeScript |
+| Build tool | Vite |
+| Styling | CSS (custom properties, flexbox, grid) |
+| Deployment | Vercel — automatic deploys on push to `main` |
+
+## Running locally
+
+```bash
+git clone https://github.com/Yunwei-93/chinstein.git
+cd chinstein
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app runs at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Project structure
 
 ```
+src/
+├── components/
+│   ├── ProfileRow.tsx     # A single label/value row in the profile card
+│   ├── BadgeList.tsx      # Renders earned badges, with an empty state
+│   ├── TodayCard.tsx      # Today's character and the entry point to a session
+│   └── Leaderboard.tsx    # Sorted ranking with the current user highlighted
+├── types.ts               # Shared types (User, Session, LeaderboardEntry)
+├── App.tsx                # Composes the home page and owns user state
+└── main.tsx               # Entry point
+```
+
+## Roadmap
+
+- [ ] Character dataset with daily rotation (30–50 characters)
+- [ ] Stroke-order animations via Hanzi Writer
+- [ ] Study and result pages with client-side routing
+- [ ] Express + TypeScript API with PostgreSQL for persistent progress
+- [ ] AI-generated character etymology using the Claude API
+- [ ] Spaced repetition for review scheduling
+
+## Notes
+
+This is an active work in progress. The current version renders the home page with local state; user progress does not persist between refreshes yet — that lands with the backend.
