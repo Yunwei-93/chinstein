@@ -48,29 +48,59 @@ npm run dev
 
 The app runs at `http://localhost:5173`.
 
+Run the unit tests:
+
+```bash
+npm test
+```
+
 ## Project structure
 
 ```
 src/
 ├── components/
-│   ├── ProfileRow.tsx     # A single label/value row in the profile card
-│   ├── BadgeList.tsx      # Renders earned badges, with an empty state
-│   ├── TodayCard.tsx      # Today's character and the entry point to a session
-│   └── Leaderboard.tsx    # Sorted ranking with the current user highlighted
-├── types.ts               # Shared types (User, Session, LeaderboardEntry)
-├── App.tsx                # Composes the home page and owns user state
-└── main.tsx               # Entry point
+│   ├── ProfileRow.tsx       # A single label/value row in the profile card
+│   ├── BadgeList.tsx        # Renders earned badges, with an empty state
+│   ├── TodayCard.tsx        # Today's character; switches state once completed
+│   ├── Leaderboard.tsx      # Sorted ranking with the current user highlighted
+│   └── StrokeAnimation.tsx  # Wraps Hanzi Writer (useRef + effect cleanup)
+├── pages/
+│   ├── HomePage.tsx         # Profile, leaderboard, today's character
+│   ├── StudyPage.tsx        # Story, stroke animation, quiz, scoring
+│   └── ResultPage.tsx       # Session summary and newly unlocked badges
+├── data/
+│   └── characters.ts        # 50 characters with pinyin, meaning, etymology
+├── utils/
+│   ├── characters.ts        # Daily selection, quiz option generation
+│   ├── date.ts              # Local-date keys and streak calculation
+│   ├── badges.ts            # Rule-driven badge derivation
+│   └── badges.test.ts       # Unit tests for the badge rules
+├── types.ts                 # Shared types (User, Session, Character)
+├── App.tsx                  # Routing, user state, localStorage persistence
+└── main.tsx                 # Entry point
 ```
 
 ## Roadmap
 
-- [ ] Character dataset with daily rotation (30–50 characters)
-- [ ] Stroke-order animations via Hanzi Writer
-- [ ] Study and result pages with client-side routing
+- [x] Character dataset with daily rotation (50 characters)
+- [x] Study and result pages with client-side routing
+- [x] Quiz with scoring, streaks, and badge unlocks
+- [x] Progress persistence via localStorage
+- [x] Stroke-order animations via Hanzi Writer
 - [ ] Express + TypeScript API with PostgreSQL for persistent progress
 - [ ] AI-generated character etymology using the Claude API
+- [ ] Docker and GitHub Actions
 - [ ] Spaced repetition for review scheduling
 
-## Notes
+## Known limitations
 
-This is an active work in progress. The current version renders the home page with local state; user progress does not persist between refreshes yet — that lands with the backend.
+Being upfront about what's not done yet:
+
+- **Progress is per-browser.** localStorage is scoped to one origin, so data doesn't
+  follow you across devices and is lost if you clear browsing data. The backend fixes this.
+- **The leaderboard is mock data.** Other users are hard-coded until there's a real API.
+- **Timezone inconsistency.** Daily character selection uses UTC days while streak
+  calculation uses the local date, so they can disagree at certain times in certain
+  timezones. To be unified server-side.
+- **Character data loads from a CDN.** Hanzi Writer fetches stroke data from jsDelivr at
+  runtime; bundling the 50 characters locally would remove that external dependency.
