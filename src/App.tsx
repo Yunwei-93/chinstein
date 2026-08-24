@@ -1,76 +1,60 @@
 
+import { useState, useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import './App.css'
-import { useState } from 'react'
-import { ProfileRow } from './components/ProfileRow'
-import type { User, LeaderboardEntry } from './types'
-import { TodayCard } from './components/TodayCard'
-import { BadgeList } from './components/BadgeList'
-import { Leaderboard } from './components/Leaderboard'
-import { getTodayCharacter } from './utils/characters'
+import HomePage from './pages/HomePage'
+import StudyPage from './pages/StudyPage'
+import ResultPage from './pages/ResultPage'
+import type { User} from './types'
+
+const STORAGE_KEY = 'chinstein-user'
+const defaultUser: User = {
+  name: "Yunwei Li",
+  level: "Beginner",
+  points: 600,
+  streak: 0,
+  badges: ["600 Points Club"],
+  learnedCharacterIds: [],
+  lastStudiedDate: null,
+  todayReward: 20,
+  lastSession: null,
+
+}
+
 
 
 function App() {
 
-  const [user, setUser] = useState<User>({
-    name: "Yunwei Li",
-    level: "Beginner",
-    points: 600,
-    streak: 0,
-    badges: ["600 Points Club"],
-    learnedCharacterIds: [],
-    todayReward: 0,
-    lastSession: null,
-    justCompletedSession: true
+  // lazy init: read localStorage only on the first render
+  const [user, setUser] = useState<User>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY)
+
+    if (!saved) return defaultUser
+
+    try {
+      return JSON.parse(saved) as User
+    } catch {
+
+      // corrupted data (hand-edited, or an old incompatible format) → fall back
+      return defaultUser
+    }
   })
 
-  const todayCharacter = getTodayCharacter()
+  // persist user to localStorage whenever it changes
 
-  const others: LeaderboardEntry[] = [
-    { name: "Junwei Ji", points: 750 },
-    { name: "Tian Zhou", points: 400 }
-  ]
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
+  }, [user])
+
+
 
   return (
-    <div className="page">
-      <header>
-        <h1>Chinstein</h1>
-      </header>
-      <main className="columns">
-         <section className="card card-profile">
-          <h2>MY PROFILE</h2>
-          <ProfileRow label="Name" value={user.name} />
-          <ProfileRow label="Level" value={user.level} />
-          <ProfileRow label="Points" value={user.points} />
-          <ProfileRow label="Streak" value={`${user.streak} days`} />
-          <h3>Badges:</h3>
-          <BadgeList badges={user.badges} />
-         </section>
-
-         <section className="right-column">
-          <section className="card">
-            <h2>LEADERBOARD</h2>
-            <Leaderboard 
-              entries={[{ name: user.name, points: user.points }, ...others]}
-              currentUserName={user.name}
-            />
-          </section>
-
-          <TodayCard 
-            character={todayCharacter.character} 
-            onStart={() => console.log("start clicked")} 
-          />
-
-         </section>
-
-      </main>
-
-      <button onClick={() => setUser({ ...user, points: user.points + 20 })}>
-        Answer correctly (+20)
-      </button>
-
-    </div>
+    <Routes>
+      <Route path="/" element={<HomePage user={user} />} />
+      <Route path="/study" element={<StudyPage user={user} setUser={setUser} />} />
+      <Route path="/result" element={<ResultPage user={user} />} />
+    </Routes>
   )
 }
-
 
 export default App

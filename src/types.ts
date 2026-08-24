@@ -2,6 +2,7 @@ export interface Session {
   characterId: number
   isCorrect: boolean
   gainedPoints: number
+  newBadges: string[]
 }
 
 export interface User {
@@ -11,9 +12,9 @@ export interface User {
   streak: number
   badges: string[]
   learnedCharacterIds: number[]
+  lastStudiedDate: string | null
   todayReward: number
   lastSession: Session | null
-  justCompletedSession: boolean
 }
 
 export interface LeaderboardEntry {

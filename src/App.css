@@ -305,6 +305,21 @@ header h1 {
   margin-bottom: 16px;
 }
 
+.stroke-target {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.animation-box .secondary-btn {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+}
+
+.animation-box .secondary-btn:hover {
+  background: #f3f4f6;
+}
+
 
 .story-box-title {
   margin: 0 0 10px;
