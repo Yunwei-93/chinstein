@@ -17,8 +17,11 @@ This started as a Figma prototype for a human-computer interaction course. I'm n
 
 ## Features
 
-- Daily character card with a short story and quiz
-- Points, streaks, and unlockable badges
+- One character a day, selected by date — the same character for everyone, every day
+- Etymology story plus a stroke-order animation (Hanzi Writer)
+- Multiple-choice quiz with distractors drawn from characters you've already learned
+- Points, streaks, and badges unlocked from your stats
+- Progress persists across refreshes via localStorage
 - Leaderboard that re-sorts as your score changes
 - Responsive layout (two columns on desktop, single column on mobile)
 
@@ -27,6 +30,9 @@ This started as a Figma prototype for a human-computer interaction course. I'm n
 | Layer | Technology |
 | ---   | ---        |
 | Frontend | React 19, TypeScript |
+| Routing | React Router v7 |
+| Testing | Vitest (unit tests for badge and streak logic) |
+| Stroke animation | Hanzi Writer |
 | Build tool | Vite |
 | Styling | CSS (custom properties, flexbox, grid) |
 | Deployment | Vercel — automatic deploys on push to `main` |
