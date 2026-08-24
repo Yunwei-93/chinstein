@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: chinstein-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: chinstein
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: chinstein
+    ports:
+      - "5432:5432"
+    volumes:
+      - chinstein-pgdata:/var/lib/postgresql/data
+
+volumes:
+  chinstein-pgdata:

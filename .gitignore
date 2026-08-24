@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
 
 # Personal notes
 INTERVIEW_PREP.md
@@ -26,3 +27,4 @@ INTERVIEW_PREP.md
 *.sln
 *.sw?
 CLAUDE.md
+
