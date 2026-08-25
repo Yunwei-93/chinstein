@@ -1,6 +1,6 @@
 import express from 'express'
 import { pool } from './db.js'
-import { getTodayCharacter } from './characters.js'
+import { getTodayCharacterForClient } from './characters.js'
 import { getUserProfile } from './users.js'
 import { z } from 'zod'
 import {
@@ -8,8 +8,14 @@ import {
   AlreadyStudiedTodayError,
   CharacterNotFoundError,
 } from './sessions.js'
+import cors from 'cors'
 
 export const app = express()
+
+// browsers block cross-origin reads by default; list allowed origins explicitly, never *
+app.use(cors({
+  origin: (process.env.CORS_ORIGIN ?? 'http://localhost:5173').split(',')
+}))
 
 app.use(express.json())
 
@@ -22,18 +28,27 @@ app.get('/api/health', async (_req, res) => {
   }
 })
 
-app.get('/api/characters/today', async (_req, res) => {
-    try{
-        const character = await getTodayCharacter()
-        if (!character){
-            res.status(404).json({ error: 'No characters in the database' })
-            return
-        }
-        res.json(character)
-    } catch (err) {
-        console.error(err)
-        res.status(500).json({ error: 'Internal server error' })
+app.get('/api/characters/today', async (req, res) => {
+  try {
+    // userId is optional; when present, distractors come from that user's learned characters
+    const userId = Number(req.query.userId)
+    let learnedIds: number[] = []
+    if (Number.isInteger(userId) && userId > 0) {
+      const profile = await getUserProfile(userId)
+      learnedIds = profile?.learnedCharacterIds ?? []
     }
+
+    const character = await getTodayCharacterForClient(learnedIds)
+    if (!character) {
+      res.status(404).json({ error: 'No characters in the database' })
+      return
+    }
+
+    res.json(character)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
 })
 
 app.get('/api/users/:id', async (req, res) => {

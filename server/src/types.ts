@@ -9,6 +9,11 @@ export interface Character {
   level: Level
 }
 
+// what the client receives: meaning stripped, shuffled options added
+export type TodayCharacter = Omit<Character, 'meaning'> & {
+  options: string[]
+}
+
 export interface Session {
   characterId: number
   isCorrect: boolean
