@@ -13,6 +13,8 @@ interface ProfileRow {
   last_studied_date: string | null
   learned_character_ids: number[]
   ls_character_id: number | null
+  ls_character: string | null
+  ls_meaning: string | null
   ls_is_correct: boolean | null
   ls_points: number | null
 }
@@ -49,9 +51,12 @@ totals AS (
     FROM study_sessions WHERE user_id = $1
 ),
 last_session AS (
-  SELECT character_id, is_correct, points
-    FROM study_sessions WHERE user_id = $1
-   ORDER BY studied_on DESC, id DESC LIMIT 1
+  SELECT s.character_id, s.is_correct, s.points,
+         c.character, c.meaning
+    FROM study_sessions s
+    JOIN characters c ON c.id = s.character_id
+   WHERE s.user_id = $1
+   ORDER BY s.studied_on DESC, s.id DESC LIMIT 1
 )
 SELECT u.id, u.name,
        t.points,
@@ -59,6 +64,8 @@ SELECT u.id, u.name,
        t.last_studied_date,
        COALESCE(t.learned_character_ids, '{}') AS learned_character_ids,
        ls.character_id AS ls_character_id,
+       ls.character    AS ls_character,
+       ls.meaning      AS ls_meaning,
        ls.is_correct   AS ls_is_correct,
        ls.points       AS ls_points
   FROM users u
@@ -99,6 +106,8 @@ export async function getUserProfile(userId: number): Promise<UserProfile | null
         ? null
         : {
             characterId: row.ls_character_id,
+            character: row.ls_character ?? '',
+            meaning: row.ls_meaning ?? '',
             isCorrect: row.ls_is_correct ?? false,
             gainedPoints: row.ls_points ?? 0,
             newBadges: [],

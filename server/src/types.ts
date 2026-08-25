@@ -16,6 +16,8 @@ export type TodayCharacter = Omit<Character, 'meaning'> & {
 
 export interface Session {
   characterId: number
+  character: string
+  meaning: string
   isCorrect: boolean
   gainedPoints: number
   newBadges: string[]

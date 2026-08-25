@@ -18,8 +18,8 @@ export async function createSession(
   if (!before) throw new Error('User not found')
 
   // the correct answer comes from the DB; we never trust the client's verdict
-  const { rows } = await pool.query<{ meaning: string }>(
-    'SELECT meaning FROM characters WHERE id = $1',
+  const { rows } = await pool.query<{ character: string; meaning: string }>(
+    'SELECT character, meaning FROM characters WHERE id = $1',
     [characterId]
   )
   const character = rows[0]
@@ -48,5 +48,12 @@ export async function createSession(
   const after = await getUserProfile(userId)
   const newBadges = getNewBadges(before.badges, after?.badges ?? [])
 
-  return { characterId, isCorrect, gainedPoints, newBadges }
+  return {
+    characterId,
+    character: character.character,
+    meaning: character.meaning,
+    isCorrect,
+    gainedPoints,
+    newBadges,
+  }
 }
