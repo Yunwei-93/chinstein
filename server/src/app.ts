@@ -9,7 +9,7 @@ import {
   CharacterNotFoundError,
 } from './sessions.js'
 import cors from 'cors'
-import { hashPassword, verifyPassword, signToken } from './auth.js'
+import { hashPassword, verifyPassword, signToken, requireAuth } from './auth.js'
 
 export const app = express()
 
@@ -29,22 +29,17 @@ app.get('/api/health', async (_req, res) => {
   }
 })
 
-app.get('/api/characters/today', async (req, res) => {
+app.get('/api/characters/today', requireAuth, async (req, res) => {
   try {
-    // userId is optional; when present, distractors come from that user's learned characters
-    const userId = Number(req.query.userId)
-    let learnedIds: number[] = []
-    if (Number.isInteger(userId) && userId > 0) {
-      const profile = await getUserProfile(userId)
-      learnedIds = profile?.learnedCharacterIds ?? []
-    }
-
+    // userId now comes from the token, not from ?userId=
+    const profile = await getUserProfile(req.userId!)
+    const learnedIds = profile?.learnedCharacterIds ?? []
     const character = await getTodayCharacterForClient(learnedIds)
+
     if (!character) {
       res.status(404).json({ error: 'No characters in the database' })
       return
     }
-
     res.json(character)
   } catch (err) {
     console.error(err)
@@ -52,20 +47,16 @@ app.get('/api/characters/today', async (req, res) => {
   }
 })
 
-app.get('/api/users/:id', async (req, res) => {
+app.get('/api/me', requireAuth, async (req, res) => {
   try {
-    const id = Number(req.params.id)
+    const profile = await getUserProfile(req.userId!)
     // path params are always strings — convert and validate yourself
-    if (!Number.isInteger(id) || id <= 0) {
-      res.status(400).json({ error: 'Invalid user id' })
-      return
-    }
-    const profile = await getUserProfile(id)
     if (!profile) {
       res.status(404).json({ error: 'User not found' })
       return
     }
     res.json(profile)
+  
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Internal server error' })
@@ -76,12 +67,11 @@ app.get('/api/users/:id', async (req, res) => {
 
 // zod validates the body at runtime — the Pydantic equivalent
 const createSessionSchema = z.object({
-  userId: z.number().int().positive(),
   characterId: z.number().int().positive(),
   answer: z.string().min(1),
 })
 
-app.post('/api/sessions', async (req, res) => {
+app.post('/api/sessions', requireAuth, async (req, res) => {
   const parsed = createSessionSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid request body', details: parsed.error.issues })
@@ -89,10 +79,10 @@ app.post('/api/sessions', async (req, res) => {
   }
 
   // use parsed.data, not req.body — extra fields have been stripped
-  const { userId, characterId, answer } = parsed.data
+  const { characterId, answer } = parsed.data
 
   try {
-    const session = await createSession(userId, characterId, answer)
+    const session = await createSession(req.userId!, characterId, answer)
     res.status(201).json(session)
   } catch (err) {
     if (err instanceof AlreadyStudiedTodayError) {
