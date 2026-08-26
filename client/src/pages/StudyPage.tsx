@@ -1,69 +1,96 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getTodayCharacter, getQuizOptions } from '../utils/characters'
-import type { User } from '../types'
-import { getTodayKey, calculateStreak } from '../utils/date'
 import { StrokeAnimation } from '../components/StrokeAnimation'
-import { getEarnedBadges, getNewBadges } from '../utils/badges'
+import { fetchTodayCharacter, submitSession, CURRENT_USER_ID } from '../api'
+import type { UserProfile, TodayCharacter } from '../types'
 
 interface StudyPageProps {
-  user: User
-  setUser: (user: User) => void
+  user: UserProfile
+  onSessionComplete: () => void
 }
 
-function StudyPage({ user, setUser }: StudyPageProps) {
-  const character = getTodayCharacter()
+// same pattern as App.tsx, this one tracks the today-character request
+type Async<T> =
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | { status: 'success'; data: T }
+
+function StudyPage({ user, onSessionComplete }: StudyPageProps) {
   const navigate = useNavigate()
 
-  // pass a function to useState so getQuizOptions only runs on the first render,
-  // not on every re-render (e.g. when `selected` changes below)
-  const [options] = useState<string[]>(() =>
-    getQuizOptions(character, user.learnedCharacterIds)
-  )
-
-  // controlled component: the radio's checked state is driven by React state,
-  // not by the browser's default form behavior
+  const [charState, setCharState] = useState<Async<TodayCharacter>>({ status: 'loading' })
   const [selected, setSelected] = useState<string | null>(null)
 
-  // whether the user has submitted — locks the options and shows the result
-  const [submitted, setSubmitted] = useState(false)
+  // submission state: null = not submitted, string = why it failed
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
-  const isCorrect = selected === character.meaning
+  useEffect(() => {
+    let cancelled = false
 
-  function handleContinue() {
-    const alreadyStudiedToday = user.lastStudiedDate === getTodayKey()
-    const gainedPoints = isCorrect && !alreadyStudiedToday ? user.todayReward : 0
-
-    const learnedCharacterIds = user.learnedCharacterIds.includes(character.id)
-      ? user.learnedCharacterIds
-      : [...user.learnedCharacterIds, character.id]
-
-    // build the updated stats first, then derive badges from them
-    const updatedUser: User = {
-      ...user,
-      points: user.points + gainedPoints,
-      streak: calculateStreak(user.streak, user.lastStudiedDate),
-      learnedCharacterIds,
-      lastStudiedDate: getTodayKey(),
-      lastSession: null,
+    async function load() {
+      try {
+        const data = await fetchTodayCharacter(CURRENT_USER_ID)
+ 
+        // don't setState after unmount — avoids races and leaks
+        if (!cancelled) setCharState({ status: 'success', data })
+      } catch (err) {
+        if (!cancelled) {
+          setCharState({
+            status: 'error',
+            message: err instanceof Error ? err.message : 'Failed to load',
+          })
+        }
+      }
     }
 
-    const badges = getEarnedBadges(updatedUser)
-    const newBadges = getNewBadges(user.badges, badges)
+    load()
+    return () => { cancelled = true }
+  }, [])
 
-    setUser({
-      ...updatedUser,
-      badges,
-      lastSession: {
-        characterId: character.id,
-        isCorrect,
-        gainedPoints,
-        newBadges,
-      },
-    })
+  async function handleSubmit() {
+    if (!selected || charState.status !== 'success') return
 
-    navigate('/result')
+    setSubmitting(true)
+    setSubmitError(null)
+
+    try {
+
+      // the server does the grading; we only submit what the user picked
+      await submitSession(CURRENT_USER_ID, charState.data.id, selected)
+
+      // tell App to refetch — points, streak and badges have all changed
+      onSessionComplete()
+
+      navigate('/result')
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Submission failed')
+      setSubmitting(false)
+    }
   }
+
+  if (charState.status === 'loading') {
+    return (
+      <div className="page">
+        <header><h1>Chinstein</h1></header>
+        <p className="subtitle">Loading today's character…</p>
+      </div>
+    )
+  }
+
+  if (charState.status === 'error') {
+    return (
+      <div className="page">
+        <header><h1>Chinstein</h1></header>
+        <p className="inline-feedback visible error">{charState.message}</p>
+        <button className="secondary-btn" onClick={() => navigate('/')}>
+          Back to Home
+        </button>
+      </div>
+    )
+  }
+
+  const character = charState.data
 
   return (
     <div className="page">
@@ -91,14 +118,14 @@ function StudyPage({ user, setUser }: StudyPageProps) {
             What does <span className="char-highlight">{character.character}</span> mean?
           </p>
 
-          {options.map(option => (
+          {character.options.map(option => (
             <label key={option} className="quiz-option">
               <input
                 type="radio"
                 name="quiz-answer"
                 value={option}
                 checked={selected === option}
-                disabled={submitted}
+                disabled={submitting}
                 onChange={() => setSelected(option)}
               />
               {option}
@@ -107,27 +134,19 @@ function StudyPage({ user, setUser }: StudyPageProps) {
 
           <button
             className="primary-btn"
-            disabled={!selected || submitted}
-            onClick={() => setSubmitted(true)}
+            disabled={!selected || submitting}
+            onClick={handleSubmit}
           >
-            Submit
+            {submitting ? 'Submitting…' : 'Submit'}
           </button>
 
-          <p
-            className={`inline-feedback ${submitted ? 'visible' : ''} ${
-              submitted && !isCorrect ? 'error' : ''
-            }`}
-          >
-            {submitted &&
-              (isCorrect
-                ? 'Correct!'
-                : `Not quite — the answer is "${character.meaning}"`)}
-          </p>
-          {submitted && (
-            <button className="primary-btn" onClick={handleContinue}>
-              See Results
-            </button>
+          {submitError && (
+            <p className="inline-feedback visible error">{submitError}</p>
           )}
+
+          <p className="subtitle secondary">
+            {user.name} · {user.points} points
+          </p>
         </section>
       </main>
     </div>

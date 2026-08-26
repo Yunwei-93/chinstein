@@ -1,21 +1,19 @@
 import { ProfileRow } from '../components/ProfileRow'
-import type { User, LeaderboardEntry } from '../types'
+import type { UserProfile, LeaderboardEntry } from '../types'
 import { TodayCard } from '../components/TodayCard'
 import { BadgeList } from '../components/BadgeList'
 import { Leaderboard } from '../components/Leaderboard'
-import { getTodayCharacter } from '../utils/characters'
 import { useNavigate } from 'react-router-dom'
 import { getTodayKey } from '../utils/date'
 
 interface HomePageProps {
-  user: User
+  user: UserProfile
 
 }
 
 function HomePage({ user }: HomePageProps) {
 
 
-  const todayCharacter = getTodayCharacter()
   const navigate = useNavigate()
 
   // derive "done today" from lastStudiedDate instead of storing a separate flag
@@ -55,7 +53,6 @@ function HomePage({ user }: HomePageProps) {
           </section>
 
           <TodayCard 
-            character={todayCharacter.character}
             completed={completedToday} 
             onStart={() => navigate('/study')} 
           />

@@ -1,14 +1,13 @@
 
 interface TodayCardProps {
-  character: string
   completed: boolean
   onStart: () => void
 }
 
-export function TodayCard({ character, completed, onStart }: TodayCardProps) {
+export function TodayCard({ completed, onStart }: TodayCardProps) {
   return (
     <div className="card card-today">
-      <h2>Today's Character: {character}</h2>
+      <h2>Today's Character</h2>
 
       {completed ? (
         <>

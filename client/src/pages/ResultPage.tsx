@@ -1,22 +1,20 @@
 import { useNavigate } from 'react-router-dom'
-import { getCharacterById } from '../utils/characters'
 import { BadgeList } from '../components/BadgeList'
-import type { User } from '../types'
+import type { UserProfile } from '../types'
 
 interface ResultPageProps {
-  user: User
+  user: UserProfile
 }
 
 function ResultPage({ user }: ResultPageProps) {
   const navigate = useNavigate()
   const session = user.lastSession
 
+  // guard for hitting /result directly without a session
   if (!session) {
     return (
       <div className="page">
-        <header>
-          <h1>Chinstein</h1>
-        </header>
+        <header><h1>Chinstein</h1></header>
         <main className="result-layout">
           <section className="card card-result">
             <h2>No session yet</h2>
@@ -30,8 +28,6 @@ function ResultPage({ user }: ResultPageProps) {
     )
   }
 
-  const character = getCharacterById(session.characterId)
-
   return (
     <div className="page">
       <header>
@@ -42,15 +38,17 @@ function ResultPage({ user }: ResultPageProps) {
         <section className="card card-result">
           <h2>{session.isCorrect ? 'Nice work!' : 'Good try!'}</h2>
 
-          {character && (
-            <p className="result-main-line">
-              You studied <span className="char-highlight">{character.character}</span> ({character.meaning}) today.
-            </p>
-          )}
+          {/* the character and its meaning now come from the API */}
+          <p className="result-main-line">
+            You studied <span className="char-highlight">{session.character}</span>{' '}
+            ({session.meaning}) today.
+          </p>
 
           <p className="result-points">+{session.gainedPoints} points</p>
           <p className="result-secondary">Total points: {user.points}</p>
-          <p className="result-secondary">Streak: {user.streak} {user.streak === 1 ? 'day' : 'days'}</p>
+          <p className="result-secondary">
+            Streak: {user.streak} {user.streak === 1 ? 'day' : 'days'}
+          </p>
 
           {session.newBadges.length > 0 && (
             <p className="result-badge">

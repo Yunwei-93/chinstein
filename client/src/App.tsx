@@ -1,57 +1,71 @@
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import './App.css'
 import HomePage from './pages/HomePage'
 import StudyPage from './pages/StudyPage'
 import ResultPage from './pages/ResultPage'
-import type { User} from './types'
-
-const STORAGE_KEY = 'chinstein-user'
-const defaultUser: User = {
-  name: "Yunwei Li",
-  level: "Beginner",
-  points: 600,
-  streak: 0,
-  badges: ["600 Points Club"],
-  learnedCharacterIds: [],
-  lastStudiedDate: null,
-  todayReward: 20,
-  lastSession: null,
-
-}
+import { fetchUser, CURRENT_USER_ID } from './api'
+import type { UserProfile } from './types'
 
 
+// three explicit states — mutually exclusive by construction
+type Async<T> =
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | { status: 'success'; data: T }
 
 function App() {
+  const [userState, setUserState] = useState<Async<UserProfile>>({ status: 'loading' })
 
-  // lazy init: read localStorage only on the first render
-  const [user, setUser] = useState<User>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
 
-    if (!saved) return defaultUser
-
+  // useCallback keeps the same function reference across renders,
+  // otherwise the effect below would re-run forever
+  const loadUser = useCallback(async () => {
+    setUserState({ status: 'loading' })
     try {
-      return JSON.parse(saved) as User
-    } catch {
-
-      // corrupted data (hand-edited, or an old incompatible format) → fall back
-      return defaultUser
+      const data = await fetchUser(CURRENT_USER_ID)
+      setUserState({ status: 'success', data })
+    } catch (err) {
+      setUserState({
+        status: 'error',
+        message: err instanceof Error ? err.message : 'Something went wrong',
+      })
     }
-  })
-
-  // persist user to localStorage whenever it changes
+  }, [])
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user))
-  }, [user])
+    loadUser()
+  }, [loadUser])
 
+  if (userState.status === 'loading') {
+    return (
+      <div className="page">
+        <header><h1>Chinstein</h1></header>
+        <p className="subtitle">Loading…</p>
+      </div>
+    )
+  }
 
+  if (userState.status === 'error') {
+    return (
+      <div className="page">
+        <header><h1>Chinstein</h1></header>
+        <p className="inline-feedback visible error">{userState.message}</p>
+        <button className="primary-btn" onClick={loadUser}>Retry</button>
+      </div>
+    )
+  }
+
+  // TS has narrowed the union: data is guaranteed to exist here
+  const user = userState.data
 
   return (
     <Routes>
       <Route path="/" element={<HomePage user={user} />} />
-      <Route path="/study" element={<StudyPage user={user} setUser={setUser} />} />
+      <Route
+        path="/study"
+        element={<StudyPage user={user} onSessionComplete={loadUser} />}
+      />
       <Route path="/result" element={<ResultPage user={user} />} />
     </Routes>
   )
