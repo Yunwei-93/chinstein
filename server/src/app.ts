@@ -9,6 +9,7 @@ import {
   CharacterNotFoundError,
 } from './sessions.js'
 import cors from 'cors'
+import { hashPassword, verifyPassword, signToken } from './auth.js'
 
 export const app = express()
 
@@ -102,6 +103,84 @@ app.post('/api/sessions', async (req, res) => {
       res.status(404).json({ error: 'Character not found' })
       return
     }
+    console.error(err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+
+// registration enforces a password policy
+const registerSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8),
+  name: z.string().min(1).optional(),
+})
+
+
+// login only needs a non-empty string; enforcing the policy here would leak it
+const loginSchema = z.object({
+  email: z.email(),
+  password: z.string().min(1),
+})
+
+app.post('/api/auth/register', async (req, res) => {
+  const parsed = registerSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid request body', details: parsed.error.issues })
+    return
+  }
+
+  const { email, password, name } = parsed.data
+  const displayName = name ?? email.split('@')[0]
+
+  try {
+    const password_hash = await hashPassword(password)
+
+    // normalise the email so casing doesn't create duplicate accounts
+    const { rows } = await pool.query<{ id: number }>(
+      `INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id`,
+      [displayName, email.toLowerCase(), password_hash]
+    )
+
+    const id = rows[0]!.id
+    res.status(201).json({ token: signToken(id), user: { id, name: displayName } })
+  } catch (err) {
+    // 23505 = unique_violation
+    if ((err as { code?: string }).code === '23505') {
+      res.status(409).json({ error: 'Email already registered' })
+      return
+    }
+    console.error(err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.post('/api/auth/login', async (req, res) => {
+  const parsed = loginSchema.safeParse(req.body)
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid request body' })
+    return
+  }
+
+  const { email, password } = parsed.data
+
+  try {
+    const { rows } = await pool.query<{
+      id: number
+      name: string
+      password_hash: string | null
+    }>(`SELECT id, name, password_hash FROM users WHERE email = $1`, [email.toLowerCase()])
+
+    const user = rows[0]
+
+    // one message for both cases, otherwise an attacker can enumerate accounts
+    if (!user?.password_hash || !(await verifyPassword(password, user.password_hash))) {
+      res.status(401).json({ error: 'Invalid email or password' })
+      return
+    }
+
+    res.json({ token: signToken(user.id), user: { id: user.id, name: user.name } })
+  } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Internal server error' })
   }
