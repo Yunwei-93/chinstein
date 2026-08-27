@@ -101,6 +101,11 @@ Everything except health and the two auth routes needs `Authorization: Bearer <t
 Passwords go through bcrypt at cost 10. Request bodies are validated with zod. Queries are all
 parameterised.
 
+Both auth routes are rate limited per IP — ten login attempts per fifteen minutes, counting
+failures only so a successful login never costs you a slot, and ten new accounts per hour. The
+counters live in process memory, which is fine on a single instance and would need Redis the
+moment there were two.
+
 ## Stack
 
 | Layer | What I used |
@@ -180,7 +185,7 @@ a server — once I write those tests.
 - [x] Express + TypeScript API on PostgreSQL
 - [x] Accounts and JWT auth
 - [x] Deployed end to end
-- [ ] Rate limiting on the auth routes
+- [x] Rate limiting on the auth routes
 - [ ] A real leaderboard endpoint
 - [ ] Integration tests (supertest + PGlite)
 - [ ] Docker and GitHub Actions
@@ -189,8 +194,9 @@ a server — once I write those tests.
 
 ## What's not done
 
-- **No rate limiting.** Nothing stops you hammering login or creating a thousand accounts. This is
-  the next thing I'm fixing.
+- **Rate limiting is per IP and per process.** It stops casual brute force, but anyone with a
+  proxy pool walks around it, and a shared office or campus IP gets throttled unfairly. Account-level
+  limits and a captcha would be the next layer.
 - **The leaderboard is fake.** The other two users are hard-coded in `HomePage`. Slightly funny
   that it only became worth building for real once there were accounts.
 - **"Today" is whatever the server says it is.** Every date now comes from one clock, which fixed

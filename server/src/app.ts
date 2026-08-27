@@ -10,8 +10,12 @@ import {
 } from './sessions.js'
 import cors from 'cors'
 import { hashPassword, verifyPassword, signToken, requireAuth } from './auth.js'
+import { loginLimiter, registerLimiter } from './rateLimit.js'
 
 export const app = express()
+
+// behind Render's proxy every request shares one IP unless we trust exactly one hop
+app.set('trust proxy', 1)
 
 // browsers block cross-origin reads by default; list allowed origins explicitly, never *
 app.use(cors({
@@ -24,7 +28,8 @@ app.get('/api/health', async (_req, res) => {
   try {
     const result = await pool.query('SELECT NOW()')
     res.json({ status: 'ok', time: result.rows[0].now })
-  } catch {
+  } catch(err) {
+    console.error('[health] database unreachable:', err)
     res.status(503).json({ status: 'error', message: 'database unreachable' })
   }
 })
@@ -113,7 +118,7 @@ const loginSchema = z.object({
   password: z.string().min(1),
 })
 
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', registerLimiter, async (req, res) => {
   const parsed = registerSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid request body', details: parsed.error.issues })
@@ -145,7 +150,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 })
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', loginLimiter, async (req, res) => {
   const parsed = loginSchema.safeParse(req.body)
   if (!parsed.success) {
     res.status(400).json({ error: 'Invalid request body' })
