@@ -1,0 +1,57 @@
+name: CI
+
+# run on pushes to main and on every PR targeting main
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+
+    # every `run` step executes inside client/ — this is a monorepo
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+          cache-dependency-path: client/package-lock.json
+
+      # `ci` installs exactly what the lockfile says and wipes node_modules first
+      - run: npm ci
+
+      - run: npm run lint
+
+      # `build` runs `tsc -b` first, so type-checking is covered here
+      - run: npm run build
+
+  server:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      - run: npm ci
+
+      # no lint script on the server — type-check instead
+      - run: npx tsc --noEmit
+
+      - run: npm run build
