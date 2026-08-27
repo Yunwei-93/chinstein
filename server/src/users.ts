@@ -11,6 +11,7 @@ interface ProfileRow {
   points: number
   streak: number
   last_studied_date: string | null
+  completed_today: boolean
   learned_character_ids: number[]
   ls_character_id: number | null
   ls_character: string | null
@@ -47,6 +48,8 @@ streak AS (
 totals AS (
   SELECT COALESCE(SUM(points), 0)::int AS points,
          MAX(studied_on)::text         AS last_studied_date,
+         -- both sides are server time now — no browser/server mismatch
+         COALESCE(MAX(studied_on) = CURRENT_DATE, false) AS completed_today,
          ARRAY_REMOVE(ARRAY_AGG(DISTINCT character_id), NULL) AS learned_character_ids
     FROM study_sessions WHERE user_id = $1
 ),
@@ -62,6 +65,7 @@ SELECT u.id, u.name,
        t.points,
        s.value AS streak,
        t.last_studied_date,
+       t.completed_today,
        COALESCE(t.learned_character_ids, '{}') AS learned_character_ids,
        ls.character_id AS ls_character_id,
        ls.character    AS ls_character,
@@ -100,6 +104,7 @@ export async function getUserProfile(userId: number): Promise<UserProfile | null
     badges,
     learnedCharacterIds: row.learned_character_ids,
     lastStudiedDate: row.last_studied_date,
+    completedToday: row.completed_today,
     todayReward: TODAY_REWARD,
     lastSession:
       row.ls_character_id === null

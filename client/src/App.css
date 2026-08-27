@@ -34,6 +34,18 @@ body {
   padding: 32px 40px 40px;
 }
 
+
+/* absolute-position the logout button so the h1 stays centred */
+header {
+  position: relative;
+}
+
+header .logout-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 header h1 {
   margin: 0 0 24px;
   text-align: center;
@@ -413,6 +425,31 @@ header h1 {
 .quiz-option input {
   width: 16px;
   height: 16px;
+}
+
+.form-field {
+  margin-bottom: 12px;
+}
+
+.form-field input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.form-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-field input:disabled {
+  background: var(--surface-muted);
+  cursor: not-allowed;
 }
 
 .inline-feedback {

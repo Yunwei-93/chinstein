@@ -4,20 +4,19 @@ import { TodayCard } from '../components/TodayCard'
 import { BadgeList } from '../components/BadgeList'
 import { Leaderboard } from '../components/Leaderboard'
 import { useNavigate } from 'react-router-dom'
-import { getTodayKey } from '../utils/date'
+
 
 interface HomePageProps {
   user: UserProfile
+  onLogout: () => void
 
 }
 
-function HomePage({ user }: HomePageProps) {
+function HomePage({ user, onLogout }: HomePageProps) {
 
 
   const navigate = useNavigate()
 
-  // derive "done today" from lastStudiedDate instead of storing a separate flag
-  const completedToday = user.lastStudiedDate === getTodayKey()
 
 
   const others: LeaderboardEntry[] = [
@@ -30,6 +29,9 @@ function HomePage({ user }: HomePageProps) {
     <div className="page">
       <header>
         <h1>Chinstein</h1>
+        <button className="secondary-btn small logout-btn" onClick={onLogout}>
+          Log out
+        </button>
       </header>
       <main className="columns">
          <section className="card card-profile">
@@ -53,7 +55,7 @@ function HomePage({ user }: HomePageProps) {
           </section>
 
           <TodayCard 
-            completed={completedToday} 
+            completed={user.completedToday} 
             onStart={() => navigate('/study')} 
           />
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StrokeAnimation } from '../components/StrokeAnimation'
-import { fetchTodayCharacter, submitSession, CURRENT_USER_ID } from '../api'
+import { fetchTodayCharacter, submitSession} from '../api'
 import type { UserProfile, TodayCharacter } from '../types'
 
 interface StudyPageProps {
@@ -30,7 +30,7 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
 
     async function load() {
       try {
-        const data = await fetchTodayCharacter(CURRENT_USER_ID)
+        const data = await fetchTodayCharacter()
  
         // don't setState after unmount — avoids races and leaks
         if (!cancelled) setCharState({ status: 'success', data })
@@ -57,7 +57,7 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
     try {
 
       // the server does the grading; we only submit what the user picked
-      await submitSession(CURRENT_USER_ID, charState.data.id, selected)
+      await submitSession(charState.data.id, selected)
 
       // tell App to refetch — points, streak and badges have all changed
       onSessionComplete()

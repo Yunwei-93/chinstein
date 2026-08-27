@@ -20,6 +20,7 @@ export interface UserProfile {
   badges: string[]
   learnedCharacterIds: number[]
   lastStudiedDate: string | null
+  completedToday: boolean
   todayReward: number
   lastSession: Session | null
 }
