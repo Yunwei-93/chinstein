@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { pool } from '../db.js'
+import { pool, isLocalDatabase } from '../db.js'
 import { characters } from '../data/characters.js'
 import { hashPassword } from '../auth.js'
 
@@ -28,7 +28,7 @@ console.log(`Seeded. characters table now has ${rows[0].count} rows.`)
 const { rows: legacy } = await pool.query<{ id: number }>(
   `SELECT id FROM users WHERE id = 1 AND password_hash IS NULL`
 )
-if (legacy.length > 0) {
+if (isLocalDatabase && legacy.length > 0) {
   await pool.query(
     `UPDATE users SET email = $1, password_hash = $2 WHERE id = 1`,
     ['yunweili1129@gmail.com', await hashPassword('chinstein-dev')]
