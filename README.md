@@ -85,6 +85,18 @@ Treating `unauthenticated` as a normal state rather than an error turned out to 
 wrote an "am I logged in?" check, because fetching the profile answers that question. A 401 just
 means show the login page.
 
+**The production image only carries what it needs to run.** The API's Dockerfile builds in two
+stages: the first installs everything, compiles TypeScript, then prunes the dev dependencies; the
+second starts from a clean base and copies over only `dist` and the remaining `node_modules`. The
+compiler, the type definitions and the `.ts` sources never reach production — 82 MB compressed
+instead of several hundred. Ordering matters too: `package.json` is copied and installed before the
+sources, so editing a route doesn't invalidate the dependency layer.
+
+`CMD` uses the exec form so Node runs as PID 1 and receives SIGTERM directly, and the server handles
+it — closing the listener, letting in-flight requests finish, then draining the Postgres pool.
+`docker stop` went from 3.1 seconds to 0.14, but the real point is that a deploy no longer cuts
+requests off mid-flight.
+
 ## API
 
 Everything except health and the two auth routes needs `Authorization: Bearer <token>`.
@@ -117,6 +129,7 @@ moment there were two.
 | Database | PostgreSQL 17 |
 | Stroke animation | Hanzi Writer |
 | Hosting | Vercel (web), Render (API), Neon (database) |
+| Build & CI | Docker (multi-stage), GitHub Actions |
 
 ## Running it locally
 
@@ -150,6 +163,27 @@ Both `migrate` and `seed` are safe to re-run.
 | `JWT_SECRET` | Signing key — generate a real one with `openssl rand -base64 32` |
 | `JWT_EXPIRES_IN` | Token lifetime, e.g. `7d` |
 | `CORS_ORIGIN` | Comma-separated list of allowed origins |
+
+To run the API the way production does, build the image instead:
+
+```bash
+cd server
+docker build -t chinstein-api .
+docker run --rm -p 3001:3000 --env-file .env.docker chinstein-api
+```
+
+Point `DATABASE_URL` at a managed database rather than the local container — inside the container
+`localhost` means the container itself, not your machine.
+
+## Continuous integration
+
+Every push to `main` and every pull request against it runs two parallel jobs — one per package —
+that install from the lockfile, lint, type-check and build. `main` is protected: changes go through
+a pull request and both checks have to be green before it can be merged. The bypass list is empty,
+so that applies to me too.
+
+There are no automated tests yet, which is the honest gap in this setup; the pipeline is where they
+will go.
 
 ## Layout
 
@@ -188,7 +222,7 @@ a server — once I write those tests.
 - [x] Rate limiting on the auth routes
 - [ ] A real leaderboard endpoint
 - [ ] Integration tests (supertest + PGlite)
-- [ ] Docker and GitHub Actions
+- [x] Docker and GitHub Actions
 - [ ] Claude API for generating etymology
 - [ ] Spaced repetition
 
