@@ -106,7 +106,15 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
               <span className="char-highlight">{character.character}</span>
             </h3>
             <p>{character.pinyin}</p>
-            <p>{character.story}</p>
+            {character.story ? (
+              <p>{character.story}</p>
+            ) : (
+              // the story may not exist yet; degrade with a note instead of a blank gap
+              <p className="story-pending">
+                We're still writing the story for this character. The stroke order
+                and quiz below still work — check back in a moment.
+              </p>
+            )}
           </article>
 
           <StrokeAnimation character={character.character} />

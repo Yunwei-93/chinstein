@@ -342,6 +342,11 @@ header h1 {
   gap: 8px;
 }
 
+/* placeholder when the story isn't ready — muted so it doesn't read as content */
+.story-pending {
+  color: var(--text-muted);
+  font-style: italic;
+}
 
 .story-icon {
   width: 28px;

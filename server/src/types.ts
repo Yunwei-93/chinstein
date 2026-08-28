@@ -5,7 +5,7 @@ export interface Character {
   character: string
   pinyin: string
   meaning: string
-  story: string
+  story: string | null
   level: Level
 }
 
