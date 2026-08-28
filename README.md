@@ -21,7 +21,7 @@ underneath, and accounts so your progress isn't stuck in one browser.
 
 ## Features
 
-- One character a day, picked by date, the same for everyone
+- One character a day, picked by date, the same for everyone — 365 of them, so a year without repeats
 - Etymology story and a stroke-order animation
 - Quiz with wrong options pulled from characters you've already seen
 - Email/password accounts, JWT sessions
@@ -85,6 +85,32 @@ Treating `unauthenticated` as a normal state rather than an error turned out to 
 wrote an "am I logged in?" check, because fetching the profile answers that question. A 401 just
 means show the login page.
 
+**The etymology is written once, by Claude, and then it's a database row.** Only 50 of the 365
+characters shipped with a story I wrote by hand. The rest have `story: null` until someone is the
+first to study them, at which point the API calls the Anthropic API, saves the result, and every
+later reader gets it from Postgres — 1.6 seconds the first time, 20 milliseconds after that. One
+call per character, ever.
+
+The interesting part isn't the API call, it's what happens when two people open the same new
+character at the same moment. A `SELECT` to check plus an `UPDATE` to claim would let both of them
+win the race and pay for the same paragraph twice, so the claim is a single statement instead:
+
+```sql
+UPDATE characters SET story_status = 'generating', story_started_at = NOW()
+ WHERE id = $1 AND (story_status = 'pending'
+                    OR (story_status = 'generating' AND story_started_at < NOW() - INTERVAL '2 minutes'))
+RETURNING id
+```
+
+Postgres locks the row for the duration, so exactly one request gets a row back and the other gets
+nothing. The loser doesn't queue or retry — it just reads the column again, because by then the
+winner may already have written it. The `2 minutes` clause is there so a process that dies
+mid-generation doesn't leave the character stuck in `generating` forever.
+
+If the model returns something unusable — too short, too long, or a refusal — the row goes back to
+`pending` and the page renders without a story rather than failing. The stroke animation and the
+quiz don't depend on it, so losing one paragraph shouldn't cost the whole session.
+
 **The production image only carries what it needs to run.** The API's Dockerfile builds in two
 stages: the first installs everything, compiles TypeScript, then prunes the dev dependencies; the
 second starts from a clean base and copies over only `dist` and the remaining `node_modules`. The
@@ -107,7 +133,7 @@ Everything except health and the two auth routes needs `Authorization: Bearer <t
 | `POST` | `/api/auth/register` | `409` if the email is taken |
 | `POST` | `/api/auth/login` | Same error message whatever went wrong, so you can't probe for valid emails |
 | `GET` | `/api/me` | Profile, with everything derived |
-| `GET` | `/api/characters/today` | Character, story, quiz options — no answer |
+| `GET` | `/api/characters/today` | Character, story, quiz options — no answer. Generates the story on the first request for a character |
 | `POST` | `/api/sessions` | Server grades it; `409` if you already went today |
 
 Passwords go through bcrypt at cost 10. Request bodies are validated with zod. Queries are all
@@ -128,6 +154,7 @@ moment there were two.
 | Auth | bcrypt, jsonwebtoken |
 | Database | PostgreSQL 17 |
 | Stroke animation | Hanzi Writer |
+| Content generation | Anthropic Claude API (Haiku), cached in Postgres |
 | Hosting | Vercel (web), Render (API), Neon (database) |
 | Build & CI | Docker (multi-stage), GitHub Actions |
 
@@ -145,7 +172,7 @@ cd server
 cp .env.example .env              # the defaults point at the local database
 npm install
 npm run migrate                   # create tables
-npm run seed                      # load the 50 characters
+npm run seed                      # load the character set
 npm run dev                       # API on :3000
 
 cd ../client
@@ -155,7 +182,7 @@ npm run dev                       # UI on :5173
 
 Both `migrate` and `seed` are safe to re-run.
 
-`server/.env` wants four values. `.env.example` has ones that work locally:
+`server/.env` wants five values. `.env.example` has ones that work locally:
 
 | Variable | What it's for |
 | --- | --- |
@@ -163,6 +190,7 @@ Both `migrate` and `seed` are safe to re-run.
 | `JWT_SECRET` | Signing key — generate a real one with `openssl rand -base64 32` |
 | `JWT_EXPIRES_IN` | Token lifetime, e.g. `7d` |
 | `CORS_ORIGIN` | Comma-separated list of allowed origins |
+| `ANTHROPIC_API_KEY` | Only needed for characters that don't have a story yet — without it the page degrades to no story |
 
 To run the API the way production does, build the image instead:
 
@@ -214,16 +242,16 @@ a server — once I write those tests.
 
 ## Roadmap
 
-- [x] 50 characters with daily rotation
+- [x] 365 characters with daily rotation
 - [x] Routing, stroke animations, quiz and scoring
 - [x] Express + TypeScript API on PostgreSQL
 - [x] Accounts and JWT auth
 - [x] Deployed end to end
 - [x] Rate limiting on the auth routes
-- [ ] A real leaderboard endpoint
-- [ ] Integration tests (supertest + PGlite)
 - [x] Docker and GitHub Actions
-- [ ] Claude API for generating etymology
+- [x] Claude API for generating etymology
+- [ ] Integration tests (supertest + PGlite)
+- [ ] A real leaderboard endpoint
 - [ ] Spaced repetition
 
 ## What's not done
@@ -244,5 +272,10 @@ a server — once I write those tests.
   hand.
 - **No tests right now.** The badge unit tests went away when that logic moved to the server and I
   haven't written the backend ones yet.
-- **Stroke data comes from a CDN.** Hanzi Writer fetches it from jsDelivr at runtime. Bundling 50
-  characters locally would drop the dependency.
+- **Stroke data comes from a CDN.** Hanzi Writer fetches it from jsDelivr at runtime. Bundling all
+  365 characters locally would trade a runtime dependency for about a megabyte of bundle — at 50
+  characters that was an easy call, at 365 it's an actual trade-off.
+- **The generated etymologies haven't been reviewed.** 50 characters ship with a story I wrote by
+  hand; the other 315 come from the model. The prompt tells it to describe the character's visual
+  composition when it isn't confident rather than invent a source, but checking them against
+  漢語多功能字庫 is still on the list.
