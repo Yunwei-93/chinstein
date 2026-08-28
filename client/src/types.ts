@@ -30,7 +30,7 @@ export interface TodayCharacter {
   id: number
   character: string
   pinyin: string
-  story: string
+  story: string | null
   level: Level
   options: string[]
 }

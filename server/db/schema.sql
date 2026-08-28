@@ -1,3 +1,5 @@
+
+
 --  idempotent: safe to run more than once
 CREATE TABLE IF NOT EXISTS characters (
   id         SERIAL PRIMARY KEY,
@@ -7,6 +9,43 @@ CREATE TABLE IF NOT EXISTS characters (
   story      TEXT NOT NULL,
   level      TEXT NOT NULL
 );
+
+-- story is now optional — new characters are seeded without one and filled in on demand
+ALTER TABLE characters 
+ALTER COLUMN story 
+DROP NOT NULL;
+
+ALTER TABLE characters 
+ADD COLUMN 
+IF NOT EXISTS story_status TEXT NOT NULL DEFAULT 'pending';
+
+-- lets a stuck 'generating' row be reclaimed after a timeout
+ALTER TABLE characters 
+ADD COLUMN 
+IF NOT EXISTS story_started_at TIMESTAMPTZ;
+
+-- track provenance: hand-written vs model-generated
+ALTER TABLE characters 
+ADD COLUMN 
+IF NOT EXISTS story_source TEXT;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 
+    FROM pg_constraint 
+    WHERE conname = 'characters_story_status_check'
+  ) THEN
+    ALTER TABLE characters 
+    ADD CONSTRAINT characters_story_status_check
+      CHECK (story_status IN ('pending', 'generating', 'ready'));
+  END IF;
+END $$;
+
+UPDATE characters
+   SET story_status = 'ready',
+       story_source = COALESCE(story_source, 'seed')
+ WHERE story IS NOT NULL AND story_status <> 'ready';
 
 CREATE TABLE IF NOT EXISTS users (
   id         SERIAL PRIMARY KEY,
