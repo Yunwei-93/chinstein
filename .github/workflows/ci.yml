@@ -78,8 +78,8 @@ jobs:
       - name: Run server tests
         run: npm test
 
-      - name: Type-check server
-        run: npx tsc --noEmit
+      - name: Type-check server and tests
+        run: npm run test:typecheck
 
       - name: Build server
         run: npm run build
