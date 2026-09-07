@@ -21,6 +21,24 @@ export function clearToken(): void {
 // thrown on 401 so callers can tell "log in again" from other failures
 export class UnauthorizedError extends Error {}
 
+interface ErrorResponse {
+  error?: string
+  code?: string
+}
+
+export class ApiError extends Error {
+  readonly status: number
+  readonly code?: string
+
+  constructor(message: string, status: number, code?: string) {
+    super(message)
+    this.name = 'ApiError'
+    this.status = status
+    this.code = code
+  }
+}
+
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   const token = getToken()
@@ -49,8 +67,13 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (!res.ok) {
-    const body = await res.json().catch(() => null)
-    throw new Error(body?.error ?? `Request failed (${res.status})`)
+    const body = (await res.json().catch(() => null)) as ErrorResponse | null
+
+    throw new ApiError(
+      body?.error ?? `Request failed (${res.status})`,
+      res.status,
+      body?.code,
+    )
   }
 
   return res.json() as Promise<T>

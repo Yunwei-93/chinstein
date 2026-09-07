@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { StrokeAnimation } from '../components/StrokeAnimation'
-import { fetchTodayCharacter, submitSession} from '../api'
+import {
+  ApiError,
+  UnauthorizedError,
+  fetchTodayCharacter,
+  submitSession,
+} from '../api'
 import type { UserProfile, TodayCharacter } from '../types'
 
 interface StudyPageProps {
   user: UserProfile
-  onSessionComplete: () => void
+  onUserRefresh: () => void
 }
 
 // same pattern as App.tsx, this one tracks the today-character request
@@ -15,15 +20,20 @@ type Async<T> =
   | { status: 'error'; message: string }
   | { status: 'success'; data: T }
 
-function StudyPage({ user, onSessionComplete }: StudyPageProps) {
+type SubmitFailure = {
+  message: string
+  recovery?: 'view-result' | 'reload-lesson'
+}
+
+function StudyPage({ user, onUserRefresh }: StudyPageProps) {
   const navigate = useNavigate()
 
   const [charState, setCharState] = useState<Async<TodayCharacter>>({ status: 'loading' })
   const [selected, setSelected] = useState<string | null>(null)
 
-  // submission state: null = not submitted, string = why it failed
+  // null means no failure; otherwise stores the message and recovery action
   const [submitting, setSubmitting] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitFailure, setSubmitFailure] = useState<SubmitFailure | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -31,28 +41,34 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
     async function load() {
       try {
         const data = await fetchTodayCharacter()
- 
+
         // don't setState after unmount — avoids races and leaks
         if (!cancelled) setCharState({ status: 'success', data })
       } catch (err) {
-        if (!cancelled) {
-          setCharState({
-            status: 'error',
-            message: err instanceof Error ? err.message : 'Failed to load',
-          })
+
+        if (cancelled) return
+        if (err instanceof UnauthorizedError) {
+          onUserRefresh()
+          return
         }
+
+        setCharState({
+          status: 'error',
+          message: err instanceof Error ? err.message : 'Failed to load',
+        })
+
       }
     }
 
     load()
     return () => { cancelled = true }
-  }, [])
+  }, [onUserRefresh])
 
   async function handleSubmit() {
     if (!selected || charState.status !== 'success') return
 
     setSubmitting(true)
-    setSubmitError(null)
+    setSubmitFailure(null)
 
     try {
 
@@ -60,11 +76,48 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
       await submitSession(charState.data.id, selected)
 
       // tell App to refetch — points, streak and badges have all changed
-      onSessionComplete()
+      onUserRefresh()
 
       navigate('/result')
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Submission failed')
+
+      if (err instanceof UnauthorizedError) {
+        onUserRefresh()
+        return
+      }
+
+      let failure: SubmitFailure = {
+        message: 'Submission failed',
+      }
+
+      if (err instanceof ApiError) {
+        switch (err.code) {
+          case 'ALREADY_STUDIED_TODAY':
+            failure = {
+              message: "You've already completed today's lesson.",
+              recovery: 'view-result',
+            }
+            break
+          case 'NOT_TODAYS_CHARACTER':
+            failure = {
+              message: "Today's character has changed. Reload the lesson to continue.",
+              recovery: 'reload-lesson',
+            }
+            break
+          case 'CHARACTER_NOT_FOUND':
+            failure = {
+              message: 'This character is no longer available. Reload the lesson.',
+              recovery: 'reload-lesson',
+            }
+            break
+          default:
+            failure = { message: err.message }
+        }
+      } else if (err instanceof Error) {
+        failure = { message: err.message }
+      }
+
+      setSubmitFailure(failure)
       setSubmitting(false)
     }
   }
@@ -91,6 +144,7 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
   }
 
   const character = charState.data
+  const requiresRecovery = submitFailure?.recovery !== undefined
 
   return (
     <div className="page">
@@ -133,7 +187,7 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
                 name="quiz-answer"
                 value={option}
                 checked={selected === option}
-                disabled={submitting}
+                disabled={submitting || requiresRecovery}
                 onChange={() => setSelected(option)}
               />
               {option}
@@ -142,14 +196,39 @@ function StudyPage({ user, onSessionComplete }: StudyPageProps) {
 
           <button
             className="primary-btn"
-            disabled={!selected || submitting}
+            disabled={!selected || submitting || requiresRecovery}
             onClick={handleSubmit}
           >
             {submitting ? 'Submitting…' : 'Submit'}
           </button>
 
-          {submitError && (
-            <p className="inline-feedback visible error">{submitError}</p>
+          {submitFailure && (
+            <>
+              <p className="inline-feedback visible error">
+                {submitFailure.message}
+              </p>
+
+              {submitFailure.recovery === 'view-result' && (
+                <button
+                  className="secondary-btn"
+                  onClick={() => {
+                    onUserRefresh()
+                    navigate('/result', { replace: true })
+                  }}
+                >
+                  View today's result
+                </button>
+              )}
+
+              {submitFailure.recovery === 'reload-lesson' && (
+                <button
+                  className="secondary-btn"
+                  onClick={() => navigate(0)}
+                >
+                  Reload lesson
+                </button>
+              )}
+            </>
           )}
 
           <p className="subtitle secondary">

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { login, register, setToken } from '../api'
 
 interface LoginPageProps {
-  // notify App on success, same pattern as onSessionComplete
+  // notify App after authentication so it can reload the user
   onAuthenticated: () => void
 }
 

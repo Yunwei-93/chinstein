@@ -115,6 +115,7 @@ describe('POST /api/sessions', () => {
     expect(sessionResponse.status).toBe(409)
     expect(sessionResponse.body).toEqual({
       error: "Character is not today's character",
+      code: 'NOT_TODAYS_CHARACTER',
     })
 
     const countResult = await pool.query<{ count: number }>(
@@ -263,6 +264,7 @@ describe('POST /api/sessions', () => {
     expect(secondResponse.status).toBe(409)
     expect(secondResponse.body).toEqual({
       error: 'Already studied today',
+      code: 'ALREADY_STUDIED_TODAY',
     })
 
     const countResult = await pool.query<{ count: number }>(
@@ -293,6 +295,7 @@ describe('POST /api/sessions', () => {
     expect(sessionResponse.status).toBe(404)
     expect(sessionResponse.body).toEqual({
       error: 'Character not found',
+      code: 'CHARACTER_NOT_FOUND',
     })
 
     const countResult = await pool.query<{ count: number }>(

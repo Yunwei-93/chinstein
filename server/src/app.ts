@@ -62,13 +62,13 @@ app.get('/api/me', requireAuth, async (req, res) => {
       return
     }
     res.json(profile)
-  
+
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
-  
+
 
 
 // zod validates the body at runtime — the Pydantic equivalent
@@ -92,18 +92,25 @@ app.post('/api/sessions', requireAuth, async (req, res) => {
     res.status(201).json(session)
   } catch (err) {
     if (err instanceof AlreadyStudiedTodayError) {
-      res.status(409).json({ error: 'Already studied today' })
+      res.status(409).json({
+        error: 'Already studied today',
+        code: 'ALREADY_STUDIED_TODAY',
+      })
       return
     }
     if (err instanceof NotTodayCharacterError) {
       res.status(409).json({
         error: "Character is not today's character",
+        code: 'NOT_TODAYS_CHARACTER',
       })
       return
     }
 
     if (err instanceof CharacterNotFoundError) {
-      res.status(404).json({ error: 'Character not found' })
+      res.status(404).json({
+        error: 'Character not found',
+        code: 'CHARACTER_NOT_FOUND',
+      })
       return
     }
 
