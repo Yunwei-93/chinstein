@@ -36,9 +36,30 @@ jobs:
 
   server:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: chinstein_test
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: chinstein_test
+        ports:
+          - "5433:5432"
+        options: >-
+          --health-cmd "pg_isready -U chinstein_test -d chinstein_test"
+          --health-interval 2s
+          --health-timeout 3s
+          --health-retries 10
+
     defaults:
       run:
         working-directory: server
+
+    env:
+      DATABASE_URL: postgresql://chinstein_test:test-only-password@127.0.0.1:5433/chinstein_test
+      JWT_SECRET: test-only-jwt-secret-at-least-32-characters
+      JWT_EXPIRES_IN: 1h
 
     steps:
       - uses: actions/checkout@v4
@@ -51,7 +72,14 @@ jobs:
 
       - run: npm ci
 
-      # no lint script on the server — type-check instead
-      - run: npx tsc --noEmit
+      - name: Apply test database schema
+        run: npm run migrate
 
-      - run: npm run build
+      - name: Run server tests
+        run: npm test
+
+      - name: Type-check server and tests
+        run: npm run test:typecheck
+
+      - name: Build server
+        run: npm run build

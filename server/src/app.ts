@@ -7,6 +7,7 @@ import {
   createSession,
   AlreadyStudiedTodayError,
   CharacterNotFoundError,
+  NotTodayCharacterError,
 } from './sessions.js'
 import cors from 'cors'
 import { hashPassword, verifyPassword, signToken, requireAuth } from './auth.js'
@@ -94,10 +95,18 @@ app.post('/api/sessions', requireAuth, async (req, res) => {
       res.status(409).json({ error: 'Already studied today' })
       return
     }
+    if (err instanceof NotTodayCharacterError) {
+      res.status(409).json({
+        error: "Character is not today's character",
+      })
+      return
+    }
+
     if (err instanceof CharacterNotFoundError) {
       res.status(404).json({ error: 'Character not found' })
       return
     }
+
     console.error(err)
     res.status(500).json({ error: 'Internal server error' })
   }
