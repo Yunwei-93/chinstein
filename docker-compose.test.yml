@@ -1,3 +1,4 @@
+name: chinstein-v2-test
 services:
   test-db:
     image: postgres:17
@@ -20,3 +21,5 @@ services:
 
     tmpfs:
       - /var/lib/postgresql/data
+    volumes:
+      - ./server/db/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
