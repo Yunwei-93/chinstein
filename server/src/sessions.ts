@@ -2,10 +2,12 @@ import { pool } from './db.js'
 import { getUserProfile, TODAY_REWARD } from './users.js'
 import { getNewBadges } from './badges.js'
 import type { Session } from './types.js'
+import { getTodayCharacter } from './characters.js'
 
 // custom error types so the route layer can map each to a different HTTP code
 export class AlreadyStudiedTodayError extends Error {}
 export class CharacterNotFoundError extends Error {}
+export class NotTodayCharacterError extends Error {}
 
 export async function createSession(
   userId: number,
@@ -24,6 +26,10 @@ export async function createSession(
   )
   const character = rows[0]
   if (!character) throw new CharacterNotFoundError()
+  const todayCharacter = await getTodayCharacter()
+  if (todayCharacter?.id !== characterId) {
+    throw new NotTodayCharacterError()
+  }
 
   const isCorrect = answer === character.meaning
   const gainedPoints = isCorrect ? TODAY_REWARD : 0
