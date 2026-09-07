@@ -90,7 +90,7 @@ function App() {
       <Route path="/" element={<HomePage user={user} onLogout={handleLogout} />} />
       <Route
         path="/study"
-        element={<StudyPage user={user} onSessionComplete={reload} />}
+        element={<StudyPage user={user} onUserRefresh={reload} />}
       />
       <Route path="/result" element={<ResultPage user={user} />} />
     </Routes>
