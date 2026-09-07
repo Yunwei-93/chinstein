@@ -53,6 +53,8 @@ benefit is that changing a badge rule applies retroactively without a migration.
 **The client doesn't get to decide anything.** When you submit a quiz answer the request body is
 just `{ characterId, answer }`. The server looks up the correct meaning itself, works out the
 score itself, and stamps the date from Postgres `CURRENT_DATE` so you can't backfill a streak.
+It also recomputes the daily character before inserting the session, so a valid token cannot be
+used to submit a different character through a custom API request.
 `GET /api/characters/today` leaves the `meaning` field out of the response entirely, so the answer
 never reaches the browser. After I added auth, the user id comes out of the JWT signature — the
 client can't even claim to be someone.
@@ -134,7 +136,7 @@ Everything except health and the two auth routes needs `Authorization: Bearer <t
 | `POST` | `/api/auth/login` | Same error message whatever went wrong, so you can't probe for valid emails |
 | `GET` | `/api/me` | Profile, with everything derived |
 | `GET` | `/api/characters/today` | Character, story, quiz options — no answer. Generates the story on the first request for a character |
-| `POST` | `/api/sessions` | Server grades it; `409` if you already went today |
+| `POST` | `/api/sessions` | Server grades it; `409` if you already went today or submit a character other than today's |
 
 Passwords go through bcrypt at cost 10. Request bodies are validated with zod. Queries are all
 parameterised.
@@ -203,15 +205,38 @@ docker run --rm -p 3001:3000 --env-file .env.docker chinstein-api
 Point `DATABASE_URL` at a managed database rather than the local container — inside the container
 `localhost` means the container itself, not your machine.
 
+## Testing
+
+The server test suite uses Vitest and Supertest against a disposable PostgreSQL 17 database.
+The test database runs on port 5433, loads `server/db/schema.sql` automatically, and stores its
+data in `tmpfs` so it never shares state with the development database.
+
+From the repository root:
+
+```bash
+docker compose -f docker-compose.test.yml up -d --wait
+
+cd server
+npm ci
+npm test
+npm run test:typecheck
+npm run build
+```
+
+The integration tests exercise registration, login, JWT-protected routes, database constraints,
+server-side scoring, one-session-per-day enforcement, and rejection of character IDs that do not
+match the daily character. Destructive cleanup checks the test database URL before truncating any
+tables, and test files run serially because they share one database.
+
 ## Continuous integration
 
-Every push to `main` and every pull request against it runs two parallel jobs — one per package —
-that install from the lockfile, lint, type-check and build. `main` is protected: changes go through
-a pull request and both checks have to be green before it can be merged. The bypass list is empty,
-so that applies to me too.
+Every push to `main` and every pull request against it runs two jobs — one per package. The client
+job installs from the lockfile, lints, type-checks and builds. The server job starts PostgreSQL 17,
+applies the schema, runs the Vitest suite, type-checks both production and test code, and builds the
+server.
 
-There are no automated tests yet, which is the honest gap in this setup; the pipeline is where they
-will go.
+`main` is protected: changes go through a pull request and both checks have to be green before they
+can be merged. The bypass list is empty, so that applies to me too.
 
 ## Layout
 
@@ -224,7 +249,10 @@ client/src/
 └── App.tsx         routing, the async user fetch, the refetch callback
 
 server/
-├── db/schema.sql   characters / users / study_sessions
+├── db/schema.sql       characters / users / study_sessions
+├── tests/              route and PostgreSQL integration tests
+├── vitest.config.ts    isolated test environment
+├── tsconfig.test.json  type-checks production and test code
 └── src/
     ├── app.ts          routes and nothing else
     ├── auth.ts         bcrypt, JWT, the requireAuth middleware
@@ -237,8 +265,9 @@ server/
 ```
 
 Routes call business logic, business logic calls the database, and never the other way round. The
-business modules don't import `req` or `res` at all, which means I can test them without starting
-a server — once I write those tests.
+business modules don't import `req` or `res` at all. Supertest sends requests directly to the
+Express app without opening a network port, while the integration suite verifies the resulting
+rows and constraints in a real PostgreSQL database.
 
 ## Roadmap
 
@@ -250,7 +279,7 @@ a server — once I write those tests.
 - [x] Rate limiting on the auth routes
 - [x] Docker and GitHub Actions
 - [x] Claude API for generating etymology
-- [ ] Integration tests (supertest + PGlite)
+- [x] Integration tests (Vitest + Supertest + PostgreSQL 17)
 - [ ] A real leaderboard endpoint
 - [ ] Spaced repetition
 
@@ -270,8 +299,9 @@ a server — once I write those tests.
   right answer. I tied "one submission" and "one chance to learn" together without meaning to.
 - **Two copies of `types.ts`.** Client and server are separate npm packages and I sync them by
   hand.
-- **No tests right now.** The badge unit tests went away when that logic moved to the server and I
-  haven't written the backend ones yet.
+- **No browser end-to-end tests yet.** The backend authentication and study-session paths are
+  covered against PostgreSQL, but the React flows and deployed Vercel-to-Render path still need
+  Playwright coverage.
 - **Stroke data comes from a CDN.** Hanzi Writer fetches it from jsDelivr at runtime. Bundling all
   365 characters locally would trade a runtime dependency for about a megabyte of bundle — at 50
   characters that was an easy call, at 365 it's an actual trade-off.
