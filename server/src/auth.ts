@@ -46,9 +46,18 @@ export const requireAuth: RequestHandler = (req, res, next) => {
   const token = header.slice('Bearer '.length)
 
   try {
-    const payload = jwt.verify(token, getSecret()) as { userId: number }
+    const payload = jwt.verify(token, getSecret())
+    if (
+      typeof payload !== 'object' ||
+      payload === null ||
+      typeof payload.userId !== 'number' ||
+      !Number.isInteger(payload.userId) ||
+      payload.userId <= 0
+    ) {
+      throw new Error('Invalid token payload')
+    }
     req.userId = payload.userId
-    next()         
+    next()
   } catch {
     res.status(401).json({ error: 'Invalid or expired token' })
   }

@@ -235,4 +235,36 @@ describe('authentication integration', () => {
     })
   })
 
+  it('uses the token identity instead of a client-supplied user ID', async () => {
+    const aliceResponse = await request(app)
+      .post('/api/auth/register')
+      .send({
+        name: 'Alice',
+        email: 'alice-isolation@example.com',
+        password: 'test-password-123',
+      })
+
+    const bobResponse = await request(app)
+      .post('/api/auth/register')
+      .send({
+        name: 'Bob',
+        email: 'bob-isolation@example.com',
+        password: 'test-password-123',
+      })
+
+    expect(aliceResponse.status).toBe(201)
+    expect(bobResponse.status).toBe(201)
+
+    const profileResponse = await request(app)
+      .get(`/api/me?userId=${bobResponse.body.user.id}`)
+      .set('Authorization', `Bearer ${aliceResponse.body.token}`)
+
+    expect(profileResponse.status).toBe(200)
+    expect(profileResponse.body).toMatchObject({
+      id: aliceResponse.body.user.id,
+      name: 'Alice',
+    })
+
+    expect(profileResponse.body.id).not.toBe(bobResponse.body.user.id)
+  })
 })
