@@ -68,7 +68,7 @@ describe('authentication integration', () => {
     expect(result.rows[0]!.password_hash).not.toBe('test-password-123')
   })
 
-    it('logs in a registered user', async () => {
+  it('logs in a registered user', async () => {
     const registrationResponse = await request(app)
       .post('/api/auth/register')
       .send({
@@ -93,7 +93,7 @@ describe('authentication integration', () => {
     })
   })
 
-    it('rejects an incorrect password', async () => {
+  it('rejects an incorrect password', async () => {
     const registrationResponse = await request(app)
       .post('/api/auth/register')
       .send({
@@ -117,7 +117,7 @@ describe('authentication integration', () => {
     })
   })
 
-    it('does not reveal whether an email is registered', async () => {
+  it('does not reveal whether an email is registered', async () => {
     const response = await request(app)
       .post('/api/auth/login')
       .send({
@@ -131,7 +131,7 @@ describe('authentication integration', () => {
     })
   })
 
-    it('rejects a duplicate email regardless of casing', async () => {
+  it('rejects a duplicate email regardless of casing', async () => {
     const firstResponse = await request(app)
       .post('/api/auth/register')
       .send({
@@ -166,7 +166,7 @@ describe('authentication integration', () => {
     expect(result.rows[0]!.count).toBe(1)
   })
 
-    it('uses a registration token to access the user profile', async () => {
+  it('uses a registration token to access the user profile', async () => {
     const registrationResponse = await request(app)
       .post('/api/auth/register')
       .send({
@@ -196,4 +196,43 @@ describe('authentication integration', () => {
       lastSession: null,
     })
   })
+
+  it('rejects registration passwords longer than 72 UTF-8 bytes', async () => {
+    const response = await request(app)
+      .post('/api/auth/register')
+      .send({
+        name: 'Long Password User',
+        email: 'long-password@example.com',
+        password: '汉'.repeat(25),
+      })
+
+    expect(Buffer.byteLength('汉'.repeat(25), 'utf8')).toBe(75)
+    expect(response.status).toBe(400)
+    expect(response.body).toMatchObject({
+      error: 'Invalid request body',
+    })
+  })
+
+  it('accepts a registration password exactly 72 UTF-8 bytes', async () => {
+    const password = '汉'.repeat(24)
+
+    expect(Buffer.byteLength(password, 'utf8')).toBe(72)
+
+    const response = await request(app)
+      .post('/api/auth/register')
+      .send({
+        name: 'Boundary Password User',
+        email: 'boundary-password@example.com',
+        password,
+      })
+
+    expect(response.status).toBe(201)
+    expect(response.body).toMatchObject({
+      token: expect.any(String),
+      user: {
+        name: 'Boundary Password User',
+      },
+    })
+  })
+
 })
