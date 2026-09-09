@@ -25,6 +25,11 @@ type SubmitFailure = {
   recovery?: 'view-result' | 'reload-lesson'
 }
 
+type ReviewResult = {
+  isCorrect: boolean
+  correctAnswer: string
+}
+
 function StudyPage({ user, onUserRefresh }: StudyPageProps) {
   const navigate = useNavigate()
 
@@ -34,6 +39,7 @@ function StudyPage({ user, onUserRefresh }: StudyPageProps) {
   // null means no failure; otherwise stores the message and recovery action
   const [submitting, setSubmitting] = useState(false)
   const [submitFailure, setSubmitFailure] = useState<SubmitFailure | null>(null)
+  const [reviewResult, setReviewResult] = useState<ReviewResult | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -66,6 +72,28 @@ function StudyPage({ user, onUserRefresh }: StudyPageProps) {
 
   async function handleSubmit() {
     if (!selected || charState.status !== 'success') return
+
+    if (user.completedToday) {
+      const previousSession = user.lastSession
+
+      if (
+        !previousSession ||
+        previousSession.characterId !== charState.data.id
+      ) {
+
+        setSubmitFailure({
+          message: "Today's review result is unavailable.",
+          recovery: 'view-result',
+        })
+        return
+      }
+
+      setReviewResult({
+        isCorrect: selected === previousSession.meaning,
+        correctAnswer: previousSession.meaning,
+      })
+      return
+    }
 
     setSubmitting(true)
     setSubmitFailure(null)
@@ -144,6 +172,7 @@ function StudyPage({ user, onUserRefresh }: StudyPageProps) {
   }
 
   const character = charState.data
+  const isReview = user.completedToday
   const requiresRecovery = submitFailure?.recovery !== undefined
 
   return (
@@ -175,7 +204,9 @@ function StudyPage({ user, onUserRefresh }: StudyPageProps) {
         </section>
 
         <section className="card card-quiz">
-          <h2>Step 2 – Answer the quiz</h2>
+          <h2>
+            {isReview ? 'Step 2 – Review the quiz' : 'Step 2 – Answer the quiz'}
+          </h2>
           <p className="quiz-question">
             What does <span className="char-highlight">{character.character}</span> mean?
           </p>
@@ -188,7 +219,10 @@ function StudyPage({ user, onUserRefresh }: StudyPageProps) {
                 value={option}
                 checked={selected === option}
                 disabled={submitting || requiresRecovery}
-                onChange={() => setSelected(option)}
+                onChange={() => {
+                  setSelected(option)
+                  setReviewResult(null)
+                }}
               />
               {option}
             </label>
@@ -199,8 +233,33 @@ function StudyPage({ user, onUserRefresh }: StudyPageProps) {
             disabled={!selected || submitting || requiresRecovery}
             onClick={handleSubmit}
           >
-            {submitting ? 'Submitting…' : 'Submit'}
+            {submitting
+              ? 'Submitting…'
+              : isReview
+                ? 'Check answer'
+                : 'Submit'}
           </button>
+
+          {reviewResult && (
+            <p
+              className={`inline-feedback visible${
+                reviewResult.isCorrect ? '' : ' error'
+              }`}
+            >
+              {reviewResult.isCorrect
+                ? 'Correct! Reviewing does not change your points.'
+                : `Not quite. The correct answer is "${reviewResult.correctAnswer}".`}
+            </p>
+          )}
+
+          {isReview && submitFailure?.recovery !== 'view-result' && (
+            <button
+              className="secondary-btn"
+              onClick={() => navigate('/result')}
+            >
+              View today's result
+            </button>
+          )}
 
           {submitFailure && (
             <>
