@@ -42,6 +42,20 @@ The quiz option query uses `ORDER BY RANDOM()`. The characters table currently
 contains only a few hundred rows, so this is not assumed to be a bottleneck.
 Revisit it only if measurements or future dataset growth justify a change.
 
+### Leaderboard aggregation
+
+`GET /api/leaderboard` currently aggregates all studied users and calculates
+`RANK()` and `ROW_NUMBER()` on every request. M1.5 intentionally adds no
+leaderboard-specific cache, materialized view, or index before measuring a
+baseline.
+
+Use this endpoint as the global aggregation read scenario in M3, alongside the
+per-user `GET /api/me` scenario. Seed only synthetic display names such as
+`player_00042`; do not derive names from email addresses or use real user data.
+
+Measure query plans, latency, response size, database utilization, and cache
+tradeoffs before choosing an optimization.
+
 ## Experiment rule
 
 Choose the M3 optimization from measured evidence such as k6 results,

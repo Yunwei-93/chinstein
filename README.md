@@ -4,8 +4,9 @@ Learn one Chinese character a day — a short story about where it came from, an
 
 **Live demo:** [chinstein.vercel.app](https://chinstein.vercel.app)
 
-Signing up needs an email and a password, nothing else. The API is on Render's free tier, which
-sleeps after 15 minutes, so the first request can take a minute while it wakes up. Sorry about that.
+Signing up requires a display name, email, and password. The display name is shown on the
+leaderboard. The API is on Render's free tier, which sleeps after 15 minutes, so the first request
+can take a minute while it wakes up. Sorry about that.
 
 ![Chinstein home page](docs/screenshot.png)
 
@@ -26,6 +27,7 @@ underneath, and accounts so your progress isn't stuck in one browser.
 - Quiz with wrong options pulled from characters you've already seen
 - Email/password accounts, JWT sessions
 - Points, streaks, badges
+- A real top-10 leaderboard with shared ranks for tied scores
 - One submission per day
 
 ![The study page](docs/study.jpg)
@@ -132,11 +134,16 @@ Everything except health and the two auth routes needs `Authorization: Bearer <t
 | Method | Path | Notes |
 | --- | --- | --- |
 | `GET` | `/api/health` | Checks the database too, not just the process |
-| `POST` | `/api/auth/register` | `409` if the email is taken |
+| `POST` | `/api/auth/register` | Requires a 2–40 character display name without `@`; `409` if the email is taken |
 | `POST` | `/api/auth/login` | Same error message whatever went wrong, so you can't probe for valid emails |
 | `GET` | `/api/me` | Profile, with everything derived |
+| `GET` | `/api/leaderboard` | Top 10 studied users plus the authenticated user's rank |
 | `GET` | `/api/characters/today` | Character, story, quiz options — no answer. Generates the story on the first request for a character |
 | `POST` | `/api/sessions` | Server grades it; `409` if you already went today or submit a character other than today's |
+
+Leaderboard ranks are derived from study sessions. Equal scores share a rank, while the response
+is limited to ten users with stable user-ID ordering. Existing users remain private by default and
+appear as `player_<id>` unless they have explicitly chosen to publish a display name.
 
 Passwords go through bcrypt at cost 10. Request bodies are validated with zod. Queries are all
 parameterised.
@@ -280,7 +287,7 @@ rows and constraints in a real PostgreSQL database.
 - [x] Docker and GitHub Actions
 - [x] Claude API for generating etymology
 - [x] Integration tests (Vitest + Supertest + PostgreSQL 17)
-- [ ] A real leaderboard endpoint
+- [x] A real leaderboard endpoint
 - [ ] Spaced repetition
 
 ## What's not done
@@ -288,8 +295,6 @@ rows and constraints in a real PostgreSQL database.
 - **Rate limiting is per IP and per process.** It stops casual brute force, but anyone with a
   proxy pool walks around it, and a shared office or campus IP gets throttled unfairly. Account-level
   limits and a captcha would be the next layer.
-- **The leaderboard is fake.** The other two users are hard-coded in `HomePage`. Slightly funny
-  that it only became worth building for real once there were accounts.
 - **"Today" is whatever the server says it is.** Every date now comes from one clock, which fixed
   a bug where the browser and the database disagreed about whether you'd studied. But it means
   someone in Tokyo gets a new character at 9am local, not midnight. Proper fix is storing each

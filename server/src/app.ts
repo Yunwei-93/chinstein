@@ -12,6 +12,8 @@ import {
 import cors from 'cors'
 import { hashPassword, verifyPassword, signToken, requireAuth } from './auth.js'
 import { loginLimiter, registerLimiter } from './rateLimit.js'
+import { getLeaderboard } from './leaderboard.js'
+
 
 export const app = express()
 
@@ -55,6 +57,7 @@ app.get('/api/characters/today', requireAuth, async (req, res) => {
 
 app.get('/api/me', requireAuth, async (req, res) => {
   try {
+
     const profile = await getUserProfile(req.userId!)
     // path params are always strings — convert and validate yourself
     if (!profile) {
@@ -63,6 +66,22 @@ app.get('/api/me', requireAuth, async (req, res) => {
     }
     res.json(profile)
 
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+app.get('/api/leaderboard', requireAuth, async (req, res) => {
+  try {
+    const leaderboard = await getLeaderboard(req.userId!)
+
+    if (!leaderboard) {
+      res.status(404).json({ error: 'User not found' })
+      return
+    }
+
+    res.json(leaderboard)
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Internal server error' })
@@ -136,9 +155,15 @@ const registerSchema = z.object({
         message: `Password must be at most ${BCRYPT_MAX_PASSWORD_BYTES} UTF-8 bytes`,
       },
     ),
-  name: z.string().min(1).optional(),
+  name: z
+    .string()
+    .trim()
+    .min(2)
+    .max(40)
+    .refine(name => !name.includes('@'), {
+      message: 'Display name cannot contain @',
+    }),
 })
-
 
 // login only needs a non-empty string; enforcing the policy here would leak it
 const loginSchema = z.object({
@@ -153,15 +178,20 @@ app.post('/api/auth/register', registerLimiter, async (req, res) => {
     return
   }
 
-  const { email, password, name } = parsed.data
-  const displayName = name ?? email.split('@')[0]
+  const { email, password, name: displayName } = parsed.data
 
   try {
     const password_hash = await hashPassword(password)
 
     // normalise the email so casing doesn't create duplicate accounts
     const { rows } = await pool.query<{ id: number }>(
-      `INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id`,
+      `INSERT INTO users (
+          name,
+          email,
+          password_hash,
+          leaderboard_name_public
+      ) VALUES ($1, $2, $3, TRUE)
+      RETURNING id`,
       [displayName, email.toLowerCase(), password_hash]
     )
 

@@ -36,6 +36,20 @@ export interface TodayCharacter {
 }
 
 export interface LeaderboardEntry {
+  userId: number
   name: string
   points: number
+  rank: number
+}
+
+export interface LeaderboardCurrentUser {
+  userId: number
+  name: string
+  points: number
+  rank: number | null
+}
+
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[]
+  currentUser: LeaderboardCurrentUser
 }

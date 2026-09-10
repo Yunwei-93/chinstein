@@ -35,7 +35,7 @@ describe('authentication integration', () => {
     const response = await request(app)
       .post('/api/auth/register')
       .send({
-        name: 'Test User',
+        name: '  Test User  ',
         email: 'TEST@example.com',
         password: 'test-password-123',
       })
@@ -53,9 +53,10 @@ describe('authentication integration', () => {
       name: string
       email: string
       password_hash: string
+      leaderboard_name_public: boolean
     }>(
       `
-        SELECT name, email, password_hash
+        SELECT name, email, password_hash, leaderboard_name_public
         FROM users
         WHERE email = $1
       `,
@@ -66,6 +67,60 @@ describe('authentication integration', () => {
     expect(result.rows[0]!.name).toBe('Test User')
     expect(result.rows[0]!.email).toBe('test@example.com')
     expect(result.rows[0]!.password_hash).not.toBe('test-password-123')
+    expect(result.rows[0]!.leaderboard_name_public).toBe(true)
+  })
+
+  it.each([
+    ['missing', undefined, '198.51.100.10'],
+    ['shorter than two characters', 'A', '198.51.100.11'],
+    ['longer than 40 characters', 'A'.repeat(41), '198.51.100.12'],
+    ['containing @', 'person@example.com', '198.51.100.13'],
+  ])('rejects a display name that is %s', async (_case, name, ip) => {
+    const response = await request(app)
+      .post('/api/auth/register')
+      .set('X-Forwarded-For', ip)
+      .send({
+        name,
+        email: 'invalid-name@example.com',
+        password: 'test-password-123',
+      })
+
+    expect(response.status).toBe(400)
+    expect(response.body).toMatchObject({
+      error: 'Invalid request body',
+    })
+
+    const result = await pool.query<{ count: number }>(
+      'SELECT COUNT(*)::int AS count FROM users',
+    )
+
+    expect(result.rows[0]!.count).toBe(0)
+  })
+
+  it('allows duplicate display names and keeps identity tied to user IDs', async () => {
+    const firstResponse = await request(app)
+      .post('/api/auth/register')
+      .set('X-Forwarded-For', '198.51.100.20')
+      .send({
+        name: 'Same Name',
+        email: 'same-name-one@example.com',
+        password: 'test-password-123',
+      })
+
+    const secondResponse = await request(app)
+      .post('/api/auth/register')
+      .set('X-Forwarded-For', '198.51.100.20')
+      .send({
+        name: 'Same Name',
+        email: 'same-name-two@example.com',
+        password: 'test-password-123',
+      })
+
+    expect(firstResponse.status).toBe(201)
+    expect(secondResponse.status).toBe(201)
+    expect(firstResponse.body.user.name).toBe('Same Name')
+    expect(secondResponse.body.user.name).toBe('Same Name')
+    expect(firstResponse.body.user.id).not.toBe(secondResponse.body.user.id)
   })
 
   it('logs in a registered user', async () => {

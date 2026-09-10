@@ -50,14 +50,27 @@ UPDATE characters
 CREATE TABLE IF NOT EXISTS users (
   id         SERIAL PRIMARY KEY,
   name       TEXT NOT NULL,
+  leaderboard_name_public BOOLEAN NOT NULL DEFAULT FALSE,
   email      TEXT UNIQUE,
   password_hash TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- CREATE TABLE IF NOT EXISTS won't touch an existing table, so alter explicitly
-ALTER TABLE users ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
-ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS email TEXT UNIQUE;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS password_hash TEXT;
+
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS leaderboard_name_public BOOLEAN NOT NULL DEFAULT FALSE;
+
+COMMENT ON COLUMN users.name IS
+  'Display names are intentionally non-unique; use users.id for identity.';
+
+COMMENT ON COLUMN users.leaderboard_name_public IS
+  'Whether the user has explicitly chosen to show their name on the leaderboard.';
 
 CREATE TABLE IF NOT EXISTS study_sessions (
   id           SERIAL PRIMARY KEY,
