@@ -309,4 +309,111 @@ describe('POST /api/sessions', () => {
 
     expect(countResult.rows[0]!.count).toBe(0)
   })
+
+  it('allows only one concurrent study session per user per day', async () => {
+    const { token, userId } = await registerTestUser(
+      'concurrent-session@example.com',
+    )
+
+    const todayCharacterId = await getTodayCharacterId(token)
+    const characterResult = await pool.query<{ meaning: string }>(
+      'SELECT meaning FROM characters WHERE id = $1',
+      [todayCharacterId],
+    )
+
+    const requestBody = {
+      characterId: todayCharacterId,
+      answer: characterResult.rows[0]!.meaning,
+    }
+
+    const sendSession = () =>
+      request(app)
+        .post('/api/sessions')
+        .set('Authorization', `Bearer ${token}`)
+        .send(requestBody)
+
+    const responses = await Promise.all([
+      sendSession(),
+      sendSession(),
+    ])
+
+    expect(responses.map(response => response.status).sort()).toEqual([201, 409])
+
+    const conflictResponse = responses.find(response => response.status === 409)
+    expect(conflictResponse?.body).toEqual({
+      error: 'Already studied today',
+      code: 'ALREADY_STUDIED_TODAY',
+    })
+
+    const result = await pool.query<{ count: number; points: number }>(
+      `
+      SELECT
+        COUNT(*)::int AS count,
+        COALESCE(SUM(points), 0)::int AS points
+      FROM study_sessions
+      WHERE user_id = $1
+    `,
+      [userId],
+    )
+
+    expect(result.rows[0]).toEqual({
+      count: 1,
+      points: 20,
+    })
+  })
+
+  it('recovers a committed result after the original response is lost', async () => {
+    const { token, userId } = await registerTestUser(
+      'lost-response@example.com',
+    )
+
+    const todayCharacterId = await getTodayCharacterId(token)
+    const characterResult = await pool.query<{
+      character: string
+      meaning: string
+    }>(
+      'SELECT character, meaning FROM characters WHERE id = $1',
+      [todayCharacterId],
+    )
+    const character = characterResult.rows[0]!
+
+    const requestBody = {
+      characterId: todayCharacterId,
+      answer: character.meaning,
+    }
+
+    const committedResponse = await request(app)
+      .post('/api/sessions')
+      .set('Authorization', `Bearer ${token}`)
+      .send(requestBody)
+
+    expect(committedResponse.status).toBe(201)
+
+    // Simulate the client losing the first response and retrying the same request.
+    const retryResponse = await request(app)
+      .post('/api/sessions')
+      .set('Authorization', `Bearer ${token}`)
+      .send(requestBody)
+
+    expect(retryResponse.status).toBe(409)
+    expect(retryResponse.body.code).toBe('ALREADY_STUDIED_TODAY')
+
+    const profileResponse = await request(app)
+      .get('/api/me')
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(profileResponse.status).toBe(200)
+    expect(profileResponse.body).toMatchObject({
+      id: userId,
+      points: 20,
+      completedToday: true,
+      lastSession: {
+        characterId: todayCharacterId,
+        character: character.character,
+        meaning: character.meaning,
+        isCorrect: true,
+        gainedPoints: 20,
+      },
+    })
+  })
 })

@@ -1,11 +1,12 @@
 import 'dotenv/config'
 import { app } from './app.js'
 import { pool } from './db.js'
+import { parseStartupConfig } from './config.js'
 
-const port = Number(process.env.PORT) || 3000
+const config = parseStartupConfig(process.env)
 
-const server = app.listen(port, () => {
-  console.log(`API listening on http://localhost:${port}`)
+const server = app.listen(config.PORT, () => {
+  console.log(`API listening on http://localhost:${config.PORT}`)
 })
 
 // on SIGTERM: stop accepting connections, drain in-flight requests, close the pool
