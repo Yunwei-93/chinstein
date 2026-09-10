@@ -18,6 +18,34 @@ describe('POST /api/auth/login', () => {
     })
   })
 
+  it('returns a stable JSON response for malformed JSON', async () => {
+    const response = await request(app)
+      .post('/api/auth/login')
+      .set('Content-Type', 'application/json')
+      .send('{"email":')
+
+    expect(response.status).toBe(400)
+    expect(response.body).toEqual({
+      error: 'Invalid JSON body',
+    })
+  })
+
+  it('returns a stable JSON response when the body is too large', async () => {
+    const oversizedBody = JSON.stringify({
+      value: 'x'.repeat(101 * 1024),
+    })
+
+    const response = await request(app)
+      .post('/api/auth/login')
+      .set('Content-Type', 'application/json')
+      .send(oversizedBody)
+
+    expect(response.status).toBe(413)
+    expect(response.body).toEqual({
+      error: 'Request body too large',
+    })
+  })
+
 })
 
 describe('GET /api/me authorization', () => {

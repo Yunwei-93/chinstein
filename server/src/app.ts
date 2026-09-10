@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { type ErrorRequestHandler } from 'express'
 import { pool } from './db.js'
 import { getTodayCharacterForClient } from './characters.js'
 import { getUserProfile } from './users.js'
@@ -208,3 +208,33 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' })
   }
 })
+
+const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
+  if (
+    err instanceof SyntaxError &&
+    'status' in err &&
+    err.status === 400 &&
+    'type' in err &&
+    err.type === 'entity.parse.failed'
+  ) {
+    res.status(400).json({ error: 'Invalid JSON body' })
+    return
+  }
+
+  if (
+    typeof err === 'object' &&
+    err !== null &&
+    'status' in err &&
+    err.status === 413 &&
+    'type' in err &&
+    err.type === 'entity.too.large'
+  ) {
+    res.status(413).json({ error: 'Request body too large' })
+    return
+  }
+
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
+}
+
+app.use(errorHandler)
