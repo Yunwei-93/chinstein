@@ -1,4 +1,9 @@
-import type { UserProfile, TodayCharacter, Session } from './types'
+import type {
+  UserProfile,
+  TodayCharacter,
+  Session,
+  LeaderboardResponse,
+} from './types'
 
 // the API base URL comes from an env var so local and production can differ
 const BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
@@ -94,11 +99,11 @@ export function login(email: string, password: string): Promise<AuthResponse> {
 export function register(
   email: string,
   password: string,
-  name?: string
+  displayName: string,
 ): Promise<AuthResponse> {
   return request<AuthResponse>('/api/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({ email, password, name: displayName }),
   })
 }
 
@@ -110,6 +115,10 @@ export function fetchMe(): Promise<UserProfile> {
 
 export function fetchTodayCharacter(): Promise<TodayCharacter> {
   return request<TodayCharacter>('/api/characters/today')
+}
+
+export function fetchLeaderboard(): Promise<LeaderboardResponse> {
+  return request<LeaderboardResponse>('/api/leaderboard')
 }
 
 

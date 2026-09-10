@@ -29,7 +29,7 @@ function LoginPage({ onAuthenticated }: LoginPageProps) {
       const result =
         mode === 'login'
           ? await login(email, password)
-          : await register(email, password, name || undefined)
+          : await register(email, password, name)
 
       setToken(result.token)
       onAuthenticated()
@@ -52,13 +52,19 @@ function LoginPage({ onAuthenticated }: LoginPageProps) {
           <form onSubmit={handleSubmit}>
             {mode === 'register' && (
               <div className="form-field">
+                <label htmlFor="display-name">Display name</label>
                 <input
+                  id="display-name"
                   type="text"
-                  placeholder="Name (optional)"
+                  placeholder="Display name"
                   value={name}
                   onChange={e => setName(e.target.value)}
+                  required
+                  minLength={2}
+                  maxLength={40}
                   disabled={submitting}
                 />
+                <small>Shown on the leaderboard. Do not use your email.</small>
               </div>
             )}
 
