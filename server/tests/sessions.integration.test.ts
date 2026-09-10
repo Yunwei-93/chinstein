@@ -361,4 +361,59 @@ describe('POST /api/sessions', () => {
       points: 20,
     })
   })
+
+  it('recovers a committed result after the original response is lost', async () => {
+    const { token, userId } = await registerTestUser(
+      'lost-response@example.com',
+    )
+
+    const todayCharacterId = await getTodayCharacterId(token)
+    const characterResult = await pool.query<{
+      character: string
+      meaning: string
+    }>(
+      'SELECT character, meaning FROM characters WHERE id = $1',
+      [todayCharacterId],
+    )
+    const character = characterResult.rows[0]!
+
+    const requestBody = {
+      characterId: todayCharacterId,
+      answer: character.meaning,
+    }
+
+    const committedResponse = await request(app)
+      .post('/api/sessions')
+      .set('Authorization', `Bearer ${token}`)
+      .send(requestBody)
+
+    expect(committedResponse.status).toBe(201)
+
+    // Simulate the client losing the first response and retrying the same request.
+    const retryResponse = await request(app)
+      .post('/api/sessions')
+      .set('Authorization', `Bearer ${token}`)
+      .send(requestBody)
+
+    expect(retryResponse.status).toBe(409)
+    expect(retryResponse.body.code).toBe('ALREADY_STUDIED_TODAY')
+
+    const profileResponse = await request(app)
+      .get('/api/me')
+      .set('Authorization', `Bearer ${token}`)
+
+    expect(profileResponse.status).toBe(200)
+    expect(profileResponse.body).toMatchObject({
+      id: userId,
+      points: 20,
+      completedToday: true,
+      lastSession: {
+        characterId: todayCharacterId,
+        character: character.character,
+        meaning: character.meaning,
+        isCorrect: true,
+        gainedPoints: 20,
+      },
+    })
+  })
 })
