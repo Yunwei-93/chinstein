@@ -309,4 +309,56 @@ describe('POST /api/sessions', () => {
 
     expect(countResult.rows[0]!.count).toBe(0)
   })
+
+  it('allows only one concurrent study session per user per day', async () => {
+    const { token, userId } = await registerTestUser(
+      'concurrent-session@example.com',
+    )
+
+    const todayCharacterId = await getTodayCharacterId(token)
+    const characterResult = await pool.query<{ meaning: string }>(
+      'SELECT meaning FROM characters WHERE id = $1',
+      [todayCharacterId],
+    )
+
+    const requestBody = {
+      characterId: todayCharacterId,
+      answer: characterResult.rows[0]!.meaning,
+    }
+
+    const sendSession = () =>
+      request(app)
+        .post('/api/sessions')
+        .set('Authorization', `Bearer ${token}`)
+        .send(requestBody)
+
+    const responses = await Promise.all([
+      sendSession(),
+      sendSession(),
+    ])
+
+    expect(responses.map(response => response.status).sort()).toEqual([201, 409])
+
+    const conflictResponse = responses.find(response => response.status === 409)
+    expect(conflictResponse?.body).toEqual({
+      error: 'Already studied today',
+      code: 'ALREADY_STUDIED_TODAY',
+    })
+
+    const result = await pool.query<{ count: number; points: number }>(
+      `
+      SELECT
+        COUNT(*)::int AS count,
+        COALESCE(SUM(points), 0)::int AS points
+      FROM study_sessions
+      WHERE user_id = $1
+    `,
+      [userId],
+    )
+
+    expect(result.rows[0]).toEqual({
+      count: 1,
+      points: 20,
+    })
+  })
 })
