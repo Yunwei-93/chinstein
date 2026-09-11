@@ -11,7 +11,10 @@
     "start": "node dist/index.js",
     "migrate": "tsx src/scripts/migrate.ts",
     "migrate:prod": "tsx --env-file=.env.production src/scripts/migrate.ts",
+    "migrate:runtime": "node dist/scripts/migrate.js",
     "seed": "tsx src/scripts/seed.ts",
+    "seed:local-user": "tsx src/scripts/seed-local-user.ts",
+    "seed:runtime": "node dist/scripts/seed.js",
     "seed:prod": "tsx --env-file=.env.production src/scripts/seed.ts"
   },
   "keywords": [],
