@@ -9,7 +9,7 @@ RUN npm ci
 COPY tsconfig.json ./
 COPY src ./src
 RUN npm run build
-
+RUN rm dist/scripts/seed-local-user.js
 # drop devDependencies so the runtime stage inherits a lean node_modules
 RUN npm prune --omit=dev
 
