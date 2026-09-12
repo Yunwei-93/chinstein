@@ -10,6 +10,31 @@ connection pool without measurement.
 
 ## Candidates
 
+### Keep story generation out of the core baseline
+
+`GET /api/characters/today` can synchronously generate a missing story through
+an external model. That cold path has a seconds-scale latency budget, retries,
+provider rate limits, and a separate usage cost. Mixing it into the main API
+benchmark would make ECS, PostgreSQL, and external-model latency impossible to
+distinguish.
+
+Before the core baseline, seed every character that the benchmark can select
+with fixed-size synthetic story text and set `story_status = 'ready'`. This
+stabilizes response size and establishes the following invariant:
+
+> Anthropic call count during the core performance run is zero.
+
+Measure story generation as a separate, low-volume integration experiment. It
+should cover one cold generation, concurrent claim suppression, fallback for
+losing requests, the application deadline, provider errors, rate limiting, and
+cache-hit latency. Record provider-call count and estimated cost alongside the
+latency result.
+
+The story-resilience work in A4.1 is a correctness and cost-control prerequisite,
+not a performance optimization. Its attempt budget, terminal `failed` state,
+stale-claim recovery, and generation-disabled guard may be implemented before
+the baseline without violating this document's experiment rule.
+
 ### Repeated profile calculation in `createSession()`
 
 The current request path makes approximately five database query calls:

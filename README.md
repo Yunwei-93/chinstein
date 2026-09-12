@@ -35,9 +35,15 @@ underneath, and accounts so your progress isn't stuck in one browser.
 ## How it's put together
 
 ```
+Production
 Browser  →  Vercel   React 19 + TypeScript, built by Vite
-         →  Render   Express 5 + TypeScript, one long-lived process
-         →  Neon     PostgreSQL 17
+         →  Render   Express 5 + TypeScript
+         →  Neon     PostgreSQL 17 production branch
+
+AWS staging
+Browser  →  Vercel Preview
+         →  ECS Express Mode / Fargate
+         →  Neon staging branch
 ```
 
 Three pieces, three hosts. The reason they're separate isn't cost — it's that the browser can't be
@@ -89,11 +95,13 @@ Treating `unauthenticated` as a normal state rather than an error turned out to 
 wrote an "am I logged in?" check, because fetching the profile answers that question. A 401 just
 means show the login page.
 
-**The etymology is written once, by Claude, and then it's a database row.** Only 50 of the 365
+**A successful Claude generation becomes a database row.** Only 50 of the 365
 characters shipped with a story I wrote by hand. The rest have `story: null` until someone is the
 first to study them, at which point the API calls the Anthropic API, saves the result, and every
-later reader gets it from Postgres — 1.6 seconds the first time, 20 milliseconds after that. One
-call per character, ever.
+later reader gets it from Postgres. The cache makes one successful generation per character the
+normal case, but failed or locally rejected generations can currently return the row to `pending`
+and be attempted again. The next resilience milestone adds an explicit attempt budget and terminal
+`failed` state before the provider is enabled in AWS staging.
 
 The interesting part isn't the API call, it's what happens when two people open the same new
 character at the same moment. A `SELECT` to check plus an `UPDATE` to claim would let both of them
@@ -114,6 +122,11 @@ mid-generation doesn't leave the character stuck in `generating` forever.
 If the model returns something unusable — too short, too long, or a refusal — the row goes back to
 `pending` and the page renders without a story rather than failing. The stroke animation and the
 quiz don't depend on it, so losing one paragraph shouldn't cost the whole session.
+
+The AWS staging walkthrough showed that this fallback works, but also made the missing retry budget
+visible in CloudWatch. The current implementation is therefore safe for the learning flow with
+generation disabled, but story-generation resilience remains planned work rather than a completed
+production guarantee.
 
 **The production image only carries what it needs to run.** The API's Dockerfile builds in two
 stages: the first installs everything, compiles TypeScript, then prunes the dev dependencies; the
@@ -164,7 +177,7 @@ moment there were two.
 | Database | PostgreSQL 17 |
 | Stroke animation | Hanzi Writer |
 | Content generation | Anthropic Claude API (Haiku), cached in Postgres |
-| Hosting | Vercel (web), Render (API), Neon (database) |
+| Hosting | Vercel (web), Render (production API), ECS Express/Fargate (staging API), Neon (database) |
 | Build & CI | Docker (multi-stage), GitHub Actions |
 
 ## Running it locally
@@ -288,6 +301,12 @@ rows and constraints in a real PostgreSQL database.
 - [x] Claude API for generating etymology
 - [x] Integration tests (Vitest + Supertest + PostgreSQL 17)
 - [x] A real leaderboard endpoint
+- [x] Isolated AWS ECS and Neon staging deployment
+- [x] Manual Vercel Preview → AWS → Neon registration, login, study, and persistence walkthrough
+- [ ] Story-generation attempt budget, terminal failure state, overall deadline, and concurrency tests
+- [ ] Reproducible performance baseline and measured optimization
+- [ ] ECS rollback drill and post-performance staging cleanup
+- [ ] Automated browser end-to-end coverage
 - [ ] Spaced repetition
 
 ## What's not done
@@ -304,9 +323,9 @@ rows and constraints in a real PostgreSQL database.
   right answer. I tied "one submission" and "one chance to learn" together without meaning to.
 - **Two copies of `types.ts`.** Client and server are separate npm packages and I sync them by
   hand.
-- **No browser end-to-end tests yet.** The backend authentication and study-session paths are
-  covered against PostgreSQL, but the React flows and deployed Vercel-to-Render path still need
-  Playwright coverage.
+- **No automated browser end-to-end tests yet.** The backend authentication and study-session paths
+  are covered against PostgreSQL, and the deployed Vercel Preview-to-AWS staging flow has passed a
+  manual walkthrough. The same React flow still needs repeatable Playwright coverage.
 - **Stroke data comes from a CDN.** Hanzi Writer fetches it from jsDelivr at runtime. Bundling all
   365 characters locally would trade a runtime dependency for about a megabyte of bundle — at 50
   characters that was an easy call, at 365 it's an actual trade-off.
@@ -314,3 +333,9 @@ rows and constraints in a real PostgreSQL database.
   hand; the other 315 come from the model. The prompt tells it to describe the character's visual
   composition when it isn't confident rather than invent a source, but checking them against
   漢語多功能字庫 is still on the list.
+
+## Project documents
+
+- [Current delivery plan](docs/project-plan.md)
+- [AWS staging learning notes](docs/aws-staging-learning-notes.md)
+- [Deferred performance optimizations](docs/perf/deferred-optimizations.md)
