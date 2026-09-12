@@ -2,8 +2,15 @@ import 'dotenv/config'
 import { app } from './app.js'
 import { pool } from './db.js'
 import { parseStartupConfig } from './config.js'
+import { isGenerationEnabled } from './claude.js'
 
 const config = parseStartupConfig(process.env)
+
+if (!isGenerationEnabled()) {
+  console.warn(
+    '[startup] story generation disabled — ANTHROPIC_API_KEY not set',
+  )
+}
 
 const server = app.listen(config.PORT, () => {
   console.log(`API listening on http://localhost:${config.PORT}`)

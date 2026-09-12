@@ -3,6 +3,10 @@ import Anthropic from '@anthropic-ai/sdk'
 // lazy: the key isn't in process.env until dotenv has run
 let client: Anthropic | null = null
 
+export function isGenerationEnabled(): boolean {
+  return Boolean(process.env.ANTHROPIC_API_KEY?.trim())
+}
+
 function getClient(): Anthropic {
     if (!client) {
         const apiKey = process.env.ANTHROPIC_API_KEY

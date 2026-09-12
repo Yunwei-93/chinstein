@@ -1,6 +1,6 @@
 import { pool } from './db.js'
 import type { Character, TodayCharacter } from './types.js'
-import { generateStory } from './claude.js'
+import { generateStory, isGenerationEnabled } from './claude.js'
 
 // pick today's character by date so everyone sees the same one on a given day
 export async function getTodayCharacter(): Promise<Character | null> {
@@ -51,25 +51,24 @@ const RELEASE_SQL = `
      SET story_status = 'pending', story_started_at = NULL
    WHERE id = $1`
 
-// 缓存未命中时生成字源。
-// 返回 null = 这次拿不到（别人在生成 / 调用失败），调用方降级而不是报错。
 // null means "not this time" — the caller degrades instead of failing
 async function ensureStory(c: Character): Promise<string | null> {
-  if (c.story) return c.story              
+  if (c.story) return c.story
+  if (!isGenerationEnabled()) return null
 
   const claim = await pool.query(CLAIM_SQL, [c.id])
   if (!claim.rowCount) {
     // the claim can fail because someone is generating OR just finished; re-read before degrading
     const { rows } = await pool.query<{ story: string | null }>(
       'SELECT story FROM characters WHERE id = $1', [c.id]
-  )
-  return rows[0]?.story ?? null
-  }   
+    )
+    return rows[0]?.story ?? null
+  }
 
   const story = await generateStory(c.character, c.pinyin, c.meaning)
 
   if (!story) {
-    await pool.query(RELEASE_SQL, [c.id])  
+    await pool.query(RELEASE_SQL, [c.id])
     return null
   }
 
