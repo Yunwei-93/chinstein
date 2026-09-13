@@ -1,6 +1,6 @@
 import { pool } from './db.js'
 import type { Character, TodayCharacter } from './types.js'
-import { generateStory } from './claude.js'
+import { generateStory, isGenerationEnabled } from './claude.js'
 
 // pick today's character by date so everyone sees the same one on a given day
 export async function getTodayCharacter(): Promise<Character | null> {
@@ -30,51 +30,93 @@ const OPTIONS_SQL = `
   ) opts
   ORDER BY RANDOM()`
 
-// atomic claim; the timeout clause reclaims rows left behind by a crash
+const MAX_STORY_ATTEMPTS = 3
+
+const FAIL_STALE_EXHAUSTED_SQL = `
+  UPDATE characters
+     SET story_status = 'failed',
+         story_started_at = NULL
+   WHERE id = $1
+     AND story_status = 'generating'
+     AND story_attempts >= $2
+     AND (
+       story_started_at IS NULL
+       OR story_started_at < NOW() - INTERVAL '2 minutes'
+     )`
+
+// Claiming permission to call Anthropic consumes one attempt atomically.
 const CLAIM_SQL = `
   UPDATE characters
-     SET story_status = 'generating', story_started_at = NOW()
+     SET story_status = 'generating',
+         story_started_at = NOW(),
+         story_attempts = story_attempts + 1
    WHERE id = $1
-     AND (story_status = 'pending'
-          OR (story_status = 'generating'
-              AND story_started_at < NOW() - INTERVAL '2 minutes'))
+     AND story_attempts < $2
+     AND (
+       story_status = 'pending'
+       OR (
+         story_status = 'generating'
+         AND story_started_at < NOW() - INTERVAL '2 minutes'
+       )
+     )
   RETURNING id`
 
 const SAVE_SQL = `
   UPDATE characters
-     SET story = $2, story_status = 'ready', story_source = 'claude'
+     SET story = $2,
+         story_status = 'ready',
+         story_source = 'claude',
+         story_started_at = NULL
    WHERE id = $1`
 
-// release the claim so the next request can retry immediately
 const RELEASE_SQL = `
   UPDATE characters
-     SET story_status = 'pending', story_started_at = NULL
+     SET story_status = CASE
+           WHEN story_attempts >= $2 THEN 'failed'
+           ELSE 'pending'
+         END,
+         story_started_at = NULL
    WHERE id = $1`
 
-// 缓存未命中时生成字源。
-// 返回 null = 这次拿不到（别人在生成 / 调用失败），调用方降级而不是报错。
 // null means "not this time" — the caller degrades instead of failing
 async function ensureStory(c: Character): Promise<string | null> {
-  if (c.story) return c.story              
+  if (c.story) return c.story
+  if (!isGenerationEnabled()) return null
+  await pool.query(FAIL_STALE_EXHAUSTED_SQL, [
+    c.id,
+    MAX_STORY_ATTEMPTS,
+  ])
 
-  const claim = await pool.query(CLAIM_SQL, [c.id])
+  const claim = await pool.query(CLAIM_SQL, [
+    c.id,
+    MAX_STORY_ATTEMPTS,
+  ])
   if (!claim.rowCount) {
     // the claim can fail because someone is generating OR just finished; re-read before degrading
     const { rows } = await pool.query<{ story: string | null }>(
       'SELECT story FROM characters WHERE id = $1', [c.id]
-  )
-  return rows[0]?.story ?? null
-  }   
-
-  const story = await generateStory(c.character, c.pinyin, c.meaning)
-
-  if (!story) {
-    await pool.query(RELEASE_SQL, [c.id])  
-    return null
+    )
+    return rows[0]?.story ?? null
   }
 
-  await pool.query(SAVE_SQL, [c.id, story])
-  return story
+  let saved = false
+
+  try {
+    const story = await generateStory(c.character, c.pinyin, c.meaning)
+
+    if (!story) return null
+
+    await pool.query(SAVE_SQL, [c.id, story])
+    saved = true
+    return story
+  } finally {
+    if (!saved) {
+      await pool.query(RELEASE_SQL, [
+        c.id,
+        MAX_STORY_ATTEMPTS,
+      ])
+    }
+  }
 }
 
 
@@ -87,8 +129,6 @@ export async function getTodayCharacterForClient(
   // on a miss we generate; on failure story stays null and the page degrades
   const story = await ensureStory(character)
 
-
-
   // only draw distractors from learned characters once there are at least 2
   const learnedPool = learnedIds.length >= 2 ? learnedIds : null
 
@@ -96,7 +136,6 @@ export async function getTodayCharacterForClient(
     character.id,
     learnedPool,
   ])
-
 
   // strip meaning so the answer never reaches the browser
   const { meaning: _meaning, ...safe } = character
