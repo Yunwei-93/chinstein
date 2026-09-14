@@ -1,5 +1,7 @@
 # Deferred Performance Optimizations
 
+Last updated: 2026-09-14
+
 This file records performance candidates that are intentionally deferred until
 M3 so that Chinstein can establish a reproducible baseline before optimization.
 
@@ -32,8 +34,19 @@ latency result.
 
 The story-resilience work in A4.1 is a correctness and cost-control prerequisite,
 not a performance optimization. Its attempt budget, terminal `failed` state,
-stale-claim recovery, and generation-disabled guard may be implemented before
-the baseline without violating this document's experiment rule.
+stale-claim recovery, generation-disabled guard, deadline, and concurrency tests
+are now implemented. The disabled-mode path has also passed a real AWS staging
+browser check without claiming the row or consuming an attempt.
+
+Before beginning the core benchmark, finish these gates:
+
+1. run a small live-provider staging check and verify the first write plus the cache hit;
+2. complete the ECS rollback and roll-forward drill;
+3. freeze the benchmark scenarios, targets, and error budget; and
+4. seed only synthetic benchmark data with fixed-size stories already marked `ready`.
+
+The live-provider gate is deliberately low volume and is not part of the load test.
+No real provider latency, usage, or cost measurement has been recorded yet.
 
 ### Repeated profile calculation in `createSession()`
 

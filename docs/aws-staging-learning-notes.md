@@ -1,6 +1,6 @@
 # AWS Staging Learning Notes
 
-Last updated: 2026-09-11
+Last updated: 2026-09-14
 
 These notes explain the purpose of the staging deployment and the commands used
 to inspect it. They intentionally omit secrets, account IDs, secret ARNs, and
@@ -52,6 +52,18 @@ These terms describe different layers:
 An image tag should identify the Git commit used to build it. ECS also resolves
 the image to a digest, which prevents the same deployment from silently changing
 when a tag is reused.
+
+Current verified checkpoint:
+
+- commit `b33785f19178` was built for `linux/amd64` and pushed with the commit as its tag;
+- ECS task definition revision 6 references the resulting immutable image digest;
+- the service rollout reached `COMPLETED` with 1 running task and 0 pending tasks; and
+- the task definition exposes only `PORT` and `CORS_ORIGIN` as plain configuration,
+  while `DATABASE_URL` and `JWT_SECRET` are injected as runtime secrets.
+
+ECR storing a new image does not update a running service by itself. The deployment
+changes only when a new task-definition revision selects the image and ECS replaces
+the task.
 
 ## 4. Health checks
 
@@ -130,6 +142,16 @@ Parameter meanings:
 
 An empty result means no event was written in that window. It is not itself an error.
 
+Revision 6 produced the expected disabled-mode startup event:
+
+```text
+[startup] story generation disabled — ANTHROPIC_API_KEY not set
+```
+
+It was emitted once when the container started. A later rolling replacement also
+showed `SIGTERM received, shutting down` followed by `closed cleanly`, confirming
+that ECS termination reached the application's graceful-shutdown path.
+
 ## 8. Inspecting an ECS deployment
 
 The following read-only command checks whether the service has one completed
@@ -173,22 +195,32 @@ aws login --profile chinstein
 The command opens the AWS login flow for the named profile. Do not paste AWS
 credentials, database URLs, JWT secrets, or API keys into documentation or chat.
 
-## 10. Story-generation state machine
+## 10. Staging database migration safety
 
-Current behavior:
+An environment filename is a label, not proof of which database it contains. Before
+applying the A4.1 schema, the existing production-named file was inspected without
+printing credentials and was found to point at a different Neon host. A separate,
+Git-ignored staging environment file was then created from the Neon `aws-staging`
+branch connection string.
 
-```text
-cached story -> return immediately
-pending -> atomically claim -> generating
-usable result -> ready
-failure -> pending -> a later request may retry
-```
+The safe sequence is:
 
-The atomic claim prevents two simultaneous requests from both winning the same
-`pending` row. However, the current failure path has no attempt budget. A fast
-unusable response can therefore be paid for and retried repeatedly.
+1. parse the connection URL locally and print only the hostname and database name;
+2. compare the hostname with the selected Neon branch in the dashboard;
+3. keep the full connection string out of terminal history, screenshots, chat, and Git;
+4. run the migration with the staging environment file named explicitly; and
+5. verify the resulting columns and CHECK constraint before deploying application code.
 
-The planned A4.1 state machine is:
+The migration completed with `Schema applied.` and the schema was verified before
+the revision 6 deployment. The PostgreSQL driver also emitted a forward-looking SSL
+compatibility warning: the current dependency treats `sslmode=require` as strict
+certificate verification, while a future major version will change that behavior.
+Using an explicit `sslmode=verify-full` is a future configuration cleanup, not a
+failure of this migration.
+
+## 11. Story-generation state machine
+
+A4.1 now implements this state machine:
 
 ```text
 generation disabled -> fallback without a claim
@@ -200,15 +232,71 @@ stale generating below budget -> eligible for one new claim
 stale generating at budget -> failed
 ```
 
+Cached stories are checked first, so they remain available even when generation is
+disabled. When the key is absent, the capability guard returns the fallback before
+the database claim. When generation is enabled, receiving the atomic claim increments
+`story_attempts`; this means even a later process crash consumes one attempt. The
+maximum is three claims per generation cycle.
+
+The claim and release paths are structurally paired so an unexpected generator
+exception does not leave a fresh orphaned claim. A normal failure returns to `pending`
+while budget remains and becomes `failed` after the third attempt. A stale
+`generating` row below budget can be reclaimed, while an exhausted stale row is
+reconciled to `failed` without another provider call.
+
 The overall abort limits how long the application waits and whether it performs
 another retry. It cannot guarantee that provider work already started will not
 be billed.
 
-Manual recovery remains a database operation rather than an unauthenticated admin
-API. The runbook must inspect failed rows first and reset a confirmed target only
-after the underlying problem has been corrected.
+Generated text is accepted only when it contains 35-80 words, is no more than 600
+characters, and is not a refusal. This aligns the validator with the 40-70-word
+prompt while allowing a small tolerance.
 
-## 11. Performance-test separation
+### Disabled-mode staging evidence
+
+The staging task intentionally had no Anthropic key for the first smoke test. The
+browser opened an uncached daily character and displayed the fallback message while
+the stroke animation and quiz remained usable. Database inspection before and after
+the request showed the row still had:
+
+```text
+story present: no
+status: pending
+attempts: 0
+started at: null
+```
+
+This is direct evidence that the missing-key path did not claim the row or consume
+the retry budget. It is not evidence of a live provider call: no real Anthropic
+generation or cache-write acceptance test has been run yet.
+
+### Manual recovery
+
+First inspect failed rows:
+
+```sql
+SELECT id, character, story_status, story_attempts, story_started_at
+  FROM characters
+ WHERE story_status = 'failed'
+ ORDER BY id;
+```
+
+Only after correcting the root cause, reset one confirmed target:
+
+```sql
+UPDATE characters
+   SET story_status = 'pending',
+       story_attempts = 0,
+       story_started_at = NULL
+ WHERE id = $1
+   AND story_status = 'failed';
+```
+
+Confirm that exactly one intended row changed. Recovery remains a direct operator
+action rather than a public API because there is no administrator authorization
+model yet.
+
+## 12. Performance-test separation
 
 The core benchmark uses fixed-size synthetic stories already marked `ready`.
 This stabilizes response size and requires zero Anthropic calls.
@@ -225,7 +313,7 @@ The external-AI experiment is deliberately small and separately reports:
 This separation keeps an external seconds-scale dependency out of the core
 sub-second API latency target.
 
-## 12. Safety checklist
+## 13. Safety checklist
 
 - Confirm the AWS region and profile before any write command.
 - Distinguish read-only inspection from deployment or deletion.
@@ -233,6 +321,7 @@ sub-second API latency target.
 - Keep secrets in Secrets Manager and out of screenshots, commands, and Git.
 - Use immutable commit-tagged images.
 - Verify health, deployment state, logs, and browser behavior after every update.
-- Do not merge a staging branch merely because ECS is healthy; merging can trigger production automation.
+- Treat a production-impacting merge as a separate decision from a healthy staging rollout.
+- PR #10 was merged before final disabled-mode staging acceptance; that acceptance
+  passed, but future changes should restore the intended verify-before-merge order.
 - Do not delete staging resources until rollback and performance evidence are complete.
-
