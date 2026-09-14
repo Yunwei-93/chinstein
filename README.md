@@ -97,36 +97,51 @@ means show the login page.
 
 **A successful Claude generation becomes a database row.** Only 50 of the 365
 characters shipped with a story I wrote by hand. The rest have `story: null` until someone is the
-first to study them, at which point the API calls the Anthropic API, saves the result, and every
-later reader gets it from Postgres. The cache makes one successful generation per character the
-normal case, but failed or locally rejected generations can currently return the row to `pending`
-and be attempted again. The next resilience milestone adds an explicit attempt budget and terminal
-`failed` state before the provider is enabled in AWS staging.
+first to study them while generation is enabled. The API then calls Anthropic, validates and saves
+the result, and later readers get it from Postgres. Cached content is returned even if the provider
+is currently disabled.
 
 The interesting part isn't the API call, it's what happens when two people open the same new
 character at the same moment. A `SELECT` to check plus an `UPDATE` to claim would let both of them
-win the race and pay for the same paragraph twice, so the claim is a single statement instead:
+win the race and pay for the same paragraph twice, so permission to call the provider is granted
+and counted in one statement instead:
 
 ```sql
-UPDATE characters SET story_status = 'generating', story_started_at = NOW()
- WHERE id = $1 AND (story_status = 'pending'
-                    OR (story_status = 'generating' AND story_started_at < NOW() - INTERVAL '2 minutes'))
+UPDATE characters
+   SET story_status = 'generating',
+       story_started_at = NOW(),
+       story_attempts = story_attempts + 1
+ WHERE id = $1
+   AND story_attempts < $2
+   AND (story_status = 'pending'
+        OR (story_status = 'generating'
+            AND story_started_at < NOW() - INTERVAL '2 minutes'))
 RETURNING id
 ```
 
 Postgres locks the row for the duration, so exactly one request gets a row back and the other gets
 nothing. The loser doesn't queue or retry — it just reads the column again, because by then the
 winner may already have written it. The `2 minutes` clause is there so a process that dies
-mid-generation doesn't leave the character stuck in `generating` forever.
+mid-generation doesn't leave the character stuck forever. A stale row below the three-attempt
+budget can be reclaimed; an exhausted stale row becomes explicitly `failed`.
 
-If the model returns something unusable — too short, too long, or a refusal — the row goes back to
-`pending` and the page renders without a story rather than failing. The stroke animation and the
-quiz don't depend on it, so losing one paragraph shouldn't cost the whole session.
+Every claim consumes one attempt, including one followed by a process crash. Normal failures return
+the row to `pending` while attempts remain and move it to `failed` after the third claim. Claim and
+release are paired in a `try`/`finally`, so an unexpected exception cannot silently abandon the
+row. Successful stories become `ready`, while the attempt count is preserved as operational
+history.
 
-The AWS staging walkthrough showed that this fallback works, but also made the missing retry budget
-visible in CloudWatch. The current implementation is therefore safe for the learning flow with
-generation disabled, but story-generation resilience remains planned work rather than a completed
-production guarantee.
+The model call receives a 35-second abort signal, including SDK retries. This bounds how long the
+application waits; it does not guarantee that provider work already started will not be billed.
+Generated text is treated as untrusted input and accepted only when it contains 35–80 words, is no
+more than 600 characters, and is not a refusal response.
+
+If generation is not configured, the capability check happens before the database claim. The page
+renders a story fallback without consuming an attempt or changing the row, while the stroke
+animation and quiz continue to work. AWS staging verified this path in the real browser and then
+confirmed that the uncached row was still `pending` with zero attempts. Live provider generation
+and cache persistence remain a separate, low-volume staging check; this is not a claim that the new
+provider path has been deployed to production.
 
 **The production image only carries what it needs to run.** The API's Dockerfile builds in two
 stages: the first installs everything, compiles TypeScript, then prunes the dev dependencies; the
@@ -151,7 +166,7 @@ Everything except health and the two auth routes needs `Authorization: Bearer <t
 | `POST` | `/api/auth/login` | Same error message whatever went wrong, so you can't probe for valid emails |
 | `GET` | `/api/me` | Profile, with everything derived |
 | `GET` | `/api/leaderboard` | Top 10 studied users plus the authenticated user's rank |
-| `GET` | `/api/characters/today` | Character, story, quiz options — no answer. Generates the story on the first request for a character |
+| `GET` | `/api/characters/today` | Character, optional story, and quiz options — no answer. A cold story is generated only when the provider is enabled |
 | `POST` | `/api/sessions` | Server grades it; `409` if you already went today or submit a character other than today's |
 
 Leaderboard ranks are derived from study sessions. Equal scores share a rank, while the response
@@ -214,6 +229,34 @@ Both `migrate` and `seed` are safe to re-run.
 | `CORS_ORIGIN` | Comma-separated list of allowed origins |
 | `ANTHROPIC_API_KEY` | Only needed for characters that don't have a story yet — without it the page degrades to no story |
 
+### Recovering a failed story
+
+An exhausted story stays in the explicit `failed` state and is not retried automatically. First
+inspect the failed rows:
+
+```sql
+SELECT id, character, story_status, story_attempts, story_started_at
+  FROM characters
+ WHERE story_status = 'failed'
+ ORDER BY id;
+```
+
+Only after correcting the underlying key, provider, prompt, validation, or application problem,
+reset one confirmed character by ID:
+
+```sql
+UPDATE characters
+   SET story_status = 'pending',
+       story_attempts = 0,
+       story_started_at = NULL
+ WHERE id = $1
+   AND story_status = 'failed';
+```
+
+Confirm that exactly one intended row changed. Recovery is deliberately an operator-run database
+action rather than a public endpoint because the application does not yet have an administrator
+authorization model.
+
 To run the API the way production does, build the image instead:
 
 ```bash
@@ -244,9 +287,12 @@ npm run build
 ```
 
 The integration tests exercise registration, login, JWT-protected routes, database constraints,
-server-side scoring, one-session-per-day enforcement, and rejection of character IDs that do not
-match the daily character. Destructive cleanup checks the test database URL before truncating any
-tables, and test files run serially because they share one database.
+server-side scoring, one-session-per-day enforcement, rejection of character IDs that do not
+match the daily character, story-attempt exhaustion, stale-claim recovery, exception cleanup, and
+concurrent claim suppression. Claude unit tests mock the SDK and make zero real provider calls.
+At the A4.1 checkpoint, 56 tests across 8 files passed, followed by test type-checking and a
+production build. Destructive cleanup checks the test database URL before truncating any tables,
+and test files run serially because they share one database.
 
 ## Continuous integration
 
@@ -303,7 +349,8 @@ rows and constraints in a real PostgreSQL database.
 - [x] A real leaderboard endpoint
 - [x] Isolated AWS ECS and Neon staging deployment
 - [x] Manual Vercel Preview → AWS → Neon registration, login, study, and persistence walkthrough
-- [ ] Story-generation attempt budget, terminal failure state, overall deadline, and concurrency tests
+- [x] Story-generation attempt budget, terminal failure state, overall deadline, and concurrency tests
+- [ ] Low-volume live Anthropic generation and cache validation in AWS staging
 - [ ] Reproducible performance baseline and measured optimization
 - [ ] ECS rollback drill and post-performance staging cleanup
 - [ ] Automated browser end-to-end coverage

@@ -1,11 +1,10 @@
 # Chinstein Project Plan
 
-Last updated: 2026-09-11
+Last updated: 2026-09-14
 
 This plan separates the production application from the AWS staging environment.
-Production remains on Vercel, Render, and Neon. New infrastructure, resilience,
-and performance work is verified in staging before any production merge or
-deployment decision.
+Production remains on Vercel, Render, and Neon. Infrastructure, resilience, and
+performance work is verified in staging before a separate production decision.
 
 ## Current status
 
@@ -17,108 +16,140 @@ deployment decision.
 | A2 | ECS Express Mode HTTPS deployment | Complete |
 | A3 | Isolated Neon staging branch, schema migration, and 365-character seed | Complete |
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
-| A4.1 | Story-generation resilience | Designed; implementation not started |
-| A5 | Logs, rollback drill, runbook, and cleanup | In progress; about 50% |
+| A4.1 | Story-generation resilience | Implementation merged; disabled-mode staging acceptance complete |
+| A5 | Logs, recovery runbook, rollback drill, and cleanup | In progress; rollback and roll-forward drill remain |
 | PERF | Reproducible performance baseline and measured optimization | Not started |
 
-## Evidence collected for A4
+## Evidence collected through A4.1
 
-The manual staging walkthrough has verified all of the following:
+The manual staging walkthrough and deployment checks have verified all of the following:
 
 - the ECS health endpoint returns `200` and reaches PostgreSQL;
 - the allowed Vercel Preview origin receives the expected CORS header;
-- browser registration creates an isolated staging user;
-- login and re-login issue and validate JWTs;
-- authenticated profile, leaderboard, and daily-character reads succeed;
-- a study-session submission is graded by the server;
-- points, streak, learned-character count, badge, and leaderboard rank persist;
-- CloudWatch receives container startup, shutdown, and application error logs;
-- a missing Anthropic key degrades the story only and does not break the quiz.
+- browser registration, login, authenticated reads, server-side grading, and
+  persisted profile and leaderboard updates work through the staging stack;
+- CloudWatch receives startup, graceful shutdown, and application error logs;
+- the story-resilience implementation passed 56 automated tests across 8 files,
+  followed by test type-checking and a production build;
+- the repeatable schema migration added the attempt counter and terminal `failed` state;
+- the commit-tagged `linux/amd64` image was stored in ECR and deployed as ECS task
+  definition revision 6;
+- revision 6 reached `COMPLETED` with 1 running task and 0 pending tasks;
+- the task definition uses the expected immutable image and keeps runtime secrets
+  separate from plain environment variables;
+- with no Anthropic key, CloudWatch emits one startup warning rather than a new
+  error for every request;
+- opening an uncached character shows the fallback while the stroke order and quiz
+  remain usable; and
+- the same character remained `pending` with 0 attempts and no start time after
+  that browser request, proving the disabled path did not claim the row.
 
-No production account or production database row was used for this walkthrough.
+No production account or production database row was used for these checks. No
+real Anthropic request has been made as part of A4.1 acceptance yet.
 
 ## A4.1 - story-generation resilience
 
-Target branch: `improve/story-generation-resilience`
+Implementation branch: `improve/story-generation-resilience`
 
-Estimated focused time: 6-8 hours.
+Merged in PR #10. The implementation and disabled-mode staging checks are complete.
+Live provider and cache behavior remain a small, separate staging acceptance step.
 
-| ID | Change | Acceptance condition |
+| ID | Change | Verified result |
 | --- | --- | --- |
-| A4.1-1 | Add `isGenerationEnabled()` in the Claude module | A missing or whitespace-only key disables generation before any database claim |
+| A4.1-1 | Add `isGenerationEnabled()` in the Claude module | A missing, empty, or whitespace-only key disables generation before any database claim |
 | A4.1-2 | Emit one startup warning when generation is disabled | CloudWatch shows configuration state once per container start, not once per request |
-| A4.1-3 | Add `story_attempts` and the `failed` state | Migration is repeatable and the status CHECK constraint accepts the new terminal state |
-| A4.1-4 | Increment attempts in the atomic claim | Receiving permission to call the provider consumes one attempt, including a later task crash |
-| A4.1-5 | Cap a generation cycle at three claims | A fourth request does not call Anthropic |
-| A4.1-6 | Finalize normal failures as `pending` or `failed` | Failed rows have an explicit operational meaning instead of remaining permanently `generating` |
-| A4.1-7 | Reconcile stale claims | A stale claim below budget can be reclaimed; an exhausted stale claim becomes `failed` |
-| A4.1-8 | Pair claim finalization structurally | An unexpected exception cannot silently abandon a claim until the stale timeout |
-| A4.1-9 | Add an overall generation deadline | SDK retries cannot make the request wait beyond the application deadline |
-| A4.1-10 | Validate words rather than character count | Validation matches the 40-70-word prompt, with a documented tolerance |
-| A4.1-11 | Document targeted manual recovery | Operators can inspect and reset a confirmed failed character without adding an admin endpoint |
+| A4.1-3 | Add `story_attempts` and the `failed` state | The repeatable migration and database constraint test accept the new terminal state |
+| A4.1-4 | Increment attempts in the atomic claim | Permission to call the provider consumes one attempt, including a later task crash |
+| A4.1-5 | Cap a generation cycle at three claims | After three failed claims, later requests do not invoke the generator |
+| A4.1-6 | Finalize normal failures as `pending` or `failed` | Rows below budget may retry; an exhausted row has an explicit terminal state |
+| A4.1-7 | Reconcile stale claims | A stale claim below budget is reclaimed; an exhausted stale claim becomes `failed` |
+| A4.1-8 | Pair claim finalization structurally | Unexpected generator rejection releases the claim instead of abandoning it |
+| A4.1-9 | Add an overall generation deadline | The SDK request receives a 35-second abort signal; this bounds client waiting and retries, not necessarily provider billing already in progress |
+| A4.1-10 | Validate words rather than character count | Accepted output is 35-80 words, no more than 600 characters, and not a refusal |
+| A4.1-11 | Document targeted manual recovery | Operators can inspect and reset a confirmed failed character without an admin endpoint |
 
-### A4.1 test protocol
+### A4.1 automated test evidence
 
-All automated tests use mocks and must make zero real Anthropic API calls.
+All automated tests use mocks and make zero real Anthropic API calls.
 
-- With generation disabled, claim count and attempt count remain unchanged.
-- A controlled deferred generation owns the first claim.
-- Later concurrent requests return the fallback before the deferred result is released.
-- A concurrent cold-miss wave invokes the generator exactly once.
-- A usable result becomes `ready` and remains cached.
-- A `null` result releases the claim and consumes exactly one attempt.
-- Three failed claims produce `failed`; a fourth request does not invoke the generator.
-- A stale claim below budget is reclaimed exactly once.
-- A stale claim at the budget limit becomes `failed` without another provider call.
-- SDK rejection, overall abort, unusable output, and an unexpected generator rejection have explicit tests.
+- disabled generation leaves the state and attempt count unchanged;
+- a controlled deferred generation allows only one concurrent request to generate;
+- losing concurrent requests return the fallback before the winner is released;
+- a usable result becomes `ready` and remains cached;
+- a `null` result releases the claim and consumes exactly one attempt;
+- three failed claims produce `failed`, and a fourth request does not invoke the generator;
+- a stale claim below budget is reclaimed;
+- a stale claim at the budget limit becomes `failed` without another provider call;
+- SDK rejection, an overall deadline signal, unusable output, and unexpected
+  generator rejection have explicit coverage; and
+- PostgreSQL defaults and the story-status CHECK constraint have database-level coverage.
 
-Wall-clock comparisons are not used for the concurrent fast-path test. The test
-holds the winning mock promise open, proves that the losing requests have already
-returned, and only then resolves the winner.
+The concurrent fast-path test does not depend on wall-clock timing. It holds the
+winning mock promise open, proves that the losing request has already returned,
+and only then resolves the winner.
 
-### Recovery runbook requirement
+### Failed-story recovery runbook
 
-The runbook must first list failed rows and then reset only a confirmed target.
-A bulk reset may be documented separately.
+First inspect failed rows:
 
-The reset clears `story_started_at`, sets `story_status` to `pending`, and starts a
-new attempt cycle at zero. It must only be used after the key, prompt, provider,
-or application failure has been corrected.
+```sql
+SELECT id, character, story_status, story_attempts, story_started_at
+  FROM characters
+ WHERE story_status = 'failed'
+ ORDER BY id;
+```
 
-## Staging delivery gate for A4.1
+After correcting the underlying key, provider, prompt, validation, or application
+problem, reset one confirmed character by ID:
 
-1. Start the branch from the latest `main` after PR #9.
-2. Run unit, integration, type-check, and build checks locally.
-3. Build an image tagged with the exact commit SHA.
-4. Deploy that immutable image to AWS staging without merging to `main`.
-5. Keep story generation disabled for the first smoke test.
-6. Add the staging-only Anthropic secret through AWS Secrets Manager.
-7. Make only a small number of live cold-generation requests.
-8. Verify the cached follow-up path, CloudWatch logs, and Anthropic usage report.
-9. Complete the rollback drill before considering a production merge.
+```sql
+UPDATE characters
+   SET story_status = 'pending',
+       story_attempts = 0,
+       story_started_at = NULL
+ WHERE id = $1
+   AND story_status = 'failed';
+```
 
-Merging to `main` is a separate approval gate because it can trigger the existing
-Render production deployment. A successful staging test does not authorize that
-merge by itself.
+Use the affected-row count to confirm that exactly one intended row was changed.
+There is deliberately no public recovery endpoint because the application does
+not yet have an administrator authorization model.
 
-## A5 - operations and closeout
+## Remaining staging acceptance and A5 closeout
 
-| Work item | Status |
-| --- | --- |
-| CloudWatch log delivery | Complete |
-| Staging browser-flow log review | Complete |
-| Missing story-generation configuration identified | Complete |
-| Roll back the A4.1 ECS revision to the known-good revision | Pending A4.1 deployment |
-| Roll forward again and repeat the health check | Pending |
-| Record rollback and failed-story recovery procedures | Pending |
-| Delete staging resources | Deferred until all performance work is complete |
+Completed:
 
-Estimated remaining A5 time: 1-2 hours, excluding resource-retention time.
+- [x] synchronize with the latest `main` and run local unit, integration,
+  type-check, and build checks;
+- [x] migrate the isolated Neon staging branch after verifying the sanitized target;
+- [x] build and push a commit-tagged `linux/amd64` image;
+- [x] deploy the immutable image as ECS task definition revision 6;
+- [x] verify deployment completion, task count, image identity, health, and CORS;
+- [x] verify disabled-mode startup logging and graceful shutdown logging;
+- [x] verify the real browser fallback and the no-claim/no-attempt database invariant; and
+- [x] record the failed-story recovery procedure.
+
+Remaining:
+
+- [ ] create and attach a staging-only Anthropic secret without changing production;
+- [ ] make only a few live cold-generation requests;
+- [ ] verify the saved `ready` story, cache-hit path, CloudWatch output, and provider usage;
+- [ ] remove or disable the staging-only provider secret after the bounded experiment if desired;
+- [ ] roll revision 6 back to the known-good revision 5 and repeat health/CORS checks;
+- [ ] roll forward to revision 6 and repeat the same checks; and
+- [ ] retain staging resources until performance evidence is complete, then clean them up.
+
+PR #10 was merged before the final disabled-mode AWS acceptance was finished. The
+acceptance passed, but future staging changes should restore the intended order:
+deploy and verify the immutable candidate first, then approve a production-impacting
+merge separately. A healthy staging task alone is not production authorization.
+
+Estimated remaining A5 time: about 1-2 focused hours, excluding resource-retention time.
 
 ## PERF - performance work
 
 The core service benchmark and the external-AI benchmark are separate experiments.
-Mixing cold LLM generation into a sub-second API latency target would measure a
+Mixing cold model generation into a sub-second API latency target would measure a
 different system and make the result difficult to explain.
 
 | Phase | Scope |
@@ -136,17 +167,18 @@ Main benchmark invariant:
 
 > When all benchmark stories are `ready`, Anthropic call count is zero.
 
-Estimated time:
+Estimated remaining time:
 
 - baseline only: 2-4 hours;
-- complete performance phase with analysis and retesting: 12-20 hours;
-- A4.1, remaining A5, and complete performance phase: approximately 19-30 hours.
+- complete performance phase with analysis and retesting: 12-20 hours; and
+- remaining A5 plus complete performance work: approximately 13-22 hours.
 
 ## Safety and cost boundaries
 
-- Do not put secrets, account IDs, database URLs, or secret ARNs in the repository.
+- Do not put secrets, account IDs, database URLs, secret ARNs, or private hostnames in the repository.
+- Verify a sanitized hostname and database branch before every staging migration.
 - Do not use production users or production data in staging tests.
 - Do not change Vercel Production or Render Production while testing staging.
-- Keep the Anthropic test small and controlled; use cached stories for the main load test.
+- Keep live Anthropic testing small and controlled; use cached synthetic stories for the main load test.
 - Keep automatic API credit reload disabled unless a deliberate budget is approved.
 - Do not delete the staging service or database branch until performance work and rollback evidence are complete.
