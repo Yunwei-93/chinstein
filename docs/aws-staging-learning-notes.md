@@ -29,7 +29,7 @@ whereas the Render free-tier production API may sleep when idle.
 | ECR | Stores immutable Docker images for the API |
 | ECS Express Mode | Runs the API container on Fargate and provides an HTTPS application URL |
 | IAM execution role | Lets ECS pull the image, write logs, and read only the approved runtime secret |
-| Secrets Manager | Stores `DATABASE_URL`, `JWT_SECRET`, and later the staging-only Anthropic key |
+| Secrets Manager | Stores `DATABASE_URL`, `JWT_SECRET`, and the staging-only Anthropic key |
 | CloudWatch | Stores container logs and exposes operational metrics |
 | Application Load Balancer | Terminates HTTPS and routes traffic to the running ECS task |
 | Neon staging branch | Isolates schema and test data from production |
@@ -60,6 +60,12 @@ Current verified checkpoint:
 - the service rollout reached `COMPLETED` with 1 running task and 0 pending tasks; and
 - the task definition exposes only `PORT` and `CORS_ORIGIN` as plain configuration,
   while `DATABASE_URL` and `JWT_SECRET` are injected as runtime secrets.
+
+Revision 7 later kept the same application candidate and added
+`ANTHROPIC_API_KEY` as a third secret environment-variable reference. The value
+remained in Secrets Manager; neither the task definition inspection nor the
+repository exposed it. A new task was required because ECS injects referenced
+secret values when the container starts.
 
 ECR storing a new image does not update a running service by itself. The deployment
 changes only when a new task-definition revision selects the image and ECS replaces
@@ -180,6 +186,21 @@ ECS Express Mode may leave the top-level task-definition field empty while the
 deployment entry contains the concrete revision. The deployment entry is the
 useful value for this check.
 
+### Rollback and roll-forward evidence
+
+The A5 drill selected task definition revision 5 as the known-good rollback target.
+Revision 5 reached `COMPLETED` with 1 running task and 0 pending tasks, and both the
+database-aware health check and exact-origin CORS check passed. The service was then
+rolled forward to revision 6, where the same deployment, health, and CORS checks
+passed again. CloudWatch showed the replaced task receiving `SIGTERM` and closing
+cleanly.
+
+This exercise changed the task-definition revision selected by the service; it did
+not overwrite an image in ECR. The later revision 7 added the staging provider
+secret and is now the active configuration. Revision 6 remains the immediate
+no-provider configuration rollback point, while revision 5 is the older application
+revision that was exercised during the drill.
+
 ## 9. AWS CLI login sessions
 
 The AWS CLI uses temporary credentials for this profile. Letting the session
@@ -267,8 +288,42 @@ started at: null
 ```
 
 This is direct evidence that the missing-key path did not claim the row or consume
-the retry budget. It is not evidence of a live provider call: no real Anthropic
-generation or cache-write acceptance test has been run yet.
+the retry budget.
+
+### Live-provider and cache evidence
+
+A later bounded experiment added the staging-only key to the existing runtime
+secret and referenced its individual JSON field from task definition revision 7.
+The rollout reached `COMPLETED` with 1 running task and 0 pending tasks. Its startup
+did not emit the disabled-generation warning, and the health and CORS checks still
+passed.
+
+The first uncached character changed from `pending`, 0 attempts, and no story to:
+
+```text
+story present: yes
+status: ready
+attempts: 1
+started at: null
+source: claude
+```
+
+The controlled cache read left the current character at `ready` with one attempt,
+showing that it read the saved story rather than obtaining another provider claim.
+CloudWatch contained no generation-failure or unusable-response event during the
+experiment.
+
+The provider report for the selected API key and date range recorded 679 input
+tokens and 148 output tokens. At the then-current Haiku 4.5 list price of $1 per
+million input tokens and $5 per million output tokens, that is an estimated
+$0.001419. The Cost page showed $0.01 for the broader last-30-days/all-keys view,
+so that rounded aggregate must not be attributed solely to this experiment.
+
+Two cold rows were created rather than one because the experiment crossed GMT
+midnight. The database session reported `GMT`, and `CURRENT_DATE` advanced between
+the requests, changing the daily character from `床` to `窗`. Both rows were
+`ready`, had one attempt, and recorded `claude` as their source. This was two
+legitimate daily-character generations, not duplicate generation for one cache key.
 
 ### Manual recovery
 
@@ -313,6 +368,10 @@ The external-AI experiment is deliberately small and separately reports:
 This separation keeps an external seconds-scale dependency out of the core
 sub-second API latency target.
 
+The A5 live-provider gate is complete. It established real provider connectivity,
+database persistence, a cache hit, and a bounded usage record; it did not record a
+precise cold-generation latency. PERF-P5 should measure that latency separately.
+
 ## 13. Safety checklist
 
 - Confirm the AWS region and profile before any write command.
@@ -324,4 +383,4 @@ sub-second API latency target.
 - Treat a production-impacting merge as a separate decision from a healthy staging rollout.
 - PR #10 was merged before final disabled-mode staging acceptance; that acceptance
   passed, but future changes should restore the intended verify-before-merge order.
-- Do not delete staging resources until rollback and performance evidence are complete.
+- Do not delete staging resources until performance evidence and final cleanup are complete.

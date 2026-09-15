@@ -36,17 +36,25 @@ The story-resilience work in A4.1 is a correctness and cost-control prerequisite
 not a performance optimization. Its attempt budget, terminal `failed` state,
 stale-claim recovery, generation-disabled guard, deadline, and concurrency tests
 are now implemented. The disabled-mode path has also passed a real AWS staging
-browser check without claiming the row or consuming an attempt.
+browser check without claiming the row or consuming an attempt. The later live
+staging check generated two daily characters across a GMT date boundary, saved
+both as `ready` with one attempt each, and verified that a repeated read did not
+increase the attempt count. The selected provider report showed 679 input tokens
+and 148 output tokens, with an estimated list-price cost of about $0.001419.
 
-Before beginning the core benchmark, finish these gates:
+Gates completed before the core benchmark:
 
-1. run a small live-provider staging check and verify the first write plus the cache hit;
-2. complete the ECS rollback and roll-forward drill;
-3. freeze the benchmark scenarios, targets, and error budget; and
-4. seed only synthetic benchmark data with fixed-size stories already marked `ready`.
+1. a small live-provider staging check verified the first writes plus a cache hit; and
+2. the ECS rollback and roll-forward drill passed health and CORS checks.
 
-The live-provider gate is deliberately low volume and is not part of the load test.
-No real provider latency, usage, or cost measurement has been recorded yet.
+Remaining benchmark setup:
+
+1. freeze the benchmark scenarios, targets, and error budget; and
+2. seed only synthetic benchmark data with fixed-size stories already marked `ready`.
+
+The live-provider gate was deliberately low volume and is not part of the load test.
+Usage and estimated cost were recorded, but precise provider latency was not; that
+measurement remains part of the separate external-AI scenario.
 
 ### Repeated profile calculation in `createSession()`
 

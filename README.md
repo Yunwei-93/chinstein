@@ -139,9 +139,15 @@ more than 600 characters, and is not a refusal response.
 If generation is not configured, the capability check happens before the database claim. The page
 renders a story fallback without consuming an attempt or changing the row, while the stroke
 animation and quiz continue to work. AWS staging verified this path in the real browser and then
-confirmed that the uncached row was still `pending` with zero attempts. Live provider generation
-and cache persistence remain a separate, low-volume staging check; this is not a claim that the new
-provider path has been deployed to production.
+confirmed that the uncached row was still `pending` with zero attempts.
+
+The separate live-provider check was deliberately small. A staging-only key was injected from
+Secrets Manager, two characters were generated across a GMT date boundary, and both rows became
+`ready` with `story_source = 'claude'` and one attempt each. Refreshing the current character left
+its attempt count at one, verifying the database cache path. The provider report recorded 679 input
+tokens and 148 output tokens; at the then-current Haiku 4.5 list price, the estimated experiment
+cost was about $0.0014. This is staging evidence, not a claim that the provider path has been
+deployed to production.
 
 **The production image only carries what it needs to run.** The API's Dockerfile builds in two
 stages: the first installs everything, compiles TypeScript, then prunes the dev dependencies; the
@@ -350,9 +356,10 @@ rows and constraints in a real PostgreSQL database.
 - [x] Isolated AWS ECS and Neon staging deployment
 - [x] Manual Vercel Preview → AWS → Neon registration, login, study, and persistence walkthrough
 - [x] Story-generation attempt budget, terminal failure state, overall deadline, and concurrency tests
-- [ ] Low-volume live Anthropic generation and cache validation in AWS staging
+- [x] Low-volume live Anthropic generation and cache validation in AWS staging
+- [x] ECS task-definition rollback and roll-forward drill
 - [ ] Reproducible performance baseline and measured optimization
-- [ ] ECS rollback drill and post-performance staging cleanup
+- [ ] Post-performance staging cleanup
 - [ ] Automated browser end-to-end coverage
 - [ ] Spaced repetition
 
@@ -363,8 +370,10 @@ rows and constraints in a real PostgreSQL database.
   limits and a captcha would be the next layer.
 - **"Today" is whatever the server says it is.** Every date now comes from one clock, which fixed
   a bug where the browser and the database disagreed about whether you'd studied. But it means
-  someone in Tokyo gets a new character at 9am local, not midnight. Proper fix is storing each
-  user's timezone.
+  the character changes at the PostgreSQL session's GMT midnight rather than the user's midnight.
+  The staging provider check observed this directly when the character changed at 8pm in New York.
+  Someone in Tokyo gets a new character at 9am local. A user-timezone policy would be needed if
+  local-midnight behavior becomes a requirement.
 - **Getting the quiz wrong costs you the day.** The one-row-per-day constraint stops duplicate
   submissions, which is what I wanted, but it also means no second try and you never find out the
   right answer. I tied "one submission" and "one chance to learn" together without meaning to.

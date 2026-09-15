@@ -16,11 +16,11 @@ performance work is verified in staging before a separate production decision.
 | A2 | ECS Express Mode HTTPS deployment | Complete |
 | A3 | Isolated Neon staging branch, schema migration, and 365-character seed | Complete |
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
-| A4.1 | Story-generation resilience | Implementation merged; disabled-mode staging acceptance complete |
-| A5 | Logs, recovery runbook, rollback drill, and cleanup | In progress; rollback and roll-forward drill remain |
+| A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
+| A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
 | PERF | Reproducible performance baseline and measured optimization | Not started |
 
-## Evidence collected through A4.1
+## Evidence collected through A5
 
 The manual staging walkthrough and deployment checks have verified all of the following:
 
@@ -42,17 +42,30 @@ The manual staging walkthrough and deployment checks have verified all of the fo
 - opening an uncached character shows the fallback while the stroke order and quiz
   remain usable; and
 - the same character remained `pending` with 0 attempts and no start time after
-  that browser request, proving the disabled path did not claim the row.
+  that browser request, proving the disabled path did not claim the row;
+- revision 6 was rolled back to the known-good revision 5 and then rolled forward
+  to revision 6, with each rollout reaching `COMPLETED`, 1 running task, and 0 pending;
+- health and exact-origin CORS checks passed on both sides of that drill;
+- CloudWatch captured graceful `SIGTERM` handling during task replacement;
+- revision 7 added the staging-only Anthropic secret without changing production;
+- two live cold generations became `ready`, retained one attempt each, and recorded
+  `story_source = 'claude'`;
+- a repeated read left the current character at one attempt, proving a cache hit;
+- the provider report recorded 679 input and 148 output tokens for the selected key
+  and date range, an estimated cost of about $0.001419 at the then-current Haiku 4.5
+  list price; and
+- the experiment exposed the GMT date boundary when the daily character changed
+  between the two controlled requests.
 
 No production account or production database row was used for these checks. No
-real Anthropic request has been made as part of A4.1 acceptance yet.
+production endpoint or production secret was changed.
 
 ## A4.1 - story-generation resilience
 
 Implementation branch: `improve/story-generation-resilience`
 
 Merged in PR #10. The implementation and disabled-mode staging checks are complete.
-Live provider and cache behavior remain a small, separate staging acceptance step.
+The later A5 check also verified live provider generation and cache persistence.
 
 | ID | Change | Verified result |
 | --- | --- | --- |
@@ -115,7 +128,7 @@ Use the affected-row count to confirm that exactly one intended row was changed.
 There is deliberately no public recovery endpoint because the application does
 not yet have an administrator authorization model.
 
-## Remaining staging acceptance and A5 closeout
+## A5 closeout
 
 Completed:
 
@@ -126,25 +139,25 @@ Completed:
 - [x] deploy the immutable image as ECS task definition revision 6;
 - [x] verify deployment completion, task count, image identity, health, and CORS;
 - [x] verify disabled-mode startup logging and graceful shutdown logging;
-- [x] verify the real browser fallback and the no-claim/no-attempt database invariant; and
-- [x] record the failed-story recovery procedure.
+- [x] verify the real browser fallback and the no-claim/no-attempt database invariant;
+- [x] record the failed-story recovery procedure;
+- [x] roll revision 6 back to revision 5 and verify deployment, health, and CORS;
+- [x] roll forward to revision 6 and repeat the same checks;
+- [x] add the staging-only Anthropic secret through revision 7;
+- [x] make two bounded cold generations across the observed GMT date boundary;
+- [x] verify `ready` rows, one attempt per character, cache persistence, CloudWatch,
+  and provider token usage; and
+- [x] keep automatic API credit reload disabled and retain staging resources only
+  for the upcoming performance phase.
 
-Remaining:
-
-- [ ] create and attach a staging-only Anthropic secret without changing production;
-- [ ] make only a few live cold-generation requests;
-- [ ] verify the saved `ready` story, cache-hit path, CloudWatch output, and provider usage;
-- [ ] remove or disable the staging-only provider secret after the bounded experiment if desired;
-- [ ] roll revision 6 back to the known-good revision 5 and repeat health/CORS checks;
-- [ ] roll forward to revision 6 and repeat the same checks; and
-- [ ] retain staging resources until performance evidence is complete, then clean them up.
+The staging-only provider secret may remain attached for the separate low-volume
+PERF-P5 experiment. The core benchmark must use synthetic `ready` stories and make
+zero Anthropic calls. Remove the secret and clean up staging resources at PERF-P7.
 
 PR #10 was merged before the final disabled-mode AWS acceptance was finished. The
 acceptance passed, but future staging changes should restore the intended order:
 deploy and verify the immutable candidate first, then approve a production-impacting
 merge separately. A healthy staging task alone is not production authorization.
-
-Estimated remaining A5 time: about 1-2 focused hours, excluding resource-retention time.
 
 ## PERF - performance work
 
@@ -170,8 +183,7 @@ Main benchmark invariant:
 Estimated remaining time:
 
 - baseline only: 2-4 hours;
-- complete performance phase with analysis and retesting: 12-20 hours; and
-- remaining A5 plus complete performance work: approximately 13-22 hours.
+- complete performance phase with analysis and retesting: 12-20 hours.
 
 ## Safety and cost boundaries
 
@@ -181,4 +193,4 @@ Estimated remaining time:
 - Do not change Vercel Production or Render Production while testing staging.
 - Keep live Anthropic testing small and controlled; use cached synthetic stories for the main load test.
 - Keep automatic API credit reload disabled unless a deliberate budget is approved.
-- Do not delete the staging service or database branch until performance work and rollback evidence are complete.
+- Do not delete the staging service or database branch until performance work and final cleanup are complete.
