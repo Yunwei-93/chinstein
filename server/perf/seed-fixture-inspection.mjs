@@ -1,73 +1,48 @@
-import {
-    PerfSafetyError,
-} from "./staging-guard.mjs";
+import { PerfSafetyError } from './staging-guard.mjs'
 
-import {
-    HISTORY_DAYS,
-    CHARACTER_COUNT,
-    POOLS,
-} from "./fixture-config.mjs";
+import { HISTORY_DAYS, CHARACTER_COUNT, POOLS } from './fixture-config.mjs'
 
-const CORRECT_POINTS = 20;
+const CORRECT_POINTS = 20
 
 function assertIsoDateShape(value) {
-    if (
-        typeof value !== "string" ||
-        !/^\d{4}-\d{2}-\d{2}$/.test(value)
-    ) {
-        throw new PerfSafetyError(
-            "Fixture date must use YYYY-MM-DD format"
-        );
-    }
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    throw new PerfSafetyError('Fixture date must use YYYY-MM-DD format')
+  }
 }
 
 function toSafeInteger(value, fieldName) {
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-        throw new PerfSafetyError(
-            `Missing integer value for ${fieldName}`
-        );
-    }
+  if (value === null || value === undefined || value === '') {
+    throw new PerfSafetyError(`Missing integer value for ${fieldName}`)
+  }
 
-    const normalized = Number(value);
+  const normalized = Number(value)
 
-    if (!Number.isSafeInteger(normalized)) {
-        throw new PerfSafetyError(
-            `Invalid integer value for ${fieldName}`
-        );
-    }
+  if (!Number.isSafeInteger(normalized)) {
+    throw new PerfSafetyError(`Invalid integer value for ${fieldName}`)
+  }
 
-    return normalized;
+  return normalized
 }
 
 function toBoolean(value, fieldName) {
-    if (typeof value !== "boolean") {
-        throw new PerfSafetyError(
-            `Invalid boolean value for ${fieldName}`
-        );
-    }
+  if (typeof value !== 'boolean') {
+    throw new PerfSafetyError(`Invalid boolean value for ${fieldName}`)
+  }
 
-    return value;
+  return value
 }
 
 // Collect fixed-size aggregate facts about the PERF session fixture.
 // This function reads database state but never changes it.
-export async function inspectPerfSessionFacts(
-    client,
-    fixtureDate
-) {
-    if (!client || typeof client.query !== "function") {
-        throw new PerfSafetyError(
-            "Session inspection requires a database client"
-        );
-    }
+export async function inspectPerfSessionFacts(client, fixtureDate) {
+  if (!client || typeof client.query !== 'function') {
+    throw new PerfSafetyError('Session inspection requires a database client')
+  }
 
-    assertIsoDateShape(fixtureDate);
+  assertIsoDateShape(fixtureDate)
 
-    const result = await client.query(`
+  const result = await client.query(
+    `
         WITH fixture_constants AS (
             SELECT
                 (
@@ -352,98 +327,86 @@ export async function inspectPerfSessionFacts(
         CROSS JOIN session_unique_contract AS contract
 
         CROSS JOIN session_audit AS audit
-    `, [
-        fixtureDate,
-        HISTORY_DAYS,
-        CHARACTER_COUNT,
-        POOLS.R.firstSeq,
-        POOLS.R.lastSeq,
-        POOLS.A.firstSeq,
-        POOLS.A.lastSeq,
-        POOLS.B.firstSeq,
-        POOLS.B.lastSeq,
-        CORRECT_POINTS,
-    ]);
+    `,
+    [
+      fixtureDate,
+      HISTORY_DAYS,
+      CHARACTER_COUNT,
+      POOLS.R.firstSeq,
+      POOLS.R.lastSeq,
+      POOLS.A.firstSeq,
+      POOLS.A.lastSeq,
+      POOLS.B.firstSeq,
+      POOLS.B.lastSeq,
+      CORRECT_POINTS,
+    ],
+  )
 
-    const state = result.rows[0];
+  const state = result.rows[0]
 
-    if (!state) {
-        throw new PerfSafetyError(
-            "Session inspection returned no aggregate result"
-        );
-    }
+  if (!state) {
+    throw new PerfSafetyError('Session inspection returned no aggregate result')
+  }
 
-    if (state.fixture_date !== fixtureDate) {
-        throw new PerfSafetyError(
-            "Database changed the supplied fixture date"
-        );
-    }
+  if (state.fixture_date !== fixtureDate) {
+    throw new PerfSafetyError('Database changed the supplied fixture date')
+  }
 
-    const integerFields = [
-        "daily_character_id",
-        "study_sessions",
-        "historical_sessions",
-        "fixture_date_sessions",
-        "sessions_before_history",
-        "sessions_after_fixture_date",
-        "sessions_outside_date_range",
-        "unmapped_user_sessions",
-        "unmapped_character_sessions",
-        "invalid_historical_sessions",
-        "invalid_strict_fixture_sessions",
-        "invalid_reseed_fixture_sessions",
-        "pool_r_fixture_sessions",
-        "pool_a_fixture_sessions",
-        "pool_b_fixture_sessions",
-    ];
+  const integerFields = [
+    'daily_character_id',
+    'study_sessions',
+    'historical_sessions',
+    'fixture_date_sessions',
+    'sessions_before_history',
+    'sessions_after_fixture_date',
+    'sessions_outside_date_range',
+    'unmapped_user_sessions',
+    'unmapped_character_sessions',
+    'invalid_historical_sessions',
+    'invalid_strict_fixture_sessions',
+    'invalid_reseed_fixture_sessions',
+    'pool_r_fixture_sessions',
+    'pool_a_fixture_sessions',
+    'pool_b_fixture_sessions',
+  ]
 
-    const numbers = Object.fromEntries(
-        integerFields.map((fieldName) => [
-            fieldName,
-            toSafeInteger(
-                state[fieldName],
-                fieldName
-            ),
-        ])
-    );
+  const numbers = Object.fromEntries(
+    integerFields.map((fieldName) => [fieldName, toSafeInteger(state[fieldName], fieldName)]),
+  )
 
-    return {
-        fixtureDate: state.fixture_date,
-        currentDate: state.current_date,
-        wallDate: state.wall_date,
+  return {
+    fixtureDate: state.fixture_date,
+    currentDate: state.current_date,
+    wallDate: state.wall_date,
 
-        dailyCharacterId: numbers.daily_character_id,
+    dailyCharacterId: numbers.daily_character_id,
 
-        sessionUserDateUniqueConstraint:
-            toBoolean(
-                state.user_date_unique,
-                "user_date_unique"
-            ),
+    sessionUserDateUniqueConstraint: toBoolean(state.user_date_unique, 'user_date_unique'),
 
-        studySessions: numbers.study_sessions,
-        historicalSessions: numbers.historical_sessions,
-        fixtureDateSessions: numbers.fixture_date_sessions,
+    studySessions: numbers.study_sessions,
+    historicalSessions: numbers.historical_sessions,
+    fixtureDateSessions: numbers.fixture_date_sessions,
 
-        dateRange: {
-            minimum: state.minimum_date,
-            maximum: state.maximum_date,
-        },
+    dateRange: {
+      minimum: state.minimum_date,
+      maximum: state.maximum_date,
+    },
 
-        expectedDateRange: {
-            minimum: state.expected_minimum_date,
-            maximum: state.expected_maximum_date,
-        },
+    expectedDateRange: {
+      minimum: state.expected_minimum_date,
+      maximum: state.expected_maximum_date,
+    },
 
-        sessionsBeforeHistory: numbers.sessions_before_history,
-        sessionsAfterFixtureDate: numbers.sessions_after_fixture_date,
-        sessionsOutsideDateRange: numbers.sessions_outside_date_range,
-        unmappedUserSessions: numbers.unmapped_user_sessions,
-        unmappedCharacterSessions: numbers.unmapped_character_sessions,
-        invalidHistoricalSessions: numbers.invalid_historical_sessions,
-        invalidStrictFixtureDateSessions: numbers.invalid_strict_fixture_sessions,
-        invalidReseedFixtureDateSessions: numbers.invalid_reseed_fixture_sessions,
-        poolRFixtureDateSessions: numbers.pool_r_fixture_sessions,
-        poolAFixtureDateSessions: numbers.pool_a_fixture_sessions,
-        poolBFixtureDateSessions: numbers.pool_b_fixture_sessions,
-    };
+    sessionsBeforeHistory: numbers.sessions_before_history,
+    sessionsAfterFixtureDate: numbers.sessions_after_fixture_date,
+    sessionsOutsideDateRange: numbers.sessions_outside_date_range,
+    unmappedUserSessions: numbers.unmapped_user_sessions,
+    unmappedCharacterSessions: numbers.unmapped_character_sessions,
+    invalidHistoricalSessions: numbers.invalid_historical_sessions,
+    invalidStrictFixtureDateSessions: numbers.invalid_strict_fixture_sessions,
+    invalidReseedFixtureDateSessions: numbers.invalid_reseed_fixture_sessions,
+    poolRFixtureDateSessions: numbers.pool_r_fixture_sessions,
+    poolAFixtureDateSessions: numbers.pool_a_fixture_sessions,
+    poolBFixtureDateSessions: numbers.pool_b_fixture_sessions,
+  }
 }

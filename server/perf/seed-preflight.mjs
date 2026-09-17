@@ -1,27 +1,21 @@
-import { PerfSafetyError } from "./staging-guard.mjs";
+import { PerfSafetyError } from './staging-guard.mjs'
 
-
-const EXPECTED_DATABASE = "neondb";
-const UTC_MIDNIGHT_GUARD_SECONDS = 30 * 60;
+const EXPECTED_DATABASE = 'neondb'
+const UTC_MIDNIGHT_GUARD_SECONDS = 30 * 60
 
 // Define only; this function is not called yet.
 // The caller must start a transaction before invoking it.
 // Define only; this function is not called yet.
 // The caller must start a transaction before invoking it.
-export async function assertSafeSeedClock(
-    client,
-    { requireReadWrite = false } = {}
-) {
-    if (typeof requireReadWrite !== "boolean") {
-        throw new PerfSafetyError(
-            "requireReadWrite must be a boolean"
-        );
-    }
+export async function assertSafeSeedClock(client, { requireReadWrite = false } = {}) {
+  if (typeof requireReadWrite !== 'boolean') {
+    throw new PerfSafetyError('requireReadWrite must be a boolean')
+  }
 
-    // Make every date expression in this transaction explicitly use UTC.
-    await client.query("SET LOCAL TIME ZONE 'UTC'");
+  // Make every date expression in this transaction explicitly use UTC.
+  await client.query("SET LOCAL TIME ZONE 'UTC'")
 
-    const result = await client.query(`
+  const result = await client.query(`
         SELECT
             current_database() AS database,
             current_setting('TimeZone') AS timezone,
@@ -50,77 +44,58 @@ export async function assertSafeSeedClock(
                     )
                 )
             )::integer AS seconds_until_midnight
-    `);
+    `)
 
-    const state = result.rows[0];
-    const secondsSinceMidnight =
-        Number(state.seconds_since_midnight);
-    const secondsUntilMidnight =
-        Number(state.seconds_until_midnight);
+  const state = result.rows[0]
+  const secondsSinceMidnight = Number(state.seconds_since_midnight)
+  const secondsUntilMidnight = Number(state.seconds_until_midnight)
 
-    if (state.database !== EXPECTED_DATABASE) {
-        throw new PerfSafetyError(
-            "Seed transaction is connected to the wrong database"
-        );
-    }
+  if (state.database !== EXPECTED_DATABASE) {
+    throw new PerfSafetyError('Seed transaction is connected to the wrong database')
+  }
 
-    if (state.timezone !== "UTC") {
-        throw new PerfSafetyError(
-            "Seed transaction could not establish the UTC timezone"
-        );
-    }
+  if (state.timezone !== 'UTC') {
+    throw new PerfSafetyError('Seed transaction could not establish the UTC timezone')
+  }
 
-    if (state.in_recovery) {
-        throw new PerfSafetyError(
-            "Seed transaction is connected to a recovery replica"
-        );
-    }
+  if (state.in_recovery) {
+    throw new PerfSafetyError('Seed transaction is connected to a recovery replica')
+  }
 
-    if (
-        requireReadWrite &&
-        state.transaction_read_only !== "off"
-    ) {
-        throw new PerfSafetyError(
-            "Seed transaction is read-only"
-        );
-    }
+  if (requireReadWrite && state.transaction_read_only !== 'off') {
+    throw new PerfSafetyError('Seed transaction is read-only')
+  }
 
-    if (state.current_date !== state.wall_date) {
-        throw new PerfSafetyError(
-            "Database transaction date differs from the live UTC date"
-        );
-    }
+  if (state.current_date !== state.wall_date) {
+    throw new PerfSafetyError('Database transaction date differs from the live UTC date')
+  }
 
-    if (
-        !Number.isFinite(secondsSinceMidnight) ||
-        !Number.isFinite(secondsUntilMidnight) ||
-        secondsSinceMidnight <= UTC_MIDNIGHT_GUARD_SECONDS ||
-        secondsUntilMidnight <= UTC_MIDNIGHT_GUARD_SECONDS
-    ) {
-        throw new PerfSafetyError(
-            "Seed operation is inside the UTC midnight safety window"
-        );
-    }
+  if (
+    !Number.isFinite(secondsSinceMidnight) ||
+    !Number.isFinite(secondsUntilMidnight) ||
+    secondsSinceMidnight <= UTC_MIDNIGHT_GUARD_SECONDS ||
+    secondsUntilMidnight <= UTC_MIDNIGHT_GUARD_SECONDS
+  ) {
+    throw new PerfSafetyError('Seed operation is inside the UTC midnight safety window')
+  }
 
-    return {
-        database: state.database,
-        timezone: state.timezone,
-        seedDate: state.current_date,
-        transactionReadOnly:
-            state.transaction_read_only,
-        inRecovery: state.in_recovery,
-        writeModeRequired: requireReadWrite,
-        secondsSinceMidnight,
-        secondsUntilMidnight,
-        midnightGuardSeconds:
-            UTC_MIDNIGHT_GUARD_SECONDS,
-    };
+  return {
+    database: state.database,
+    timezone: state.timezone,
+    seedDate: state.current_date,
+    transactionReadOnly: state.transaction_read_only,
+    inRecovery: state.in_recovery,
+    writeModeRequired: requireReadWrite,
+    secondsSinceMidnight,
+    secondsUntilMidnight,
+    midnightGuardSeconds: UTC_MIDNIGHT_GUARD_SECONDS,
+  }
 }
 
 // Define only; this function is not called yet.
 // Verify every privilege required by the seed and verification workflow.
 export async function assertSeedPrivileges(client) {
-    const result = await client.query(`
+  const result = await client.query(`
         WITH required_table_privileges (
             relation_name,
             privilege_name
@@ -229,30 +204,24 @@ export async function assertSeedPrivileges(client) {
                 SELECT COUNT(*)
                 FROM required_schema_privileges
             )::integer AS schema_privileges_checked
-    `);
+    `)
 
-    const state = result.rows[0];
+  const state = result.rows[0]
 
-    const missingPrivileges = [
-        ...(state.missing_table_privileges ?? []),
-        ...(state.missing_sequence_privileges ?? []),
-        ...(state.missing_schema_privileges ?? []),
-    ];
+  const missingPrivileges = [
+    ...(state.missing_table_privileges ?? []),
+    ...(state.missing_sequence_privileges ?? []),
+    ...(state.missing_schema_privileges ?? []),
+  ]
 
-    if (missingPrivileges.length > 0) {
-        throw new PerfSafetyError(
-            `Missing seed privileges: ${missingPrivileges.join(", ")}`
-        );
-    }
+  if (missingPrivileges.length > 0) {
+    throw new PerfSafetyError(`Missing seed privileges: ${missingPrivileges.join(', ')}`)
+  }
 
-    return {
-        tablePrivilegesChecked:
-            Number(state.table_privileges_checked),
-        sequencePrivilegesChecked:
-            Number(state.sequence_privileges_checked),
-        schemaPrivilegesChecked:
-            Number(state.schema_privileges_checked),
-        missingPrivileges: 0,
-    };
+  return {
+    tablePrivilegesChecked: Number(state.table_privileges_checked),
+    sequencePrivilegesChecked: Number(state.sequence_privileges_checked),
+    schemaPrivilegesChecked: Number(state.schema_privileges_checked),
+    missingPrivileges: 0,
+  }
 }
-

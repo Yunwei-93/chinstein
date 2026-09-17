@@ -1,45 +1,30 @@
-import { PerfSafetyError } from "./staging-guard.mjs";
-import {
-  assertSafeSeedClock,
-  assertSeedPrivileges
-} from "./seed-preflight.mjs";
-import {
-  assertCoreColumns,
-  assertCoreRelations
-} from "./seed-schema-preflight.mjs";
+import { PerfSafetyError } from './staging-guard.mjs'
+import { assertSafeSeedClock, assertSeedPrivileges } from './seed-preflight.mjs'
+import { assertCoreColumns, assertCoreRelations } from './seed-schema-preflight.mjs'
 import {
   approvedSeedSourcesMatch,
-  assertApprovedSeedSourceDataset
-} from "./seed-dataset-preflight.mjs";
+  assertApprovedSeedSourceDataset,
+} from './seed-dataset-preflight.mjs'
 
 // Run every safety check required before replacing a staging dataset.
 export async function runWriteSafetyGates(
   client,
-  {
-    expectedDataset = null,
-    expectedClassification = null
-  } = {}
+  { expectedDataset = null, expectedClassification = null } = {},
 ) {
-  const requiredClassification =
-    expectedClassification ?? expectedDataset?.classification ?? null;
+  const requiredClassification = expectedClassification ?? expectedDataset?.classification ?? null
 
   const clock = await assertSafeSeedClock(client, {
-    requireReadWrite: true
-  });
-  const privileges = await assertSeedPrivileges(client);
-  const coreRelations = await assertCoreRelations(client);
-  const coreColumns = await assertCoreColumns(client);
+    requireReadWrite: true,
+  })
+  const privileges = await assertSeedPrivileges(client)
+  const coreRelations = await assertCoreRelations(client)
+  const coreColumns = await assertCoreColumns(client)
   const dataset = await assertApprovedSeedSourceDataset(client, {
-    expectedClassification: requiredClassification
-  });
+    expectedClassification: requiredClassification,
+  })
 
-  if (
-    expectedDataset !== null &&
-    !approvedSeedSourcesMatch(expectedDataset, dataset)
-  ) {
-    throw new PerfSafetyError(
-      "Approved seed source changed while acquiring locks"
-    );
+  if (expectedDataset !== null && !approvedSeedSourcesMatch(expectedDataset, dataset)) {
+    throw new PerfSafetyError('Approved seed source changed while acquiring locks')
   }
 
   return {
@@ -47,25 +32,25 @@ export async function runWriteSafetyGates(
     privileges,
     coreRelations,
     coreColumns,
-    dataset
-  };
+    dataset,
+  }
 }
 
 // Lock every table that belongs to the selected approved source.
 export async function lockApprovedSeedSource(client, dataset) {
-  if (dataset.mappingState === "absent") {
+  if (dataset.mappingState === 'absent') {
     await client.query(`
       LOCK TABLE
         public.users,
         public.study_sessions,
         public.characters
       IN ACCESS EXCLUSIVE MODE
-    `);
+    `)
 
-    return;
+    return
   }
 
-  if (dataset.mappingState === "present") {
+  if (dataset.mappingState === 'present') {
     await client.query(`
       LOCK TABLE
         public.users,
@@ -74,12 +59,10 @@ export async function lockApprovedSeedSource(client, dataset) {
         public.perf_users,
         public.perf_characters
       IN ACCESS EXCLUSIVE MODE
-    `);
+    `)
 
-    return;
+    return
   }
 
-  throw new PerfSafetyError(
-    "Cannot lock an unapproved seed source"
-  );
+  throw new PerfSafetyError('Cannot lock an unapproved seed source')
 }

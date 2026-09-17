@@ -1,116 +1,81 @@
-import {PerfSafetyError,} from "./staging-guard.mjs";
+import { PerfSafetyError } from './staging-guard.mjs'
 import {
-    HISTORY_DAYS,
-    CHARACTER_COUNT,
-    POOLS,
-    TOTAL_USERS,
-    HISTORICAL_SESSIONS,
-    TODAY_SESSIONS,
-    SYNTHETIC_STORY,
-    SYNTHETIC_STORY_SOURCE,
-} from "./fixture-config.mjs";
-import { inspectPerfSessionFacts } from "./seed-fixture-inspection.mjs";
-
+  HISTORY_DAYS,
+  CHARACTER_COUNT,
+  POOLS,
+  TOTAL_USERS,
+  HISTORICAL_SESSIONS,
+  TODAY_SESSIONS,
+  SYNTHETIC_STORY,
+  SYNTHETIC_STORY_SOURCE,
+} from './fixture-config.mjs'
+import { inspectPerfSessionFacts } from './seed-fixture-inspection.mjs'
 
 // Verify session dates, deterministic history, and pool behavior.
 // The shared inspector collects facts; this function applies
 // the strict post-seed policy.
-export async function verifySeededSessionQuality(
-    client,
-    seedDate
-) {
-    const facts = await inspectPerfSessionFacts(
-        client,
-        seedDate
-    );
+export async function verifySeededSessionQuality(client, seedDate) {
+  const facts = await inspectPerfSessionFacts(client, seedDate)
 
-    if (
-        seedDate !== facts.currentDate ||
-        seedDate !== facts.wallDate
-    ) {
-        throw new PerfSafetyError(
-            "Session quality verification date changed"
-        );
-    }
+  if (seedDate !== facts.currentDate || seedDate !== facts.wallDate) {
+    throw new PerfSafetyError('Session quality verification date changed')
+  }
 
-    if (!facts.sessionUserDateUniqueConstraint) {
-        throw new PerfSafetyError(
-            "The user and study-date uniqueness contract is missing"
-        );
-    }
+  if (!facts.sessionUserDateUniqueConstraint) {
+    throw new PerfSafetyError('The user and study-date uniqueness contract is missing')
+  }
 
-    if (
-        facts.studySessions !==
-            HISTORICAL_SESSIONS + TODAY_SESSIONS ||
-        facts.historicalSessions !==
-            HISTORICAL_SESSIONS ||
-        facts.fixtureDateSessions !==
-            TODAY_SESSIONS
-    ) {
-        throw new PerfSafetyError(
-            "Historical or current-day session totals are incorrect"
-        );
-    }
+  if (
+    facts.studySessions !== HISTORICAL_SESSIONS + TODAY_SESSIONS ||
+    facts.historicalSessions !== HISTORICAL_SESSIONS ||
+    facts.fixtureDateSessions !== TODAY_SESSIONS
+  ) {
+    throw new PerfSafetyError('Historical or current-day session totals are incorrect')
+  }
 
-    if (
-        facts.dateRange.minimum !==
-            facts.expectedDateRange.minimum ||
-        facts.dateRange.maximum !==
-            facts.expectedDateRange.maximum ||
-        facts.sessionsBeforeHistory !== 0 ||
-        facts.sessionsAfterFixtureDate !== 0 ||
-        facts.sessionsOutsideDateRange !== 0
-    ) {
-        throw new PerfSafetyError(
-            "Seeded session dates are outside the expected range"
-        );
-    }
+  if (
+    facts.dateRange.minimum !== facts.expectedDateRange.minimum ||
+    facts.dateRange.maximum !== facts.expectedDateRange.maximum ||
+    facts.sessionsBeforeHistory !== 0 ||
+    facts.sessionsAfterFixtureDate !== 0 ||
+    facts.sessionsOutsideDateRange !== 0
+  ) {
+    throw new PerfSafetyError('Seeded session dates are outside the expected range')
+  }
 
-    if (
-        facts.unmappedUserSessions !== 0 ||
-        facts.unmappedCharacterSessions !== 0
-    ) {
-        throw new PerfSafetyError(
-            "Seeded sessions contain unmapped users or characters"
-        );
-    }
+  if (facts.unmappedUserSessions !== 0 || facts.unmappedCharacterSessions !== 0) {
+    throw new PerfSafetyError('Seeded sessions contain unmapped users or characters')
+  }
 
-    if (
-        facts.invalidHistoricalSessions !== 0 ||
-        facts.invalidStrictFixtureDateSessions !== 0
-    ) {
-        throw new PerfSafetyError(
-            "Seeded character, correctness, or point values are invalid"
-        );
-    }
+  if (facts.invalidHistoricalSessions !== 0 || facts.invalidStrictFixtureDateSessions !== 0) {
+    throw new PerfSafetyError('Seeded character, correctness, or point values are invalid')
+  }
 
-    if (
-        facts.poolRFixtureDateSessions !== 0 ||
-        facts.poolAFixtureDateSessions !== 0 ||
-        facts.poolBFixtureDateSessions !==
-            TODAY_SESSIONS
-    ) {
-        throw new PerfSafetyError(
-            "Strict post-seed pool distribution is incorrect"
-        );
-    }
+  if (
+    facts.poolRFixtureDateSessions !== 0 ||
+    facts.poolAFixtureDateSessions !== 0 ||
+    facts.poolBFixtureDateSessions !== TODAY_SESSIONS
+  ) {
+    throw new PerfSafetyError('Strict post-seed pool distribution is incorrect')
+  }
 
-    return {
-        studySessions: facts.studySessions,
-        historicalSessions: facts.historicalSessions,
-        todaySessions: facts.fixtureDateSessions,
-        dateRange: facts.dateRange,
-        sessionsOutsideDateRange: facts.sessionsOutsideDateRange,
-        invalidHistoricalSessions: facts.invalidHistoricalSessions,
-        invalidTodaySessions: facts.invalidStrictFixtureDateSessions,
-        todayCharacterId: facts.dailyCharacterId,
-        seedDate,
-    };
+  return {
+    studySessions: facts.studySessions,
+    historicalSessions: facts.historicalSessions,
+    todaySessions: facts.fixtureDateSessions,
+    dateRange: facts.dateRange,
+    sessionsOutsideDateRange: facts.sessionsOutsideDateRange,
+    invalidHistoricalSessions: facts.invalidHistoricalSessions,
+    invalidTodaySessions: facts.invalidStrictFixtureDateSessions,
+    todayCharacterId: facts.dailyCharacterId,
+    seedDate,
+  }
 }
 // Define only; this function is not called yet.
 // Verify the top-level fixture counts and deterministic identifiers.
 export async function verifySeededStructure(client, seedDate) {
-    const result = await client.query(`
+  const result = await client.query(
+    `
         SELECT
             CURRENT_DATE::text AS current_date,
             clock_timestamp()::date::text AS wall_date,
@@ -220,94 +185,77 @@ export async function verifySeededStructure(client, seedDate) {
                     OR story_attempts IS DISTINCT FROM 0
                     OR story_started_at IS NOT NULL
             )::bigint AS invalid_synthetic_stories
-    `, [
-        SYNTHETIC_STORY,
-        SYNTHETIC_STORY_SOURCE,
-    ]);
+    `,
+    [SYNTHETIC_STORY, SYNTHETIC_STORY_SOURCE],
+  )
 
-    const state = result.rows[0];
+  const state = result.rows[0]
 
-    if (
-        seedDate !== state.current_date ||
-        seedDate !== state.wall_date
-    ) {
-        throw new PerfSafetyError(
-            "Seed verification date does not match the database date"
-        );
-    }
+  if (seedDate !== state.current_date || seedDate !== state.wall_date) {
+    throw new PerfSafetyError('Seed verification date does not match the database date')
+  }
 
-    if (
-        Number(state.users) !== TOTAL_USERS ||
-        Number(state.user_mappings) !== TOTAL_USERS ||
-        Number(state.characters) !== CHARACTER_COUNT ||
-        Number(state.character_mappings) !== CHARACTER_COUNT ||
-        Number(state.study_sessions) !==
-        HISTORICAL_SESSIONS + TODAY_SESSIONS
-    ) {
-        throw new PerfSafetyError(
-            "Seeded core row counts do not match the frozen fixture"
-        );
-    }
+  if (
+    Number(state.users) !== TOTAL_USERS ||
+    Number(state.user_mappings) !== TOTAL_USERS ||
+    Number(state.characters) !== CHARACTER_COUNT ||
+    Number(state.character_mappings) !== CHARACTER_COUNT ||
+    Number(state.study_sessions) !== HISTORICAL_SESSIONS + TODAY_SESSIONS
+  ) {
+    throw new PerfSafetyError('Seeded core row counts do not match the frozen fixture')
+  }
 
-    if (
-        Number(state.minimum_user_seq) !== 1 ||
-        Number(state.maximum_user_seq) !== TOTAL_USERS ||
-        Number(state.minimum_character_seq) !== 1 ||
-        Number(state.maximum_character_seq) !== CHARACTER_COUNT
-    ) {
-        throw new PerfSafetyError(
-            "Synthetic mapping sequence ranges are incomplete"
-        );
-    }
+  if (
+    Number(state.minimum_user_seq) !== 1 ||
+    Number(state.maximum_user_seq) !== TOTAL_USERS ||
+    Number(state.minimum_character_seq) !== 1 ||
+    Number(state.maximum_character_seq) !== CHARACTER_COUNT
+  ) {
+    throw new PerfSafetyError('Synthetic mapping sequence ranges are incomplete')
+  }
 
-    if (
-        Number(state.distinct_password_hashes) !== 1 ||
-        Number(state.invalid_fixture_users) !== 0 ||
-        Number(state.unmapped_users) !== 0 ||
-        Number(state.unmapped_sessions) !== 0 ||
-        Number(state.unmapped_characters) !== 0 ||
-        Number(state.mismatched_character_mappings) !== 0 ||
-        Number(state.invalid_synthetic_stories) !== 0
-    ) {
-        throw new PerfSafetyError(
-            "Seeded fixture integrity checks failed"
-        );
-    }
+  if (
+    Number(state.distinct_password_hashes) !== 1 ||
+    Number(state.invalid_fixture_users) !== 0 ||
+    Number(state.unmapped_users) !== 0 ||
+    Number(state.unmapped_sessions) !== 0 ||
+    Number(state.unmapped_characters) !== 0 ||
+    Number(state.mismatched_character_mappings) !== 0 ||
+    Number(state.invalid_synthetic_stories) !== 0
+  ) {
+    throw new PerfSafetyError('Seeded fixture integrity checks failed')
+  }
 
-    return {
-        users: Number(state.users),
-        userMappings: Number(state.user_mappings),
-        userSequenceRange: {
-            minimum: Number(state.minimum_user_seq),
-            maximum: Number(state.maximum_user_seq),
-        },
-        characters: Number(state.characters),
-        characterMappings: Number(state.character_mappings),
-        characterSequenceRange: {
-            minimum: Number(state.minimum_character_seq),
-            maximum: Number(state.maximum_character_seq),
-        },
-        studySessions: Number(state.study_sessions),
-        distinctPasswordHashes:
-            Number(state.distinct_password_hashes),
-        invalidFixtureUsers:
-            Number(state.invalid_fixture_users),
-        unmappedUsers: Number(state.unmapped_users),
-        unmappedSessions: Number(state.unmapped_sessions),
-        unmappedCharacters:
-            Number(state.unmapped_characters),
-        mismatchedCharacterMappings:
-            Number(state.mismatched_character_mappings),
-        invalidSyntheticStories:
-            Number(state.invalid_synthetic_stories),
-        seedDate,
-    };
+  return {
+    users: Number(state.users),
+    userMappings: Number(state.user_mappings),
+    userSequenceRange: {
+      minimum: Number(state.minimum_user_seq),
+      maximum: Number(state.maximum_user_seq),
+    },
+    characters: Number(state.characters),
+    characterMappings: Number(state.character_mappings),
+    characterSequenceRange: {
+      minimum: Number(state.minimum_character_seq),
+      maximum: Number(state.maximum_character_seq),
+    },
+    studySessions: Number(state.study_sessions),
+    distinctPasswordHashes: Number(state.distinct_password_hashes),
+    invalidFixtureUsers: Number(state.invalid_fixture_users),
+    unmappedUsers: Number(state.unmapped_users),
+    unmappedSessions: Number(state.unmapped_sessions),
+    unmappedCharacters: Number(state.unmapped_characters),
+    mismatchedCharacterMappings: Number(state.mismatched_character_mappings),
+    invalidSyntheticStories: Number(state.invalid_synthetic_stories),
+    seedDate,
+  }
 }
 
 // Define only; this function is not called yet.
 // Verify per-user history, pool behavior, score variation, and ties.
 export async function verifySeededUserDistribution(client, seedDate) {
-    const result = await client.query(`
+  const result = await client.query(
+    `
         WITH per_user AS (
             SELECT
                 pu.seq,
@@ -426,107 +374,78 @@ export async function verifySeededUserDistribution(client, seedDate) {
                 SELECT COALESCE(MAX(users_at_score), 0)
                 FROM score_groups
             )::bigint AS largest_tied_group
-    `, [
-        seedDate,
-        HISTORY_DAYS,
-        POOLS.R.firstSeq,
-        POOLS.A.lastSeq,
-        POOLS.B.firstSeq,
-        POOLS.B.lastSeq,
-    ]);
+    `,
+    [seedDate, HISTORY_DAYS, POOLS.R.firstSeq, POOLS.A.lastSeq, POOLS.B.firstSeq, POOLS.B.lastSeq],
+  )
 
-    const state = result.rows[0];
-    const expectedNonConflictUsers =
-        POOLS.R.users + POOLS.A.users;
+  const state = result.rows[0]
+  const expectedNonConflictUsers = POOLS.R.users + POOLS.A.users
 
-    if (
-        seedDate !== state.current_date ||
-        seedDate !== state.wall_date
-    ) {
-        throw new PerfSafetyError(
-            "Distribution verification date changed"
-        );
-    }
+  if (seedDate !== state.current_date || seedDate !== state.wall_date) {
+    throw new PerfSafetyError('Distribution verification date changed')
+  }
 
-    if (
-        Number(state.users) !== TOTAL_USERS ||
-        Number(state.users_with_complete_history) !== TOTAL_USERS ||
-        Number(state.users_with_complete_learned_set) !== TOTAL_USERS
-    ) {
-        throw new PerfSafetyError(
-            "Per-user historical distribution is incomplete"
-        );
-    }
+  if (
+    Number(state.users) !== TOTAL_USERS ||
+    Number(state.users_with_complete_history) !== TOTAL_USERS ||
+    Number(state.users_with_complete_learned_set) !== TOTAL_USERS
+  ) {
+    throw new PerfSafetyError('Per-user historical distribution is incomplete')
+  }
 
-    if (
-        Number(state.non_conflict_users) !==
-        expectedNonConflictUsers ||
-        Number(state.conflict_users) !== POOLS.B.users ||
-        Number(state.minimum_history) !== HISTORY_DAYS ||
-        Number(state.maximum_history) !== HISTORY_DAYS ||
-        Number(state.minimum_today_sessions) !== 0 ||
-        Number(state.maximum_today_sessions) !== 1
-    ) {
-        throw new PerfSafetyError(
-            "Pool R, A, or B session distribution is incorrect"
-        );
-    }
+  if (
+    Number(state.non_conflict_users) !== expectedNonConflictUsers ||
+    Number(state.conflict_users) !== POOLS.B.users ||
+    Number(state.minimum_history) !== HISTORY_DAYS ||
+    Number(state.maximum_history) !== HISTORY_DAYS ||
+    Number(state.minimum_today_sessions) !== 0 ||
+    Number(state.maximum_today_sessions) !== 1
+  ) {
+    throw new PerfSafetyError('Pool R, A, or B session distribution is incorrect')
+  }
 
-    if (
-        Number(state.distinct_score_values) <= 1 ||
-        Number(state.tied_score_groups) <= 0 ||
-        Number(state.largest_tied_group) < 2 ||
-        Number(state.minimum_points) >= Number(state.maximum_points)
-    ) {
-        throw new PerfSafetyError(
-            "Score variation or leaderboard ties are missing"
-        );
-    }
+  if (
+    Number(state.distinct_score_values) <= 1 ||
+    Number(state.tied_score_groups) <= 0 ||
+    Number(state.largest_tied_group) < 2 ||
+    Number(state.minimum_points) >= Number(state.maximum_points)
+  ) {
+    throw new PerfSafetyError('Score variation or leaderboard ties are missing')
+  }
 
-    return {
-        users: Number(state.users),
-        usersWithCompleteHistory:
-            Number(state.users_with_complete_history),
-        usersWithCompleteLearnedSet:
-            Number(state.users_with_complete_learned_set),
-        nonConflictUsers:
-            Number(state.non_conflict_users),
-        conflictUsers:
-            Number(state.conflict_users),
-        historyRange: {
-            minimum: Number(state.minimum_history),
-            maximum: Number(state.maximum_history),
-        },
-        todaySessionRange: {
-            minimum: Number(state.minimum_today_sessions),
-            maximum: Number(state.maximum_today_sessions),
-        },
-        pointRange: {
-            minimum: Number(state.minimum_points),
-            maximum: Number(state.maximum_points),
-        },
-        distinctScoreValues:
-            Number(state.distinct_score_values),
-        tiedScoreGroups:
-            Number(state.tied_score_groups),
-        largestTiedGroup:
-            Number(state.largest_tied_group),
-        seedDate,
-    };
+  return {
+    users: Number(state.users),
+    usersWithCompleteHistory: Number(state.users_with_complete_history),
+    usersWithCompleteLearnedSet: Number(state.users_with_complete_learned_set),
+    nonConflictUsers: Number(state.non_conflict_users),
+    conflictUsers: Number(state.conflict_users),
+    historyRange: {
+      minimum: Number(state.minimum_history),
+      maximum: Number(state.maximum_history),
+    },
+    todaySessionRange: {
+      minimum: Number(state.minimum_today_sessions),
+      maximum: Number(state.maximum_today_sessions),
+    },
+    pointRange: {
+      minimum: Number(state.minimum_points),
+      maximum: Number(state.maximum_points),
+    },
+    distinctScoreValues: Number(state.distinct_score_values),
+    tiedScoreGroups: Number(state.tied_score_groups),
+    largestTiedGroup: Number(state.largest_tied_group),
+    seedDate,
+  }
 }
 
 // Define only; this function is not called yet.
 // Refresh planner statistics after the complete dataset is seeded.
 export async function analyzeSeededTables(client) {
-    await client.query("ANALYZE public.study_sessions");
-    await client.query("ANALYZE public.characters");
-    await client.query("ANALYZE public.users");
+  await client.query('ANALYZE public.study_sessions')
+  await client.query('ANALYZE public.characters')
+  await client.query('ANALYZE public.users')
 
-    return {
-        tablesAnalyzed: [
-            "public.study_sessions",
-            "public.characters",
-            "public.users",
-        ],
-    };
+  return {
+    tablesAnalyzed: ['public.study_sessions', 'public.characters', 'public.users'],
+  }
 }

@@ -2,12 +2,11 @@
 
 Last updated: 2026-09-17
 
-Status: PERF-P0 frozen. The first PERF-P1 staging fixture is committed and verified
-through a fresh guarded read-only connection. The repeat-seed entry, source guards,
-and commit-recovery state machine now pass static integration checks, and the
-complete fixture has passed a fresh repeatable-read source observation. A full
-write-and-rollback repeat-seed rehearsal remains before PERF-P1 closure; PERF-P2
-has not run yet.
+Status: PERF-P0 frozen and PERF-P1 complete. Both the initial seed and the
+mapped-fixture repeat-seed passed full rollback and confirmed-commit execution
+against `aws-staging`; the final replacement passed fresh guarded read-only
+verification, and ECS staging was restored to 1 desired, 1 running, and 0 pending
+tasks. PERF-P2 has not run yet.
 
 Verified PERF-P1 preflight evidence on 2026-09-14:
 
@@ -129,27 +128,46 @@ Verified repeat-seed entry evidence on 2026-09-17:
   in-memory target that deliberately retained the same logical identity but had a
   different fingerprint; the source identity and snapshot matched, while the
   simulated target snapshot did not, and no fingerprint value was printed.
-- after the repeat-seed tooling changes, the existing local regression baseline
-  passed all 8 test files and 56 tests, followed by the test TypeScript check and
-  production TypeScript build; provider behavior remained mocked and no real
-  Anthropic request was made; and
+- after the repeat-seed tooling changes, and again after the final formatting and
+  closeout documentation pass, the local regression baseline passed all 8 test
+  files and 56 tests, followed by the test TypeScript check and production
+  TypeScript build; provider behavior remained mocked and no real Anthropic
+  request was made; and
 - the final repository-scope check found no patch-whitespace errors and no changes
   to application source, existing tests, migrations, or runtime configuration;
   a filenames-only scan of the PERF modules and affected documentation found no
   database credential URL, Anthropic key, AWS access key, JWT-shaped token, or
   private-key block.
 
-The full repeat-seed rollback and committed-reseed paths have not yet been run.
-The existing database is approximately 204.25 MiB before MVCC and temporary
-replacement overhead, so keeping the old and new fixtures simultaneously inside
-one atomic transaction is not treated as safe within the 0.5 GB Free-plan limit.
-That bounded write rehearsal remains an explicit PERF-P1 closure item rather than
-an inferred result.
+Verified repeat-seed execution evidence on 2026-09-17:
 
-No PERF load test or PERF Anthropic call has occurred yet. The ECS staging service
-remains drained. Before PERF-P1 closes, the implemented repeat-seed rollback and
-commit-recovery paths must be exercised with enough temporary storage headroom to
-retain both the approved source and uncommitted replacement safely.
+- after explicit approval, the Neon organization was moved to the usage-based
+  Launch plan to remove the 0.5 GB Free-plan transaction headroom constraint; the
+  staging API remained at 0 desired, 0 running, and 0 pending tasks during both
+  write exercises;
+- the real repeat-seed rollback rehearsal accepted only the existing
+  `approved-perf-source`, rebuilt and verified the full 8,100-user,
+  1,458,200-session, 365-character target, and reported `committed: false`,
+  `rolledBack: true`, and `restorationVerified: true`;
+- the rollback check re-observed the approved source with matching original and
+  restored counts plus matching unprinted fingerprints; only the documented
+  non-transactional sequence advancement remained possible;
+- the subsequent atomic committed reseed again required the exact
+  `approved-perf-source`, reported `committed: true`,
+  `commitOutcome: "confirmed"`, `postCommitVerified: true`, and proved that the
+  replacement snapshot differed from its source even though their logical counts
+  were intentionally identical;
+- a new guarded read-only connection verified the committed target identity and
+  snapshot, all expected pool and date distributions, and zero invalid, unmapped,
+  mismatched, or out-of-range rows;
+- both write exercises began and ended outside the frozen UTC-midnight exclusion
+  window, retained the same 2026-09-17 database date, and made zero Anthropic
+  calls; and
+- after the verified commit, the ECS staging service was restored and reached 1
+  desired, 1 running, and 0 pending tasks.
+
+PERF-P1 is therefore closed. No PERF load test or PERF Anthropic call has occurred
+yet; those remain separated into PERF-P2 through PERF-P5 as defined below.
 
 This protocol measures the AWS ECS and Neon staging stack. It does not authorize
 any use of the Vercel, Render, or Neon production environment.
@@ -172,8 +190,8 @@ never added to the application migration.
 | PERF-P6 | Select at most one evidence-backed optimization and repeat the protocol | 3-8 hours |
 | PERF-P7 | Publish the report, complete acceptance, and clean up staging | 1-2 hours |
 
-The remaining PERF-P1 reseed closure and PERF-P2 through PERF-P7 work is expected
-to take about 10-21 hours. If the baseline meets
+The remaining PERF-P2 through PERF-P7 work is expected to take about 9-20 hours.
+If the baseline meets
 the derived targets and does not identify a credible bottleneck, PERF-P6 may
 conclude that no optimization is justified.
 
@@ -227,10 +245,12 @@ updates, `ANALYZE`, and pre-commit verification remain inside one atomic
 transaction; cleanup is never committed on its own. A failure before `COMMIT`
 causes a rollback and leaves staging drained. If `COMMIT` itself returns an
 ambiguous result, the script does not retry or claim a rollback: staging remains
-drained while a fresh guarded connection classifies the database as either the
-approved initial snapshot or the complete seeded fixture. A verification failure
-after a confirmed commit is reported as committed but unverified. The API is not
-restarted against an empty, partial, ambiguous, or unverified fixture.
+drained while a fresh guarded connection compares the visible database with the
+recorded source and intended target identities and core-data snapshots. It accepts
+only an exact source restoration or exact committed target; any other state remains
+unknown. A verification failure after a confirmed commit is reported as committed
+but unverified. The API is not restarted against an empty, partial, ambiguous, or
+unverified fixture.
 
 ## Reproducible data shape
 

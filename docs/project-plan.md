@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 protocol frozen; the first PERF-P1 seed is committed and fresh-connection verified with 8,100 users and 1,458,200 sessions; repeat-seed guards and recovery pass static integration, regression, repository-scope, secret-pattern, and real read-only source checks, while the full write rehearsal remains before PERF-P1 closure |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 frozen; PERF-P1 complete. The approved 8,100-user, 1,458,200-session, 365-character fixture passed the initial rollback/commit and the real repeat-seed rollback/confirmed commit, including fresh read-only post-commit verification; ECS staging is stable at 1 desired, 1 running, and 0 pending tasks. PERF-P2 has not started. |
 
 ## Evidence collected through A5
 
@@ -148,7 +148,7 @@ Completed:
 - [x] verify `ready` rows, one attempt per character, cache persistence, CloudWatch,
   and provider token usage; and
 - [x] keep automatic API credit reload disabled and retain staging resources only
-  for the upcoming performance phase.
+  for the remaining performance phases.
 
 The staging-only provider secret may remain attached for the separate low-volume
 PERF-P5 experiment. The core benchmark must use synthetic `ready` stories and make
@@ -183,7 +183,7 @@ Main benchmark invariant:
 Estimated remaining time:
 
 - baseline only: 2-4 hours;
-- remaining PERF-P1 closure and PERF-P2 through PERF-P7 work with analysis and retesting: 10-21 hours.
+- remaining PERF-P2 through PERF-P7 work with analysis and retesting: 9-20 hours.
 
 ## Safety and cost boundaries
 

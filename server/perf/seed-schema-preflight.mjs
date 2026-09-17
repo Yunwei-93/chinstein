@@ -1,17 +1,12 @@
-import {
-    PerfSafetyError,
-} from "./staging-guard.mjs";
+import { PerfSafetyError } from './staging-guard.mjs'
 
-const CORE_RELATIONS = [
-    "characters",
-    "study_sessions",
-    "users",
-];
+const CORE_RELATIONS = ['characters', 'study_sessions', 'users']
 
 // Define only; this function is not called yet.
 // Verify the core objects are ordinary tables without hidden behavior.
 export async function assertCoreRelations(client) {
-    const result = await client.query(`
+  const result = await client.query(
+    `
         SELECT
             c.relname AS relation_name,
             c.relkind,
@@ -39,68 +34,52 @@ export async function assertCoreRelations(client) {
             AND c.relname = ANY($1::text[])
 
         ORDER BY c.relname
-    `, [CORE_RELATIONS]);
+    `,
+    [CORE_RELATIONS],
+  )
 
-    const relations = new Map(
-        result.rows.map((row) => [
-            row.relation_name,
-            row,
-        ])
-    );
+  const relations = new Map(result.rows.map((row) => [row.relation_name, row]))
 
-    const failures = [];
+  const failures = []
 
-    for (const relationName of CORE_RELATIONS) {
-        const state = relations.get(relationName);
+  for (const relationName of CORE_RELATIONS) {
+    const state = relations.get(relationName)
 
-        if (!state) {
-            failures.push(
-                `public.${relationName}:missing`
-            );
-            continue;
-        }
-
-        if (state.relkind !== "r") {
-            failures.push(
-                `public.${relationName}:not-an-ordinary-table`
-            );
-        }
-
-        if (
-            state.row_security_enabled ||
-            state.row_security_forced ||
-            state.row_security_active
-        ) {
-            failures.push(
-                `public.${relationName}:row-security-active`
-            );
-        }
-
-        if (Number(state.enabled_user_triggers) !== 0) {
-            failures.push(
-                `public.${relationName}:unexpected-user-trigger`
-            );
-        }
+    if (!state) {
+      failures.push(`public.${relationName}:missing`)
+      continue
     }
 
-    if (failures.length > 0) {
-        throw new PerfSafetyError(
-            `Core relation checks failed: ${failures.join(", ")}`
-        );
+    if (state.relkind !== 'r') {
+      failures.push(`public.${relationName}:not-an-ordinary-table`)
     }
 
-    return {
-        relationsChecked: CORE_RELATIONS.length,
-        ordinaryTables: CORE_RELATIONS.length,
-        rowSecurityRelations: 0,
-        enabledUserTriggers: 0,
-    };
+    if (state.row_security_enabled || state.row_security_forced || state.row_security_active) {
+      failures.push(`public.${relationName}:row-security-active`)
+    }
+
+    if (Number(state.enabled_user_triggers) !== 0) {
+      failures.push(`public.${relationName}:unexpected-user-trigger`)
+    }
+  }
+
+  if (failures.length > 0) {
+    throw new PerfSafetyError(`Core relation checks failed: ${failures.join(', ')}`)
+  }
+
+  return {
+    relationsChecked: CORE_RELATIONS.length,
+    ordinaryTables: CORE_RELATIONS.length,
+    rowSecurityRelations: 0,
+    enabledUserTriggers: 0,
+  }
 }
 
 // Define only; this function is not called yet.
 // Verify the complete column contract used by the PERF fixture.
 export async function assertCoreColumns(client) {
-    const result = await client.query(`
+  const result = await client.query(
+    `
         WITH expected (
             table_name,
             column_name,
@@ -341,22 +320,20 @@ export async function assertCoreColumns(client) {
                 FROM differences
                 ORDER BY table_name, column_name
             ) AS differences
-    `, [CORE_RELATIONS]);
+    `,
+    [CORE_RELATIONS],
+  )
 
-    const state = result.rows[0];
-    const differences = state.differences ?? [];
+  const state = result.rows[0]
+  const differences = state.differences ?? []
 
-    if (differences.length > 0) {
-        throw new PerfSafetyError(
-            `Core column checks failed: ${differences.join(", ")}`
-        );
-    }
+  if (differences.length > 0) {
+    throw new PerfSafetyError(`Core column checks failed: ${differences.join(', ')}`)
+  }
 
-    return {
-        expectedColumns:
-            Number(state.expected_columns),
-        actualColumns:
-            Number(state.actual_columns),
-        columnDifferences: 0,
-    };
+  return {
+    expectedColumns: Number(state.expected_columns),
+    actualColumns: Number(state.actual_columns),
+    columnDifferences: 0,
+  }
 }
