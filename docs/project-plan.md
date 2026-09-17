@@ -1,6 +1,6 @@
 # Chinstein Project Plan
 
-Last updated: 2026-09-14
+Last updated: 2026-09-17
 
 This plan separates the production application from the AWS staging environment.
 Production remains on Vercel, Render, and Neon. Infrastructure, resilience, and
@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | Not started |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 protocol frozen; the first PERF-P1 seed is committed and fresh-connection verified with 8,100 users and 1,458,200 sessions; repeat-seed guards and recovery pass static integration, regression, repository-scope, secret-pattern, and real read-only source checks, while the full write rehearsal remains before PERF-P1 closure |
 
 ## Evidence collected through A5
 
@@ -183,7 +183,7 @@ Main benchmark invariant:
 Estimated remaining time:
 
 - baseline only: 2-4 hours;
-- complete performance phase with analysis and retesting: 12-20 hours.
+- remaining PERF-P1 closure and PERF-P2 through PERF-P7 work with analysis and retesting: 10-21 hours.
 
 ## Safety and cost boundaries
 
