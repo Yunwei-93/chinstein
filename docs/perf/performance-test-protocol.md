@@ -5,8 +5,9 @@ Last updated: 2026-09-17
 Status: PERF-P0 frozen and PERF-P1 complete. Both the initial seed and the
 mapped-fixture repeat-seed passed full rollback and confirmed-commit execution
 against `aws-staging`; the final replacement passed fresh guarded read-only
-verification, and ECS staging was restored to 1 desired, 1 running, and 0 pending
-tasks. PERF-P2 has not run yet.
+verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
+tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
+pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
 
 Verified PERF-P1 preflight evidence on 2026-09-14:
 
@@ -164,7 +165,9 @@ Verified repeat-seed execution evidence on 2026-09-17:
   window, retained the same 2026-09-17 database date, and made zero Anthropic
   calls; and
 - after the verified commit, the ECS staging service was restored and reached 1
-  desired, 1 running, and 0 pending tasks.
+  desired, 1 running, and 0 pending tasks; after final local regression and branch
+  publication, it was intentionally returned to 0 desired, 0 running, and 0
+  pending tasks for the pause before PERF-P2.
 
 PERF-P1 is therefore closed. No PERF load test or PERF Anthropic call has occurred
 yet; those remain separated into PERF-P2 through PERF-P5 as defined below.
