@@ -1,6 +1,6 @@
 # Chinstein Project Plan
 
-Last updated: 2026-09-17
+Last updated: 2026-09-18
 
 This plan separates the production application from the AWS staging environment.
 Production remains on Vercel, Render, and Neon. Infrastructure, resilience, and
@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 frozen; PERF-P1 complete. The approved 8,100-user, 1,458,200-session, 365-character fixture passed the initial rollback/commit and the real repeat-seed rollback/confirmed commit, including fresh read-only post-commit verification. The first six PERF-P2 tooling checkpoints now freeze scenario, user-allocation, latency-threshold, response-classification, secret-free token-fixture, injectable builder, 32-72-byte login-password, atomic owner-only temporary-file, guarded read-only source-extraction, and real application JWT signing with HS256 cryptographic-verification contracts with 80 passing offline tests. No PERF-P2 HTTP measurement has run, and ECS remains intentionally drained at 0/0/0. |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 frozen; PERF-P1 complete. The approved 8,100-user, 1,458,200-session, 365-character fixture passed the initial rollback/commit and the real repeat-seed rollback/confirmed commit, including fresh read-only post-commit verification. The first seven PERF-P2 tooling checkpoints now freeze scenario, user-allocation, latency-threshold, response-classification, secret-free token-fixture, injectable builder, 32-72-byte login-password, atomic owner-only temporary-file, guarded read-only source extraction, real application JWT signing with HS256 cryptographic verification, and fail-closed fixture orchestration. All 104 offline tests pass; the orchestrator commits and closes its read-only database snapshot before loading the signer or writing `/tmp/tokens.json`, and its returned summary excludes tokens and secrets. No PERF-P2 HTTP measurement has run, and ECS remains intentionally drained at 0/0/0. |
 
 ## Evidence collected through A5
 
