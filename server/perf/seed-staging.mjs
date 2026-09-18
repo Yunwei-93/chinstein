@@ -30,8 +30,8 @@ import { runCommittedSeed } from './seed-commit.mjs'
 
 let connection
 let transactionOpen = false
+let passwordHash = null
 let stage = 'validate-mode'
-
 try {
   const args = process.argv.slice(2)
 
@@ -74,11 +74,17 @@ try {
 
   const mode = commitSeedRequested ? 'commit-seed' : dryRunRequested ? 'dry-run' : 'plan'
 
+  if (mode !== 'plan') {
+    stage = 'prepare-perf-login-password'
+    passwordHash = await createPerfPasswordHash()
+  }
+
   if (mode === 'commit-seed') {
     stage = 'run-committed-seed'
 
     const committedSeedResult = await runCommittedSeed({
       expectedSourceClassification,
+      passwordHash,
     })
 
     console.log(JSON.stringify(committedSeedResult, null, 2))
@@ -91,7 +97,9 @@ try {
     if (mode === 'dry-run') {
       stage = 'run-rollback-dry-run'
 
-      const dryRunResult = await runRollbackSeedDryRun(client)
+      const dryRunResult = await runRollbackSeedDryRun(client, {
+        passwordHash,
+      })
 
       console.log(
         JSON.stringify(
@@ -249,6 +257,8 @@ try {
 
   process.exitCode = 1
 } finally {
+  passwordHash = null
+
   if (connection) {
     try {
       await connection.client.end()

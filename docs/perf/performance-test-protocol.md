@@ -8,7 +8,7 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
-The first seven PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
+The first eight PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
 token-fixture builder, the 32-72-byte login-password boundary, atomic owner-only
@@ -30,6 +30,14 @@ writes `/tmp/tokens.json`. Its allowlisted result excludes tokens, secrets, emai
 the daily answer, and the complete fixture. With this checkpoint, all 104 PERF-P2
 configuration, contract, source, signer, file-delivery, and orchestration tests
 pass offline without database, HTTP, AWS, or Neon access.
+
+The eighth checkpoint connects the out-of-band `PERF_LOGIN_PASSWORD` contract to
+both rollback and committed reseeding. The entrypoint validates and hashes the
+credential once, before opening a database connection, and passes only a strict
+cost-10 bcrypt hash through the write path. The dry-run, committed-seed, and user
+insert boundaries reject plaintext or malformed hashes before issuing SQL. The
+credential and hash remain excluded from results and errors. All 113 PERF-P2
+offline tests now pass without database, HTTP, AWS, or Neon access.
 
 The JWT adapter is authorized only inside the dedicated, short-lived fixture
 generation process, after `npm run build` has produced the compiled application

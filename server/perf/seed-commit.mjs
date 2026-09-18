@@ -8,7 +8,7 @@ import {
 import {
   clearStagingDataset,
   createPerfMappings,
-  createPerfPasswordHash,
+  assertPerfPasswordHash,
   createPerfUsers,
   seedHistoricalSessions,
   seedTodayConflictSessions,
@@ -235,7 +235,10 @@ async function buildAndVerifySeedInCurrentTransaction(client, seedDate, password
 }
 
 // Commit the complete fixture atomically, then verify it independently.
-export async function runCommittedSeed({ expectedSourceClassification } = {}) {
+export async function runCommittedSeed({
+  expectedSourceClassification,
+  passwordHash: suppliedPasswordHash,
+} = {}) {
   if (!APPROVED_COMMIT_SOURCE_CLASSIFICATIONS.has(expectedSourceClassification)) {
     throw new PerfSafetyError('Committed seed requires one exact approved source classification')
   }
@@ -253,11 +256,10 @@ export async function runCommittedSeed({ expectedSourceClassification } = {}) {
   let sourceSnapshot = null
   let targetDataset = null
   let targetSnapshot = null
-  let stage = 'create-password-hash'
+  let stage = 'validate-password-hash'
 
   try {
-    // Keep bcrypt work outside the database transaction and table locks.
-    passwordHash = await createPerfPasswordHash()
+    passwordHash = assertPerfPasswordHash(suppliedPasswordHash)
 
     stage = 'connect-primary-staging'
     connection = await connectToStaging()

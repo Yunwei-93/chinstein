@@ -1,8 +1,7 @@
-import { randomBytes } from 'node:crypto'
 import bcrypt from 'bcrypt'
 
+import { requirePerfLoginPassword } from './p2/login-secret-contract.mjs'
 import { PerfSafetyError } from './staging-guard.mjs'
-
 import {
   HISTORY_DAYS,
   CHARACTER_COUNT,
@@ -15,12 +14,45 @@ import {
   PERF_PASSWORD_HASH_ROUNDS,
 } from './fixture-config.mjs'
 
-// Define only; this function is not called yet.
-// Generate one high-entropy password and return only its bcrypt hash.
-export async function createPerfPasswordHash() {
-  const oneTimePassword = randomBytes(32).toString('base64url')
+const PERF_PASSWORD_HASH_PATTERN = /^\$2b\$10\$[./A-Za-z0-9]{53}$/
 
-  return bcrypt.hash(oneTimePassword, PERF_PASSWORD_HASH_ROUNDS)
+export function assertPerfPasswordHash(passwordHash) {
+  if (typeof passwordHash !== 'string' || !PERF_PASSWORD_HASH_PATTERN.test(passwordHash)) {
+    throw new PerfSafetyError('A valid PERF bcrypt password hash is required')
+  }
+
+  return passwordHash
+}
+
+export async function createPerfPasswordHash({
+  environment = process.env,
+  hashPassword = bcrypt.hash,
+} = {}) {
+  if (typeof hashPassword !== 'function') {
+    throw new PerfSafetyError('PERF password-hash dependency is unavailable')
+  }
+
+  let loginPassword = null
+
+  try {
+    try {
+      loginPassword = requirePerfLoginPassword(environment)
+    } catch {
+      throw new PerfSafetyError('PERF_LOGIN_PASSWORD is missing or invalid')
+    }
+
+    let passwordHash
+
+    try {
+      passwordHash = await hashPassword(loginPassword, PERF_PASSWORD_HASH_ROUNDS)
+    } catch {
+      throw new PerfSafetyError('Unable to create PERF password hash')
+    }
+
+    return assertPerfPasswordHash(passwordHash)
+  } finally {
+    loginPassword = null
+  }
 }
 
 // Define the function only; it is not called yet.
@@ -310,9 +342,7 @@ export async function seedHistoricalSessions(client, seedDate) {
 // create the mapping tables, and supply a generated password hash.
 export async function createPerfUsers(client, passwordHash) {
   // Never include the password hash in errors or output.
-  if (typeof passwordHash !== 'string' || passwordHash.length === 0) {
-    throw new PerfSafetyError('A generated password hash is required to create perf users')
-  }
+  const approvedPasswordHash = assertPerfPasswordHash(passwordHash)
 
   // Prevent concurrent changes while checking and inserting users.
   await client.query(`
@@ -354,7 +384,7 @@ export async function createPerfUsers(client, passwordHash) {
             TRUE
         FROM generate_series(1, $1::integer) AS g(seq)
     `,
-    [TOTAL_USERS, passwordHash],
+    [TOTAL_USERS, approvedPasswordHash],
   )
 
   if (inserted.rowCount !== TOTAL_USERS) {

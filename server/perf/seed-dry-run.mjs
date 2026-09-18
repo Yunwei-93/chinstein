@@ -7,7 +7,7 @@ import {
 import {
   clearStagingDataset,
   createPerfMappings,
-  createPerfPasswordHash,
+  assertPerfPasswordHash,
   createPerfUsers,
   seedHistoricalSessions,
   seedTodayConflictSessions,
@@ -48,7 +48,7 @@ async function rollbackQuietly(client) {
 }
 
 // Rehearse the complete seed and always roll back the write transaction.
-export async function runRollbackSeedDryRun(client) {
+export async function runRollbackSeedDryRun(client, { passwordHash: suppliedPasswordHash } = {}) {
   let transactionOpen = false
   let sequenceValuesMayAdvance = false
   let passwordHash = null
@@ -59,9 +59,8 @@ export async function runRollbackSeedDryRun(client) {
   }
 
   try {
-    // Keep bcrypt work outside the database transaction and table locks.
-    stage = 'create-password-hash'
-    passwordHash = await createPerfPasswordHash()
+    stage = 'validate-password-hash'
+    passwordHash = assertPerfPasswordHash(suppliedPasswordHash)
 
     stage = 'begin-read-write'
     await client.query('BEGIN READ WRITE')
