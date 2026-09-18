@@ -8,12 +8,15 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
-The first four local-only PERF-P2 checkpoints have frozen the 1-VU and 5-VU
+The first five PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
-token-fixture builder, the 32-72-byte login-password boundary, and atomic owner-only
-temporary-file delivery. Their 51 configuration and contract tests pass without
-database, HTTP, AWS, or Neon access.
+token-fixture builder, the 32-72-byte login-password boundary, atomic owner-only
+temporary-file delivery, and guarded read-only extraction of the approved user
+mapping and daily-character fixture. Their 68 configuration and contract tests
+pass without database, HTTP, AWS, or Neon access. The source-reader contract
+requires the approved staging identity, a read-only repeatable-read transaction,
+current-date fixture anchors, and an unused Pool A before baseline token creation.
 
 Verified PERF-P1 preflight evidence on 2026-09-14:
 
