@@ -40,37 +40,37 @@ function validateUserRows(users) {
   return loginUser
 }
 
-function validateDecodedToken(decoded, expectedUserId, sequence) {
+function validateVerifiedToken(verified, expectedUserId, sequence) {
   if (
-    decoded === null ||
-    typeof decoded !== 'object' ||
-    decoded.header === null ||
-    typeof decoded.header !== 'object' ||
-    decoded.payload === null ||
-    typeof decoded.payload !== 'object'
+    verified === null ||
+    typeof verified !== 'object' ||
+    verified.header === null ||
+    typeof verified.header !== 'object' ||
+    verified.payload === null ||
+    typeof verified.payload !== 'object'
   ) {
-    fail(`user ${sequence} token could not be decoded`)
+    fail(`user ${sequence} token could not be verified`)
   }
 
-  if (decoded.header.alg !== 'HS256') {
+  if (verified.header.alg !== 'HS256') {
     fail(`user ${sequence} token does not use HS256`)
   }
 
-  if (decoded.payload.userId !== expectedUserId) {
+  if (verified.payload.userId !== expectedUserId) {
     fail(`user ${sequence} token has the wrong user ID`)
   }
 
-  if (!Number.isInteger(decoded.payload.iat) || !Number.isInteger(decoded.payload.exp)) {
+  if (!Number.isInteger(verified.payload.iat) || !Number.isInteger(verified.payload.exp)) {
     fail(`user ${sequence} token has invalid timestamps`)
   }
 
-  if (decoded.payload.exp - decoded.payload.iat !== TOKEN_TTL_SECONDS) {
+  if (verified.payload.exp - verified.payload.iat !== TOKEN_TTL_SECONDS) {
     fail(`user ${sequence} token is not valid for four hours`)
   }
 
   return {
-    issuedAt: decoded.payload.iat,
-    expiresAt: decoded.payload.exp,
+    issuedAt: verified.payload.iat,
+    expiresAt: verified.payload.exp,
   }
 }
 
@@ -79,15 +79,15 @@ export function buildTokenFixture({
   source,
   dailyCharacter,
   signTokenForUser,
-  decodeSignedToken,
+  verifySignedToken,
   nowSeconds = () => Math.floor(Date.now() / 1000),
 }) {
   if (typeof signTokenForUser !== 'function') {
     fail('token signer is missing')
   }
 
-  if (typeof decodeSignedToken !== 'function') {
-    fail('token decoder is missing')
+  if (typeof verifySignedToken !== 'function') {
+    fail('token verifier is missing')
   }
 
   if (typeof nowSeconds !== 'function') {
@@ -104,9 +104,9 @@ export function buildTokenFixture({
       fail(`user ${user.sequence} signer returned no token`)
     }
 
-    const decoded = decodeSignedToken(token)
+    const verified = verifySignedToken(token)
 
-    const timestamps = validateDecodedToken(decoded, user.userId, user.sequence)
+    const timestamps = validateVerifiedToken(verified, user.userId, user.sequence)
 
     tokenRecords.push({
       sequence: user.sequence,

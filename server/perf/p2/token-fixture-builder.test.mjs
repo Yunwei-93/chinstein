@@ -26,7 +26,7 @@ function signFakeToken(userId) {
   return `synthetic-token-${userId}`
 }
 
-function decodeFakeToken(token) {
+function verifyFakeToken(token) {
   const userId = Number(token.replace('synthetic-token-', ''))
 
   const issuedAt = BASE_ISSUED_AT + (userId % 3)
@@ -56,7 +56,7 @@ function buildFixture(overrides = {}) {
       answer: 'known-answer',
     },
     signTokenForUser: signFakeToken,
-    decodeSignedToken: decodeFakeToken,
+    verifySignedToken: verifyFakeToken,
     nowSeconds: () => BASE_ISSUED_AT + 3,
     ...overrides,
   })
@@ -96,11 +96,11 @@ test('builder rejects a token using the wrong algorithm', () => {
   assert.throws(
     () =>
       buildFixture({
-        decodeSignedToken(token) {
-          const decoded = decodeFakeToken(token)
+        verifySignedToken(token) {
+          const verified = verifyFakeToken(token)
 
           return {
-            ...decoded,
+            ...verified,
             header: {
               alg: 'RS256',
             },
@@ -115,14 +115,14 @@ test('builder rejects a token for the wrong user', () => {
   assert.throws(
     () =>
       buildFixture({
-        decodeSignedToken(token) {
-          const decoded = decodeFakeToken(token)
+        verifySignedToken(token) {
+          const verified = verifyFakeToken(token)
 
           return {
-            ...decoded,
+            ...verified,
             payload: {
-              ...decoded.payload,
-              userId: decoded.payload.userId + 1,
+              ...verified.payload,
+              userId: verified.payload.userId + 1,
             },
           }
         },
@@ -135,14 +135,14 @@ test('builder rejects a token with the wrong TTL', () => {
   assert.throws(
     () =>
       buildFixture({
-        decodeSignedToken(token) {
-          const decoded = decodeFakeToken(token)
+        verifySignedToken(token) {
+          const verified = verifyFakeToken(token)
 
           return {
-            ...decoded,
+            ...verified,
             payload: {
-              ...decoded.payload,
-              exp: decoded.payload.exp - 1,
+              ...verified.payload,
+              exp: verified.payload.exp - 1,
             },
           }
         },
@@ -188,13 +188,13 @@ test('builder rejects a missing signer', () => {
   )
 })
 
-test('builder rejects a missing decoder', () => {
+test('builder rejects a missing verifier', () => {
   assert.throws(
     () =>
       buildFixture({
-        decodeSignedToken: null,
+        verifySignedToken: null,
       }),
-    /token decoder is missing/,
+    /token verifier is missing/,
   )
 })
 
