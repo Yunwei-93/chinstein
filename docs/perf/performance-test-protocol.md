@@ -8,6 +8,10 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
+The first local-only PERF-P2 checkpoint has frozen the 1-VU and 5-VU execution
+rules, the bounded Pool A reserve, and the response-classification contracts. Its
+10 configuration and contract tests pass without database, HTTP, AWS, or Neon
+access.
 
 Verified PERF-P1 preflight evidence on 2026-09-14:
 
@@ -284,13 +288,17 @@ passes the today's-character validation and reaches the unique-conflict path.
 
 Pool A is budgeted as follows:
 
-| Use | Users |
-| --- | ---: |
-| Baseline isolated `201` ladder | 3,000 |
-| PERF-P6 isolated `201` ladder | 3,000 |
-| Baseline mixed run | 200 |
-| PERF-P6 mixed run | 200 |
-| Operational reserve | 600 |
+| Use | Stable sequence range | Users |
+| --- | --- | ---: |
+| Baseline isolated `201` ladder | 901-3900 | 3,000 |
+| PERF-P6 isolated `201` ladder | 3901-6900 | 3,000 |
+| Baseline mixed run | 6901-7100 | 200 |
+| PERF-P6 mixed run | 7101-7300 | 200 |
+| Operational reserve | 7301-7900 | 600 |
+
+PERF-P2 uses sequence 7301-7630, the first 330 operational-reserve users, for its
+bounded S5 measurements. The remaining 270 reserve identities stay unused unless
+an invalid run is explicitly retained and reset under the rule below.
 
 A complete invalid comparison round may require more than the 600-user reserve.
 After preserving its results as invalid evidence, only that round's tagged,
@@ -484,6 +492,43 @@ Latency is reported from k6 `http_req_duration` on reused connections. DNS, TCP,
 TLS, blocked time, response bytes, iteration duration, and server/database metrics
 are recorded separately. Latency percentiles include only responses that pass the
 scenario's expected-status classification; error rates use all attempted requests.
+
+### Pre-measurement PERF-P2 clarification
+
+This clarification was recorded on 2026-09-17 before any PERF-P2 request or
+measurement. It closes two ambiguities in the frozen protocol without using
+observed performance data.
+
+For S0-S4 and S6, each formal PERF-P2 repetition has a 30-second unmeasured
+warm-up followed by a 60-second measured interval. Each endpoint runs three
+repetitions at 1 VU and then three repetitions at 5 VUs. Every VU waits for its
+current request to finish before issuing another request. The 1-VU repetitions
+alone define `B50`, `B95`, and the derived latency thresholds. The 5-VU
+repetitions are the frozen low-concurrency comparison and do not redefine those
+thresholds.
+
+S5 remains bounded by distinct Pool A identities. At both 1 VU and 5 VUs, each
+repetition uses five unmeasured first-write iterations followed by exactly 50
+measured first-write iterations, all with distinct users. Each level runs three
+repetitions, consuming exactly 330 Pool A reserve users across PERF-P2. This is an
+explicit exception to the time-based warm-up used by the read, login, and
+expected-conflict scenarios. The harness must allocate these users from the
+operational-reserve range and must fail before a request if a sequence would be
+reused.
+
+S1 uses one designated Pool R identity and a temporary high-entropy
+`PERF_LOGIN_PASSWORD`. The password is supplied out of band to both the repeat
+seed process and the load-generator runtime. The seed hashes it once with the
+frozen bcrypt cost and applies the resulting hash to all synthetic users, which
+preserves the existing one-distinct-hash fixture invariant. The benchmark uses
+only the designated identity. The plaintext value must never enter Git, an image,
+logs, result artifacts, or command output. A formal run is blocked if the value is
+missing, shorter than 32 UTF-8 bytes, longer than bcrypt's 72-byte input limit, or
+if the successful-login pre-flight fails. The temporary credential is removed at
+PERF-P7 cleanup.
+
+S7 is not part of PERF-P2. It remains deferred until the isolated PERF-P3 results
+select and freeze a mixed-load level.
 
 ## Concurrency protocols
 

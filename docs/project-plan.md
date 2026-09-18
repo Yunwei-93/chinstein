@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 frozen; PERF-P1 complete. The approved 8,100-user, 1,458,200-session, 365-character fixture passed the initial rollback/commit and the real repeat-seed rollback/confirmed commit, including fresh read-only post-commit verification. ECS staging passed acceptance at 1 desired, 1 running, and 0 pending tasks, then was intentionally drained to 0/0/0 for the pause before PERF-P2. |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 frozen; PERF-P1 complete. The approved 8,100-user, 1,458,200-session, 365-character fixture passed the initial rollback/commit and the real repeat-seed rollback/confirmed commit, including fresh read-only post-commit verification. The first local-only PERF-P2 checkpoint now freezes scenario, user-allocation, latency-threshold, and response-classification contracts with 10 passing offline tests. No PERF-P2 HTTP measurement has run, and ECS remains intentionally drained at 0/0/0. |
 
 ## Evidence collected through A5
 
