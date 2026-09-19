@@ -8,7 +8,7 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
-The first seventeen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
+The first eighteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
 token-fixture builder, the 32-72-byte login-password boundary, atomic owner-only
@@ -131,6 +131,23 @@ responses, credentials, fixture identities, and private endpoint evidence are
 excluded from the final allowlisted result. All 213 PERF-P2 offline tests now
 pass; the coordinator still contains no live AWS, database, filesystem, k6, or
 HTTP adapter, so no external system was contacted.
+
+The eighteenth checkpoint adds the coordinator's Node runtime adapter layer. Its
+HTTP boundary accepts only the frozen health, login, and protected canaries,
+injects credentials only into the matching request, disables redirects and
+retries, bounds request time and response size, and projects successful bodies so
+login tokens and private response fields cannot cross the adapter result. Its
+runtime dependency factory opens only the owner-controlled `/tmp/tokens.json`
+fixture without following symbolic links, reuses the complete shared-fixture
+validation, selects the designated Pool R user, closes the approved staging
+database connection before returning identity evidence, and reads the login
+password only when the coordinator reaches that stage. Deployment observation
+remains independently injected rather than trusted from environment variables.
+Adversarial coverage also verifies cleanup of incomplete fixture handles, safe
+database closure after hostile identity access, and suppression of forged error
+prefixes. All 239 PERF-P2 offline tests now pass with fake filesystem, database,
+deployment, clock, and HTTP dependencies; no live AWS call, database connection,
+k6 process, or HTTP request was made.
 
 The JWT adapter is authorized only inside the dedicated, short-lived fixture
 generation process, after `npm run build` has produced the compiled application
