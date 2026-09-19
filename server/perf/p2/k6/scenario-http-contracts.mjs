@@ -52,7 +52,7 @@ function utf8ByteLength(value) {
   return bytes
 }
 
-function normalizeHttpsOrigin(baseUrl) {
+export function normalizeScenarioHttpsOrigin(baseUrl) {
   if (typeof baseUrl !== 'string' || baseUrl.length === 0 || baseUrl !== baseUrl.trim()) {
     fail('base URL is unavailable')
   }
@@ -310,7 +310,7 @@ export function buildScenarioHttpRequest({
   responseCallback,
 }) {
   const scenario = validateScenarioPlan(plan)
-  const origin = normalizeHttpsOrigin(baseUrl)
+  const origin = normalizeScenarioHttpsOrigin(baseUrl)
 
   validatePhase(phase)
 

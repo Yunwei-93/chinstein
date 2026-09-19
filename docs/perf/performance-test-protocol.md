@@ -8,7 +8,7 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
-The first fourteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
+The first fifteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
 token-fixture builder, the 32-72-byte login-password boundary, atomic owner-only
@@ -93,6 +93,16 @@ responses remain visible without corrupting the baseline p50 and p95 samples.
 Raw failure reasons, user sequences, credentials, and fixture values are excluded
 from metric output. All 163 PERF-P2 offline tests now pass with injected metric,
 check, and HTTP adapters; no live k6 or HTTP request has been run.
+
+The fifteenth checkpoint adds the complete per-iteration k6 run coordinator. It
+accepts only the 42 frozen combinations of seven scenarios, two VU levels, and
+three repetitions; creates the approved constant-VU or bounded shared-iteration
+executor; and resolves the exact warm-up and measured boundaries. It composes the
+shared fixture, request planner, late credential lookup, controlled HTTP boundary,
+and metric recorder exactly once per iteration. The six S5 rounds map the complete
+7301-7630 reserve without reuse, while authentication failures can stop an invalid
+run without exposing credentials. All 178 PERF-P2 offline tests now pass; no live
+k6 process, token fixture, database, AWS service, or HTTP target was used.
 
 The JWT adapter is authorized only inside the dedicated, short-lived fixture
 generation process, after `npm run build` has produced the compiled application
