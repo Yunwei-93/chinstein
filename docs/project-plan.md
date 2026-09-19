@@ -1,6 +1,6 @@
 # Chinstein Project Plan
 
-Last updated: 2026-09-18
+Last updated: 2026-09-19
 
 This plan separates the production application from the AWS staging environment.
 Production remains on Vercel, Render, and Neon. Infrastructure, resilience, and
@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 frozen; PERF-P1 complete. The approved 8,100-user, 1,458,200-session, 365-character fixture passed the initial rollback/commit and the real repeat-seed rollback/confirmed commit, including fresh read-only post-commit verification. The first eighteen PERF-P2 tooling checkpoints now freeze scenario, user-allocation, latency-threshold, response-classification, secret-free token-fixture, injectable builder, 32-72-byte login-password, atomic owner-only temporary-file, guarded read-only source extraction, real application JWT signing with HS256 cryptographic verification, fail-closed fixture orchestration, pre-connection login-password hashing for rollback and committed reseeding, an ECS-compatible `DATABASE_URL` connector with no local staging-file fallback, an exact-confirmation CLI that prints only an allowlisted result, a k6 `SharedArray` loader with clock, token-lifetime, sequence-index, and pool-ownership checks, a secret-free S0-S6 request planner with deterministic timed-pool selection and the exact 330-user S5 allocation, a controlled HTTPS execution boundary with late credential injection, expected-`409` handling, bounded request parameters, and safe response classification, a custom-metrics boundary that separates warm-up from measured traffic while excluding unexpected outcomes from the latency trend, a complete per-iteration run coordinator covering the exact 42 approved scenario/VU/repetition combinations and all 330 non-reused S5 users, a pure premeasurement gate that cross-binds the approved HTTPS origin, ECS deployment, immutable image, Git commit, Neon identity, UTC date, token lifetime, and health/login/fixture-token canaries, an injected premeasurement coordinator that validates the closed database evidence and repeats the safety gate before credentials cross the HTTP boundary, and a Node runtime adapter layer that securely loads the private fixture, closes database evidence reads, injects the login password lazily, and performs only the three bounded premeasurement canaries. All 239 offline tests pass; plaintext, malformed hashes, unapproved runtime database targets, missing CLI confirmations, raw generator failures, unsafe error codes, stale token fixtures, invalid shared records, unsafe fixture handles, hostile identity access, pool escapes, repeated S5 identities, mismatched credentials, unsafe HTTP origins, target drift, date drift, forged error prefixes, raw transport failures, inconsistent outcomes, incomplete metric adapters, invalid run coordinates, noncanonical run configuration, unsafe canary ordering, and unconfirmed database cleanup fail closed before sensitive values can reach command output or metrics. No PERF-P2 HTTP measurement has run, and ECS remains intentionally drained at 0/0/0. |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 and PERF-P1 complete. PERF-P2 completed on 2026-09-19: all 42 planned combinations finished, 222,689 requests were formally measured, no unexpected response occurred, the database date remained unchanged, and all 330 bounded S5 writes passed the post-check. The accepted artifacts and environment fingerprint are preserved under `docs/perf/results/` and in the measurement log. PERF-P3 is next; before it runs, the protocol adds 1-VU and 2-VU resolution to the S0/S4 diagnostic pair while keeping every threshold and failure rule frozen. |
 
 ## Evidence collected through A5
 
@@ -169,8 +169,8 @@ different system and make the result difficult to explain.
 | --- | --- |
 | PERF-P0 | Freeze scenarios, data volume, concurrency, p50/p95 targets, throughput, and error budget |
 | PERF-P1 | Seed synthetic users and fixed-size synthetic stories; mark benchmark stories `ready` |
-| PERF-P2 | Measure single-request and low-concurrency baselines |
-| PERF-P3 | Load-test login, authenticated reads, leaderboard aggregation, and session writes |
+| PERF-P2 | Complete: accepted single-request and low-concurrency baselines |
+| PERF-P3 | Next: run frozen endpoint ladders, including the pre-registered S0/S4 low-load points and confirmation rule |
 | PERF-P4 | Run a bounded stability/soak test while observing ECS, CloudWatch, and Neon |
 | PERF-P5 | Separately test one cold generation, concurrent claim suppression, timeout, rate limiting, and fallback |
 | PERF-P6 | Choose optimizations only from measured evidence and then repeat the same scenarios |
@@ -182,8 +182,9 @@ Main benchmark invariant:
 
 Estimated remaining time:
 
-- baseline only: 2-4 hours;
-- remaining PERF-P2 through PERF-P7 work with analysis and retesting: 9-20 hours.
+- PERF-P2 baseline: complete;
+- remaining PERF-P3 through PERF-P7 work: retain the original phase estimates and
+  schedule each cloud run only after its pre-run evidence is captured.
 
 ## Safety and cost boundaries
 

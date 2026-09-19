@@ -315,8 +315,10 @@ Verified repeat-seed execution evidence on 2026-09-17:
   publication, it was intentionally returned to 0 desired, 0 running, and 0
   pending tasks for the pause before PERF-P2.
 
-PERF-P1 is therefore closed. No PERF load test or PERF Anthropic call has occurred
-yet; those remain separated into PERF-P2 through PERF-P5 as defined below.
+PERF-P1 is therefore closed. PERF-P2 completed on 2026-09-19 with 42 of 42
+planned combinations, zero unexpected responses, and the accepted baseline
+artifacts recorded under `docs/perf/results/`. No PERF Anthropic call has occurred;
+that experiment remains separated into PERF-P5 as defined below.
 
 This protocol measures the AWS ECS and Neon staging stack. It does not authorize
 any use of the Vercel, Render, or Neon production environment.
@@ -339,10 +341,9 @@ never added to the application migration.
 | PERF-P6 | Select at most one evidence-backed optimization and repeat the protocol | 3-8 hours |
 | PERF-P7 | Publish the report, complete acceptance, and clean up staging | 1-2 hours |
 
-The remaining PERF-P2 through PERF-P7 work is expected to take about 9-20 hours.
-If the baseline meets
-the derived targets and does not identify a credible bottleneck, PERF-P6 may
-conclude that no optimization is justified.
+The original PERF-P2 through PERF-P7 estimate was 9-20 hours. PERF-P2 is now
+complete; PERF-P3 through PERF-P7 remain. If the measurements do not identify a
+credible bottleneck, PERF-P6 may conclude that no optimization is justified.
 
 ## Safety and experiment boundaries
 
@@ -674,16 +675,39 @@ select and freeze a mixed-load level.
 
 ## Concurrency protocols
 
+### Post-P2, pre-P3 sampling amendment
+
+This amendment was recorded on 2026-09-19 after accepting PERF-P2 and before any
+PERF-P3 request. PERF-P2 showed that S0 and S3 retained low 5-VU medians while
+their p95 values exceeded their frozen thresholds. It also showed that S4 had the
+highest non-login 1-VU latency. The original P3 ladder could therefore begin at or
+beyond an early tail-latency boundary without enough resolution to distinguish a
+shared-system effect from a leaderboard-query effect.
+
+P3 adds 1-VU and 2-VU levels only to the two primary diagnostic controls:
+
+- S0 is the low-work shared-path floor; and
+- S4 is the global-aggregation target.
+
+Their P3 ladders are `1 -> 2 -> 5 -> 10 -> 20 -> 40 -> 80` VUs. S2, S3, and S6
+retain `5 -> 10 -> 20 -> 40 -> 80`. This change increases sampling resolution;
+it does not relax or recalculate the P2-derived latency thresholds, the 1% error
+budget, the two-minute measured window, the original 5-VU through 80-VU levels,
+or any capacity-knee condition. Added points cannot replace, discard, or enlarge
+an original result or threshold. Each P3 read or conflict level has one formal
+two-minute measurement after its warm-up transition; the three-repetition rule
+used to derive the P2 baseline does not silently carry into P3.
+
 ### Sustainable read and conflict ladders
 
-S0, S2, S3, S4, and S6 use `5 -> 10 -> 20 -> 40 -> 80` VUs. Each level has a
-separate warm-up transition followed by two measured minutes. Expected `409`
-responses in S6 count as successful scenario outcomes; any other status is an
-error.
+S0 and S4 use `1 -> 2 -> 5 -> 10 -> 20 -> 40 -> 80` VUs. S2, S3, and S6 use
+`5 -> 10 -> 20 -> 40 -> 80` VUs. Each level has a separate warm-up transition
+followed by two measured minutes. Expected `409` responses in S6 count as
+successful scenario outcomes; any other status is an error.
 
 For each level, report completed expected responses per second, p50, p95, response
 bytes, checks, and errors. The first level meeting any of these conditions is the
-capacity knee:
+first observed failing level:
 
 - error rate is at least 1%;
 - p95 exceeds the derived endpoint threshold;
@@ -691,8 +715,27 @@ capacity knee:
 - the ECS task restarts or another resource limit causes instability.
 
 The highest preceding level is the measured sustainable point for this staging
-configuration. The test records later levels as evidence instead of stopping at
-the first threshold failure.
+configuration. The capacity knee is reported as the interval between that level
+and the first observed failing level, not as an exact point. For example, a
+passing 10-VU level followed by a failing 20-VU level is reported as a knee in the
+`10-20 VU` interval. The test records later levels as evidence instead of stopping
+at the first threshold failure.
+
+After the initial ladder completes, the first observed failing level and its
+immediately preceding level are each repeated once without discretionary
+noise-screening. Every original and confirmation result remains in the artifacts
+and report. A retested level or adjacent throughput comparison is classified as
+failing if either the original or confirmation observation meets its corresponding
+frozen failure condition. If the observations disagree, the report uses the
+earlier, more conservative failing boundary and records the disagreement.
+
+If the first configured level fails, only that level is repeated and the result is
+reported as below that level and not localized by this ladder. In particular, if
+P3 confirms S3 or S6 failing at their first 5-VU level, their capacity knees are
+reported as below 5 VUs and not localized, rather than as knees at 5 VUs. If no
+level fails through 80 VUs, the result is reported as above 80 VUs and not
+localized; the confirmation rule is not triggered. Later levels, failed runs, and
+discordant confirmation results may not be removed to improve the reported knee.
 
 ### Login ladder
 

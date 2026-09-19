@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P2",
+  "classification": "accepted-baseline",
+  "startedAtUtc": "2026-09-19T14:39:35Z",
+  "finishedAtUtc": "2026-09-19T15:36:03Z",
+  "elapsedSeconds": 3388,
+  "taskId": "f458e8882aaf40baa9c2486ebea15cbb",
+  "loadGenerator": {
+    "taskDefinition": "chinstein-p2-loadgen:2",
+    "sourceCommit": "9665522c186473914412c4bdaa692fc44903225c",
+    "imageDigest": "sha256:500f38baf67b82d1df72311dbc3f2d5b91b4ce46f4a14305e05b4bd2346eaaa2",
+    "containerExitCode": 0
+  },
+  "api": {
+    "taskDefinition": "default-chinstein-api-staging:7",
+    "sourceCommit": "b33785f19178",
+    "imageDigest": "sha256:3136ff4c5a3dae72ef852d3fdb707ac6e64022432c2578c95e6de95ff6c89349",
+    "desiredCount": 1,
+    "runningCount": 1,
+    "pendingCount": 0
+  },
+  "database": {
+    "name": "neondb",
+    "hostFingerprint": "777c6ca41572",
+    "timezone": "GMT",
+    "dateBefore": "2026-09-19",
+    "dateAfter": "2026-09-19",
+    "sessionsBefore": 1458200,
+    "sessionsAfter": 1458530,
+    "p2DistinctWriteUsers": 330
+  },
+  "execution": {
+    "scenarios": ["S0", "S1", "S2", "S3", "S4", "S6", "S5"],
+    "virtualUserLevels": [1, 5],
+    "repetitions": [1, 2, 3],
+    "expectedCombinations": 42,
+    "completedCombinations": 42,
+    "failedCombinations": 0,
+    "attemptedRequestsIncludingWarmup": 332464,
+    "measuredRequests": 222689,
+    "unexpectedResponses": 0
+  },
+  "artifacts": {
+    "rawResults": "p2-baseline-2026-09-19.raw.json",
+    "summary": "p2-baseline-2026-09-19.summary.json",
+    "databasePostcheck": "p2-baseline-2026-09-19.postcheck.json"
+  }
+}
