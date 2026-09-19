@@ -208,3 +208,23 @@ Recorded on 2026-09-19 after P2 acceptance and before any P3 request:
 - P2 suggests S3 and S6 may already exceed their p95 thresholds at 5 VUs. They are
   reported as below 5 VUs only if the formal P3 5-VU result confirms a frozen
   failure condition.
+
+## 2026-09-19 — P3 pre-measurement fixture reset
+
+- The staging API service was desired `0`, running `0`, pending `0` before the
+  reset.
+- The approved source contained 8,100 users, 365 characters, and 1,458,530 study
+  sessions. The extra 330 current-date rows belonged to 330 Pool A users consumed
+  by the accepted P2 run.
+- The rollback rehearsal rebuilt and verified the target, then restored the exact
+  source counts and fingerprint before the committed run.
+- The committed repeat-seed completed as one atomic replacement transaction with
+  `commitOutcome: confirmed` and fresh-connection post-commit verification.
+- The recorded seed and database date remained `2026-09-19`; the database was
+  `neondb`, host fingerprint `777c6ca41572`, PostgreSQL `18.6`, and not in recovery.
+- The accepted P3 source contains 8,100 users, 365 characters, 1,458,000 historical
+  sessions, 200 current-date Pool B conflict rows, and zero current-date Pool A
+  rows, for 1,458,200 study sessions in total.
+- Mapping, uniqueness, date-range, story, distribution, and session-quality checks
+  passed with no invalid or unmapped rows. Sequence values may advance, while all
+  workload derivation continues to use stable PERF mapping sequences.
