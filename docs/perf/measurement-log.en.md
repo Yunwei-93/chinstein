@@ -300,3 +300,23 @@ to the earlier, more conservative failing boundary.
 - [Derived initial summary](results/p3-initial-2026-09-19.summary.json)
 - [Database post-check](results/p3-initial-2026-09-19.postcheck.json)
 - [Initial run manifest](results/p3-initial-2026-09-19.manifest.json)
+
+### Pre-confirmation classification correction
+
+Before using any confirmation result, a review of the frozen knee rules found
+that the first derived confirmation plan considered the p95 threshold and error
+budget but omitted the separate rule that an exact doubling of VUs fails when
+completed throughput improves by less than 20%. The raw initial results were not
+changed or discarded.
+
+- S2 throughput rose only from 280.500 req/s at 5 VUs to 284.408 req/s at 10
+  VUs, an increase of approximately 1.39%. Its first initial failure is therefore
+  10 VUs, not 20, and its required pair is 5/10 VUs.
+- S1 throughput fell from 7.758 req/s at 1 VU to 7.008 req/s at 2 VUs. Its first
+  initial failure is therefore 2 VUs, not 5, and its required pair is 1/2 VUs.
+- The already completed S2/20 and S1/5 confirmation observations remain valid
+  extra evidence. A two-combination addendum will measure the missing S2/5 and
+  S1/1 levels before final classification.
+
+This correction applies an existing pre-registered rule before the final capacity
+claim; it does not change a threshold, delete a result, or add a favorable retry.
