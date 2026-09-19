@@ -684,6 +684,13 @@ highest non-login 1-VU latency. The original P3 ladder could therefore begin at 
 beyond an early tail-latency boundary without enough resolution to distinguish a
 shared-system effect from a leaderboard-query effect.
 
+PERF-P2 also consumed 330 operational-reserve Pool A identities. Before P3, the
+already-verified repeat-seed procedure must recreate the approved fixture on the
+new recorded database date and restore zero current-date Pool A sessions. The P3
+timed ladders run before S5. The token fixture is generated while Pool A is still
+unused, and the bounded S5 write suite runs last so its 3,000 writes cannot
+invalidate a later source read.
+
 P3 adds 1-VU and 2-VU levels only to the two primary diagnostic controls:
 
 - S0 is the low-work shared-path floor; and

@@ -171,13 +171,16 @@ function validateScenarioPlan(plan) {
       fail('session request plan is invalid')
     }
 
-    if (
-      scenario.id === 'S5' &&
-      (plan.userSequence < POOL_A_ALLOCATIONS.p2WriteReserve.firstSeq ||
-        plan.userSequence > POOL_A_ALLOCATIONS.p2WriteReserve.lastSeq ||
-        plan.expectation.expectedCharacterId !== plan.body.characterId)
-    ) {
-      fail('S5 request plan is outside the approved reserve')
+    if (scenario.id === 'S5') {
+      const p2Range = POOL_A_ALLOCATIONS.p2WriteReserve
+      const p3Range = POOL_A_ALLOCATIONS.baselineIsolated
+      const sequenceIsApproved =
+        (plan.userSequence >= p2Range.firstSeq && plan.userSequence <= p2Range.lastSeq) ||
+        (plan.userSequence >= p3Range.firstSeq && plan.userSequence <= p3Range.lastSeq)
+
+      if (!sequenceIsApproved || plan.expectation.expectedCharacterId !== plan.body.characterId) {
+        fail('S5 request plan is outside the approved PERF write allocations')
+      }
     }
   } else if (plan.body !== null) {
     fail('read-only scenario unexpectedly contains a request body')

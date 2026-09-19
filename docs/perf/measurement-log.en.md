@@ -184,6 +184,11 @@ P3 evidence:
 
 Recorded on 2026-09-19 after P2 acceptance and before any P3 request:
 
+- The accepted P2 run left 330 current-date Pool A sessions. Before P3, the
+  verified repeat-seed workflow must restore the approved fixture with zero
+  current-date Pool A sessions and record the new database date.
+- All timed ladders run before S5. S5 then runs last and consumes exactly the
+  3,000-user baseline-isolated Pool A range (`901-3900`).
 - S0 and S4 use `1 -> 2 -> 5 -> 10 -> 20 -> 40 -> 80` VUs so the low-work shared
   path and the leaderboard path can distinguish an early shared-system boundary
   from a query-specific boundary.
