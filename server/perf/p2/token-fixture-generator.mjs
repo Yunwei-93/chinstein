@@ -1,12 +1,13 @@
 import { lstat as lstatFile, readFile as readTextFile } from 'node:fs/promises'
 
 import { POOLS, TOTAL_USERS } from '../fixture-config.mjs'
-import { connectToStaging, PerfSafetyError } from '../staging-guard.mjs'
+import { PerfSafetyError } from '../staging-guard.mjs'
 
 import { buildTokenFixture } from './token-fixture-builder.mjs'
 import { TOKEN_TTL_SECONDS } from './token-fixture-contracts.mjs'
 import { DEFAULT_TOKEN_FIXTURE_PATH, writeTokenFixtureAtomically } from './token-fixture-file.mjs'
 import { readTokenFixtureSource } from './token-fixture-source.mjs'
+import { connectToP2StagingRuntime } from './runtime-staging-connector.mjs'
 
 const AUTH_SOURCE_URL = new URL('../../src/auth.ts', import.meta.url)
 
@@ -386,7 +387,7 @@ function buildSafeSummary(sourceResult, buildResult, writeResult) {
 
 const DEFAULT_DEPENDENCIES = Object.freeze({
   assertBuiltSigner: assertBuiltApplicationSigner,
-  connectToStaging,
+  connectToStaging: connectToP2StagingRuntime,
   readTokenFixtureSource,
   loadJwtAdapter: loadDefaultJwtAdapter,
   buildTokenFixture,
