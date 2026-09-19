@@ -61,9 +61,35 @@ export function runP2Scenario() {
 export function handleSummary(data) {
   const label = `p2-${run.scenarioId}-vu${run.vus}-rep${run.repetition}`
 
-  // The task filesystem disappears on exit, so emit one machine-readable result to stdout.
+  // Emit only the submetrics needed by the report so the result fits one log event.
+  const measured = (name) => {
+    const metric = data.metrics[`${name}{perf_phase:measured}`]
+
+    return metric ? metric.values : null
+  }
+
+  const counter = (name) => {
+    const metric = data.metrics[name]
+
+    return metric ? metric.values.count : null
+  }
+
+  const result = {
+    label,
+    scenario: run.scenarioId,
+    vus: run.vus,
+    repetition: run.repetition,
+    duration: measured('perf_expected_duration_ms'),
+    bytes: measured('perf_response_bytes'),
+    unexpectedRate: measured('perf_unexpected_response_rate'),
+    attempted: counter('perf_requests_total'),
+    expected: counter('perf_expected_responses_total'),
+    unexpected: counter('perf_unexpected_responses_total'),
+  }
+
+  // The task filesystem disappears on exit, so emit the result to stdout.
   return {
-    stdout: `PERF_RESULT ${label} ${JSON.stringify(data)}\n`,
+    stdout: `PERF_RESULT ${JSON.stringify(result)}\n`,
   }
 }
 
