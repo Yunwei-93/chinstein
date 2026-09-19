@@ -246,3 +246,57 @@ Recorded on 2026-09-19 after P2 acceptance and before any P3 request:
 - Measured latency: p50 3.612 ms, p95 4.827 ms, maximum 467.284 ms
 - Container exit code: `0`; failed runs: 0; threshold events: 0; compact result
   contract valid: true
+
+## 2026-09-19 — P3 formal initial capacity ladder
+
+### Start evidence
+
+- Status: running unattended in AWS Fargate
+- UTC start: `2026-09-19T17:51:18Z`
+- Task ID: `aca61d93b06e4455b5754b55cd024c26`
+- Task definition: `chinstein-p3-loadgen:2`
+- ECS `startedBy`: `p3-initial-20260919`
+- Load-generator source commit: `3444a88f6630fe6083d30b661afda0643e690054`
+- Load-generator image digest: `sha256:e7160971eb6097c57f158c5c9f89a9c4b778244a521cac35ed6d27df0ae115b6`
+- Suite and run kind: `timed`, `initial`
+- Planned combinations: 33 across the six pre-registered timed scenarios
+- Pre-run gates: API stable at desired/running/pending `1/1/0`; approved P3
+  source contained 1,458,200 sessions with zero current-date Pool A rows
+- Local computer required after confirmed start: no
+
+### Completion evidence
+
+- UTC sweep finish: `2026-09-19T19:15:56Z`; ECS stopped the one-shot task at
+  `2026-09-19T19:16:21.605Z`
+- Task outcome: `STOPPED`, `EssentialContainerExited`, container exit code `0`
+- Completed results: 33 of 33; failed-run events: 0
+- Measured requests: 728,078 expected of 728,078 attempted; unexpected: 0
+- Threshold-exceeded results: 24. Threshold events are capacity observations,
+  not execution failures; the ladder intentionally continued after each event.
+- Read-only post-check: the approved source remained at 1,458,200 sessions,
+  including zero current-date Pool A rows and 200 Pool B rows. Database date and
+  source seed date both remained `2026-09-19`.
+
+| Scenario | Threshold | Highest preceding pass | First failure | Initial capacity statement |
+| --- | ---: | ---: | ---: | --- |
+| S0 health | 50 ms p95 | 2 VU: 5.660 ms | 5 VU: 58.515 ms | between 2 and 5 VUs |
+| S2 today character | 100 ms p95 | 10 VU: 80.762 ms | 20 VU: 107.767 ms | between 10 and 20 VUs |
+| S3 current user | 50 ms p95 | not sampled below 5 | 5 VU: 77.532 ms | below 5 VUs; not localized |
+| S4 leaderboard | 350 ms p95 | 5 VU: 279.526 ms | 10 VU: 533.069 ms | between 5 and 10 VUs |
+| S6 existing conflict | 150 ms p95 | not sampled below 5 | 5 VU: 172.834 ms | below 5 VUs; not localized |
+| S1 login | 550 ms p95 | 2 VU: 310.021 ms | 5 VU: 1,002.680 ms | between 2 and 5 VUs |
+
+### Frozen confirmation plan
+
+The pre-registered rule produced ten confirmation combinations: S0 at 2/5 VUs,
+S2 at 10/20, S3 at 5, S4 at 5/10, S6 at 5, and S1 at 2/5. They will run
+sequentially so concurrent load generators cannot contaminate one another. All
+initial and confirmation results remain in the report; disagreement is resolved
+to the earlier, more conservative failing boundary.
+
+### Preserved artifacts
+
+- [Raw initial results](results/p3-initial-2026-09-19.raw.json)
+- [Derived initial summary](results/p3-initial-2026-09-19.summary.json)
+- [Database post-check](results/p3-initial-2026-09-19.postcheck.json)
+- [Initial run manifest](results/p3-initial-2026-09-19.manifest.json)
