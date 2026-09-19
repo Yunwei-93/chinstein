@@ -203,6 +203,18 @@ test('builds all 42 approved P2 run definitions', () => {
               abortOnFail: false,
             },
           ],
+          'perf_expected_duration_ms{perf_phase:measured}': [
+            {
+              threshold: 'p(95)>=0',
+              abortOnFail: false,
+            },
+          ],
+          'perf_response_bytes{perf_phase:measured}': [
+            {
+              threshold: 'p(95)>=0',
+              abortOnFail: false,
+            },
+          ],
         })
 
         assert.deepEqual(options.summaryTrendStats, ['count', 'avg', 'min', 'med', 'p(95)', 'max'])
@@ -213,6 +225,8 @@ test('builds all 42 approved P2 run definitions', () => {
           'name',
           'scenario',
           'expected_response',
+          'error',
+          'error_code',
         ])
 
         approvedRuns += 1
@@ -626,6 +640,10 @@ test('k6 runtime uses only the approved execution boundaries', async () => {
   assert.match(source, /__ENV\.PERF_LOGIN_PASSWORD/)
 
   assert.match(source, /exec\.test\.abort/)
+
+  assert.match(source, /export function handleSummary/)
+
+  assert.match(source, /PERF_RESULT/)
 
   assert.doesNotMatch(source, /console\./)
   assert.doesNotMatch(source, /DATABASE_URL/)

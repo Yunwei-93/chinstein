@@ -402,6 +402,7 @@ export function executeScenarioHttpRequest({
   try {
     response = httpClient.request(request.method, request.url, request.body, request.params)
   } catch {
+    // Status 0 is always unexpected, so this synthetic 0 ms value never enters the latency trend.
     response = {
       status: 0,
       body: '',

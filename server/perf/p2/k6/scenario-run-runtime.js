@@ -58,4 +58,13 @@ export function runP2Scenario() {
   return summary
 }
 
+export function handleSummary(data) {
+  const label = `p2-${run.scenarioId}-vu${run.vus}-rep${run.repetition}`
+
+  // The task filesystem disappears on exit, so emit one machine-readable result to stdout.
+  return {
+    stdout: `PERF_RESULT ${label} ${JSON.stringify(data)}\n`,
+  }
+}
+
 export default runP2Scenario

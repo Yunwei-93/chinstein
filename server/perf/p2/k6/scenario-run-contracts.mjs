@@ -287,9 +287,29 @@ export function buildScenarioRunOptions(run) {
           abortOnFail: false,
         },
       ],
+      'perf_expected_duration_ms{perf_phase:measured}': [
+        {
+          threshold: 'p(95)>=0',
+          abortOnFail: false,
+        },
+      ],
+      'perf_response_bytes{perf_phase:measured}': [
+        {
+          threshold: 'p(95)>=0',
+          abortOnFail: false,
+        },
+      ],
     },
     summaryTrendStats: ['count', 'avg', 'min', 'med', 'p(95)', 'max'],
-    systemTags: ['status', 'method', 'name', 'scenario', 'expected_response'],
+    systemTags: [
+      'status',
+      'method',
+      'name',
+      'scenario',
+      'expected_response',
+      'error',
+      'error_code',
+    ],
   }
 }
 
