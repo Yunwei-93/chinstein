@@ -8,7 +8,7 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
-The first fifteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
+The first sixteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
 token-fixture builder, the 32-72-byte login-password boundary, atomic owner-only
@@ -103,6 +103,21 @@ and metric recorder exactly once per iteration. The six S5 rounds map the comple
 7301-7630 reserve without reuse, while authentication failures can stop an invalid
 run without exposing credentials. All 178 PERF-P2 offline tests now pass; no live
 k6 process, token fixture, database, AWS service, or HTTP target was used.
+
+The sixteenth checkpoint adds the pure premeasurement safety contract. It binds
+one canonical HTTPS origin to the independently approved origin fingerprint and
+requires the exact `aws-staging` service, `us-east-2` region, stable 1/1/0 ECS
+deployment, immutable image digest, full Git commit, task-definition revision,
+and approved Neon database identity. It also requires the fixture, database,
+health response, and UTC clock to share one strict date outside the UTC-midnight
+safety window; validates the complete token timeline and three-hour remaining
+lifetime; and cross-binds health, login, and fixture-token `/api/me` canaries to
+the approved target, date, and designated Pool R user. A protected `401`
+invalidates the fixture, while transport, authorization, rate-limit, server,
+identity, date, and contract failures all fail closed. Only an allowlisted summary
+survives the gate. All 198 PERF-P2 offline tests now pass, including one integration
+test using the real shared-fixture loader; no live k6 process, HTTP request,
+database connection, or AWS call was made.
 
 The JWT adapter is authorized only inside the dedicated, short-lived fixture
 generation process, after `npm run build` has produced the compiled application
