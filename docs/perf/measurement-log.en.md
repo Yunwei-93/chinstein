@@ -189,8 +189,8 @@ Recorded on 2026-09-19 after P2 acceptance and before any P3 request:
   from a query-specific boundary.
 - S2, S3, and S6 retain `5 -> 10 -> 20 -> 40 -> 80`; all original levels remain.
 - The added points increase resolution only. P2-derived thresholds, the 1% error
-  budget, two-minute measured windows, and all capacity-knee conditions remain
-  unchanged.
+  budget, 30-second warm-ups, two-minute measured windows, and all capacity-knee
+  conditions remain unchanged.
 - P3 uses one formal measurement per read/conflict level. The P2 three-repetition
   rule is not copied into P3.
 - After the first ladder, the first failing level and its preceding level are each

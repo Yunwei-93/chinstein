@@ -690,7 +690,8 @@ P3 adds 1-VU and 2-VU levels only to the two primary diagnostic controls:
 - S4 is the global-aggregation target.
 
 Their P3 ladders are `1 -> 2 -> 5 -> 10 -> 20 -> 40 -> 80` VUs. S2, S3, and S6
-retain `5 -> 10 -> 20 -> 40 -> 80`. This change increases sampling resolution;
+retain `5 -> 10 -> 20 -> 40 -> 80`. Every timed P3 level uses a 30-second
+unmeasured warm-up followed by its two measured minutes. This change increases sampling resolution;
 it does not relax or recalculate the P2-derived latency thresholds, the 1% error
 budget, the two-minute measured window, the original 5-VU through 80-VU levels,
 or any capacity-knee condition. Added points cannot replace, discard, or enlarge
