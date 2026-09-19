@@ -8,7 +8,7 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
-The first sixteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
+The first seventeen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
 token-fixture builder, the 32-72-byte login-password boundary, atomic owner-only
@@ -118,6 +118,19 @@ identity, date, and contract failures all fail closed. Only an allowlisted summa
 survives the gate. All 198 PERF-P2 offline tests now pass, including one integration
 test using the real shared-fixture loader; no live k6 process, HTTP request,
 database connection, or AWS call was made.
+
+The seventeenth checkpoint adds the injected premeasurement coordinator and a
+separate pre-canary authorization gate. Before any HTTP request, it requires the
+approved fixture, deployment, database identity, closed database connection, UTC
+date, origin, and token lifetime to agree. Health must pass before the runtime
+login password is read; login must pass before the fixture token is used for the
+protected `/api/me` request. The login-response token is never reused, every
+sensitive boundary rechecks the UTC-midnight and token-lifetime rules, and a
+protected `401` invalidates the fixture without retry. Raw dependency errors,
+responses, credentials, fixture identities, and private endpoint evidence are
+excluded from the final allowlisted result. All 213 PERF-P2 offline tests now
+pass; the coordinator still contains no live AWS, database, filesystem, k6, or
+HTTP adapter, so no external system was contacted.
 
 The JWT adapter is authorized only inside the dedicated, short-lived fixture
 generation process, after `npm run build` has produced the compiled application

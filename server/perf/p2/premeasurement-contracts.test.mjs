@@ -11,6 +11,7 @@ import {
 } from './k6/k6-token-fixture-contracts.mjs'
 
 const {
+  assertP2PreCanaryReady,
   assertP2PremeasurementReady,
   buildP2PremeasurementCanaryPlan,
   classifyP2PremeasurementCanary,
@@ -213,16 +214,110 @@ function createReadyInput(nowSeconds = NOW_SECONDS) {
   }
 }
 
+function createPreCanaryInput(nowSeconds = NOW_SECONDS) {
+  const input = createReadyInput(nowSeconds)
+
+  delete input.canaries
+
+  return input
+}
+
 function assertGateFailure(input, pattern = /PERF-P2 premeasurement gate failed/) {
   assert.throws(() => assertP2PremeasurementReady(input), pattern)
 }
 
 test('exports only the approved premeasurement contract surface', () => {
   assert.deepEqual(Object.keys(premeasurementContracts).sort(), [
+    'assertP2PreCanaryReady',
     'assertP2PremeasurementReady',
     'buildP2PremeasurementCanaryPlan',
     'classifyP2PremeasurementCanary',
   ])
+})
+
+test('authorizes canaries only after the complete target, date, and fixture pre-gate', () => {
+  const input = createPreCanaryInput()
+  const summary = assertP2PreCanaryReady(input)
+
+  assert.deepEqual(summary, {
+    check: 'p2-pre-canary-ready',
+    ready: true,
+    target: {
+      stage: 'aws-staging',
+      region: 'us-east-2',
+      service: 'chinstein-api-staging',
+      taskDefinitionRevision: 42,
+      imageDigest: IMAGE_DIGEST,
+      gitCommit: GIT_COMMIT,
+      deploymentStatus: 'COMPLETED',
+      desiredCount: 1,
+      runningCount: 1,
+      pendingCount: 0,
+    },
+    date: {
+      databaseCurrentDate: '2026-09-18',
+      fixtureSeedDate: '2026-09-18',
+      secondsSinceMidnight: 43_200,
+      secondsUntilMidnight: 43_200,
+      midnightGuardSeconds: 1800,
+    },
+    fixture: {
+      users: 8100,
+      tokenTtlSeconds: TOKEN_TTL_SECONDS,
+      remainingTokenSeconds: 14_280,
+    },
+    canariesAuthorized: true,
+    secretsReturned: false,
+  })
+
+  const serialized = JSON.stringify(summary)
+
+  for (const privateValue of [
+    BASE_URL,
+    input.approvedTarget.originFingerprint,
+    DATABASE_HOST_FINGERPRINT,
+    PRIVATE_TOKEN,
+    PRIVATE_EMAIL,
+    PRIVATE_ANSWER,
+    String(USER_ID),
+  ]) {
+    assert.equal(serialized.includes(privateValue), false)
+  }
+})
+
+test('pre-canary authorization fails closed before any canary evidence is required', () => {
+  const cases = [
+    (input) => {
+      input.observedTarget.deploymentStatus = 'IN_PROGRESS'
+    },
+    (input) => {
+      input.databaseCurrentDate = '2026-09-17'
+    },
+    (input) => {
+      input.nowSeconds = Math.floor(Date.parse('2026-09-18T00:30:00.000Z') / 1000)
+    },
+    (input) => {
+      input.designatedUser.pool = 'A'
+    },
+    (input) => {
+      input.designatedUser.expiresAt = input.nowSeconds + MINIMUM_REMAINING_TOKEN_SECONDS - 1
+      input.designatedUser.issuedAt = input.designatedUser.expiresAt - TOKEN_TTL_SECONDS
+      input.fixtureMetadata.earliestIssuedAt = input.designatedUser.issuedAt
+      input.fixtureMetadata.latestIssuedAt = input.designatedUser.issuedAt
+      input.fixtureMetadata.generatedAt = input.nowSeconds - 20
+      input.fixtureMetadata.loadedAt = input.nowSeconds - 10
+      input.fixtureMetadata.earliestExpiresAt = input.designatedUser.expiresAt
+      input.fixtureMetadata.remainingTokenSeconds =
+        input.fixtureMetadata.earliestExpiresAt - input.fixtureMetadata.loadedAt
+    },
+  ]
+
+  for (const mutate of cases) {
+    const input = createPreCanaryInput()
+    mutate(input)
+
+    assert.throws(() => assertP2PreCanaryReady(input), /PERF-P2 premeasurement gate failed/)
+  }
 })
 
 test('builds the exact safe health, login, and fixture-token canary plan', () => {

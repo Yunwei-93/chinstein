@@ -464,6 +464,91 @@ function validateCanaryResult(result, expectedDefinition) {
   return result
 }
 
+function validatePreCanaryContext({
+  approvedTarget,
+  observedTarget,
+  fixtureMetadata,
+  designatedUser,
+  nowSeconds,
+  databaseCurrentDate,
+}) {
+  const approved = validateApprovedTarget(approvedTarget)
+  const observed = validateObservedTarget(observedTarget)
+
+  assertTargetMatch(approved, observed)
+
+  const metadata = validateFixtureShape(fixtureMetadata)
+  const user = validateDesignatedUser(designatedUser)
+  const clock = validateClockWindow(nowSeconds)
+
+  assertDesignatedUserMatchesFixture(metadata, user)
+
+  if (
+    !isStrictDate(databaseCurrentDate) ||
+    databaseCurrentDate !== clock.currentDate ||
+    databaseCurrentDate !== metadata.source.seedDate
+  ) {
+    fail('database, fixture, and UTC dates do not match')
+  }
+
+  if (
+    observed.databaseHostFingerprint !== metadata.source.hostFingerprint ||
+    observed.database !== metadata.source.database
+  ) {
+    fail('fixture source differs from the observed database')
+  }
+
+  const remainingTokenSeconds = validateTokenFreshness(metadata, user, nowSeconds)
+
+  return {
+    approved,
+    observed,
+    metadata,
+    user,
+    clock,
+    remainingTokenSeconds,
+  }
+}
+
+function buildPreCanarySummary({
+  observed,
+  metadata,
+  clock,
+  remainingTokenSeconds,
+  databaseCurrentDate,
+}) {
+  return Object.freeze({
+    check: 'p2-pre-canary-ready',
+    ready: true,
+    target: Object.freeze({
+      stage: observed.stage,
+      region: observed.region,
+      service: observed.service,
+      taskDefinitionRevision: observed.taskDefinitionRevision,
+      imageDigest: observed.imageDigest,
+      gitCommit: observed.gitCommit,
+      deploymentStatus: observed.deploymentStatus,
+      desiredCount: observed.desiredCount,
+      runningCount: observed.runningCount,
+      pendingCount: observed.pendingCount,
+    }),
+    date: Object.freeze({
+      databaseCurrentDate,
+      fixtureSeedDate: metadata.source.seedDate,
+      secondsSinceMidnight: clock.secondsSinceMidnight,
+      secondsUntilMidnight: clock.secondsUntilMidnight,
+      midnightGuardSeconds: MIDNIGHT_GUARD_SECONDS,
+    }),
+    fixture: Object.freeze({
+      users: metadata.users,
+      tokenTtlSeconds: metadata.tokenTtlSeconds,
+      remainingTokenSeconds,
+    }),
+    canariesAuthorized: true,
+    secretsReturned: false,
+  })
+}
+
 export function buildP2PremeasurementCanaryPlan({
   baseUrl,
   approvedTarget,
@@ -598,6 +683,29 @@ export function classifyP2PremeasurementCanary({
   })
 }
 
+export function assertP2PreCanaryReady({
+  approvedTarget,
+  observedTarget,
+  fixtureMetadata,
+  designatedUser,
+  nowSeconds,
+  databaseCurrentDate,
+}) {
+  const context = validatePreCanaryContext({
+    approvedTarget,
+    observedTarget,
+    fixtureMetadata,
+    designatedUser,
+    nowSeconds,
+    databaseCurrentDate,
+  })
+
+  return buildPreCanarySummary({
+    ...context,
+    databaseCurrentDate,
+  })
+}
+
 export function assertP2PremeasurementReady({
   approvedTarget,
   observedTarget,
@@ -607,33 +715,15 @@ export function assertP2PremeasurementReady({
   databaseCurrentDate,
   canaries,
 }) {
-  const approved = validateApprovedTarget(approvedTarget)
-  const observed = validateObservedTarget(observedTarget)
-
-  assertTargetMatch(approved, observed)
-
-  const metadata = validateFixtureShape(fixtureMetadata)
-  const user = validateDesignatedUser(designatedUser)
-  const clock = validateClockWindow(nowSeconds)
-
-  assertDesignatedUserMatchesFixture(metadata, user)
-
-  if (
-    !isStrictDate(databaseCurrentDate) ||
-    databaseCurrentDate !== clock.currentDate ||
-    databaseCurrentDate !== metadata.source.seedDate
-  ) {
-    fail('database, fixture, and UTC dates do not match')
-  }
-
-  if (
-    observed.databaseHostFingerprint !== metadata.source.hostFingerprint ||
-    observed.database !== metadata.source.database
-  ) {
-    fail('fixture source differs from the observed database')
-  }
-
-  const remainingTokenSeconds = validateTokenFreshness(metadata, user, nowSeconds)
+  const { approved, observed, metadata, user, clock, remainingTokenSeconds } =
+    validatePreCanaryContext({
+      approvedTarget,
+      observedTarget,
+      fixtureMetadata,
+      designatedUser,
+      nowSeconds,
+      databaseCurrentDate,
+    })
 
   if (!Array.isArray(canaries) || canaries.length !== CANARY_DEFINITIONS.length) {
     fail('exactly three canary results are required')
