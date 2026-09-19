@@ -228,3 +228,21 @@ Recorded on 2026-09-19 after P2 acceptance and before any P3 request:
 - Mapping, uniqueness, date-range, story, distribution, and session-quality checks
   passed with no invalid or unmapped rows. Sequence values may advance, while all
   workload derivation continues to use stable PERF mapping sequences.
+
+## 2026-09-19 — P3 Fargate smoke
+
+- Purpose: validate the P3 image, Fargate entrypoint, token-fixture generation,
+  k6 runtime, CloudWatch result transport, and compact result contract before the
+  formal capacity ladder. This run is setup evidence and is excluded from formal
+  P3 capacity classification.
+- Load-generator source commit: `3444a88f6630fe6083d30b661afda0643e690054`
+- Load-generator image digest: `sha256:e7160971eb6097c57f158c5c9f89a9c4b778244a521cac35ed6d27df0ae115b6`
+- Task definition: `chinstein-p3-loadgen:1`
+- Task ID: `d2849097ae9b45149004f9d03aa159fd`
+- UTC interval: `2026-09-19T17:40:15Z` to `2026-09-19T17:42:55Z`
+- Scenario: S0, 1 VU, 30-second warm-up plus 120 measured seconds
+- Measured expected requests: 25,131; unexpected responses: 0; checks: 100%
+- Measured throughput: 209.425 expected responses per second
+- Measured latency: p50 3.612 ms, p95 4.827 ms, maximum 467.284 ms
+- Container exit code: `0`; failed runs: 0; threshold events: 0; compact result
+  contract valid: true
