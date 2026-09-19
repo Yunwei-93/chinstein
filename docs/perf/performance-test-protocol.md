@@ -8,7 +8,7 @@ against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
 tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
 pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
-The first eleven PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
+The first twelve PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
 token-fixture builder, the 32-72-byte login-password boundary, atomic owner-only
@@ -65,6 +65,15 @@ metadata at index zero and each synthetic user's sequence at the matching array
 index. The k6 runtime creates that record set through one `SharedArray`, while
 lookups also enforce the expected pool boundary. All 136 PERF-P2 offline tests
 now pass without database, HTTP, AWS, Neon, or live k6 request execution.
+
+The twelfth checkpoint adds the pure scenario request-planning layer. It maps
+timed virtual users deterministically into Pool R or Pool B, reserves the exact
+330 distinct Pool A identities for the six bounded S5 rounds, and constructs the
+method, path, request body, and response expectations for S0 through S6. These
+plans intentionally contain neither bearer tokens nor the login password; the
+runtime request layer must inject those values only at the final execution
+boundary. All 144 PERF-P2 offline tests now pass without database, HTTP, AWS,
+Neon, or live k6 request execution.
 
 The JWT adapter is authorized only inside the dedicated, short-lived fixture
 generation process, after `npm run build` has produced the compiled application
