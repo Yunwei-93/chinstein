@@ -320,3 +320,33 @@ changed or discarded.
 
 This correction applies an existing pre-registered rule before the final capacity
 claim; it does not change a threshold, delete a result, or add a favorable retry.
+
+### Confirmation completion and final timed-capacity classification
+
+- The main confirmation task ran from `2026-09-19T20:02:10Z` to
+  `2026-09-19T20:28:15Z`; the two-result addendum finished at
+  `2026-09-19T21:14:43Z`.
+- Both Fargate tasks stopped normally with container exit code `0`.
+- Twelve confirmation results produced 234,315 expected responses and zero
+  unexpected responses. Initial plus confirmation evidence contains 962,393
+  measured requests and zero unexpected responses.
+- The post-check remained on database date `2026-09-19`, with the approved
+  1,458,200-session source, zero current-date Pool A rows, and 200 Pool B rows.
+
+| Scenario | Confirmed capacity interval | Confirmation evidence | Decisive rule |
+| --- | --- | --- | --- |
+| S0 health | 2-5 VUs | p95 6.539 ms at 2; 55.361 ms at 5 | p95 over 50 ms at 5 |
+| S2 today character | 5-10 VUs | 270.475 to 268.408 req/s | doubled VUs did not improve throughput by 20% |
+| S3 current user | below 5 VUs; not localized | p95 76.133 ms at 5 | first tested level over 50 ms |
+| S4 leaderboard | 5-10 VUs | p95 284.895 to 525.197 ms; throughput +8.0% | p95 and throughput rules both fail at 10 |
+| S6 existing conflict | below 5 VUs; not localized | p95 167.510 ms at 5 | first tested level over 150 ms |
+| S1 login | 1-2 VUs | 7.717 to 6.967 req/s | doubled VUs reduced throughput |
+
+The confirmation evidence agreed with every conservative boundary. S2/20 and
+S1/5 remain in the raw artifact as additional observations even though the full
+throughput rule established earlier knees. No timed-capacity result was removed.
+
+- [Final timed-capacity classification](results/p3-capacity-2026-09-19.summary.json)
+- [Confirmation raw results](results/p3-confirmation-2026-09-19.raw.json)
+- [Confirmation database post-check](results/p3-confirmation-2026-09-19.postcheck.json)
+- [Confirmation manifest](results/p3-confirmation-2026-09-19.manifest.json)

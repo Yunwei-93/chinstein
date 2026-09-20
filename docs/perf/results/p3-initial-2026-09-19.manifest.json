@@ -45,8 +45,8 @@
     {
       "scenario": "S2",
       "levels": [
-        10,
-        20
+        5,
+        10
       ]
     },
     {
@@ -71,8 +71,8 @@
     {
       "scenario": "S1",
       "levels": [
-        2,
-        5
+        1,
+        2
       ]
     }
   ],
@@ -111,5 +111,10 @@
     "raw": "docs/perf/results/p3-initial-2026-09-19.raw.json",
     "summary": "docs/perf/results/p3-initial-2026-09-19.summary.json",
     "postcheck": "docs/perf/results/p3-initial-2026-09-19.postcheck.json"
+  },
+  "derivationCorrection": {
+    "timing": "recorded before final capacity classification",
+    "issue": "The first derived plan omitted the frozen exact-doubling throughput-improvement rule.",
+    "remedy": "Preserve all results and add the missing S2/5 and S1/1 confirmation observations."
   }
 }

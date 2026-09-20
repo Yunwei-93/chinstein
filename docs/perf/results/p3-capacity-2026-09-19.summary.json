@@ -1,51 +1,77 @@
 {
   "schemaVersion": 2,
   "phase": "PERF-P3",
-  "runKind": "initial",
-  "classification": "complete-initial-capacity-ladder",
+  "classification": "confirmed-timed-capacity-ladders",
+  "frozenRules": {
+    "errorRateFailureAtOrAbove": 0.01,
+    "p95ThresholdsUnchanged": true,
+    "exactVuDoublingMinimumThroughputImprovementPercent": 20,
+    "conservativeDisagreementRule": true
+  },
+  "evidence": {
+    "initialResults": 33,
+    "confirmationResults": 12,
+    "totalMeasuredAttempted": 962393,
+    "totalMeasuredUnexpected": 0
+  },
   "scenarioSummaries": [
     {
       "scenario": "S0",
       "p95ThresholdMs": 50,
+      "ladder": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        40,
+        80
+      ],
       "firstFailingVus": 5,
       "precedingPassingVus": 2,
       "capacityBoundary": "2-5-vus",
       "firstFailureReasons": [
-        "initial-direct-failure"
+        "initial-direct-failure",
+        "confirmation-direct-failure"
       ],
       "throughputComparisons": [
         {
           "fromVus": 1,
           "toVus": 2,
           "initialImprovementPercent": 85.20062355971262,
+          "confirmationImprovementPercent": null,
           "failed": false
         },
         {
           "fromVus": 5,
           "toVus": 10,
           "initialImprovementPercent": 3.8287015356791354,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 10,
           "toVus": 20,
           "initialImprovementPercent": 1.7621076860866447,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 20,
           "toVus": 40,
           "initialImprovementPercent": -4.2640338677385365,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 40,
           "toVus": 80,
           "initialImprovementPercent": -4.081991028240295,
+          "confirmationImprovementPercent": null,
           "failed": true
         }
       ],
-      "levels": [
+      "initial": [
         {
           "vus": 1,
           "p50Ms": 3.4463730000000004,
@@ -116,44 +142,78 @@
           "p95ThresholdExceeded": true,
           "errorBudgetExceeded": false
         }
+      ],
+      "confirmation": [
+        {
+          "vus": 2,
+          "p50Ms": 3.8911925,
+          "p95Ms": 6.5391135999999985,
+          "completedExpectedPerSecond": 375.1166666666667,
+          "measuredAttempted": 45014,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": false,
+          "errorBudgetExceeded": false
+        },
+        {
+          "vus": 5,
+          "p50Ms": 4.219227,
+          "p95Ms": 55.3613725,
+          "completedExpectedPerSecond": 457.6333333333333,
+          "measuredAttempted": 54916,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": true,
+          "errorBudgetExceeded": false
+        }
       ]
     },
     {
       "scenario": "S2",
       "p95ThresholdMs": 100,
+      "ladder": [
+        5,
+        10,
+        20,
+        40,
+        80
+      ],
       "firstFailingVus": 10,
       "precedingPassingVus": 5,
       "capacityBoundary": "5-10-vus",
       "firstFailureReasons": [
-        "initial-throughput-improvement-below-20-percent"
+        "initial-throughput-improvement-below-20-percent",
+        "confirmation-throughput-improvement-below-20-percent"
       ],
       "throughputComparisons": [
         {
           "fromVus": 5,
           "toVus": 10,
           "initialImprovementPercent": 1.3933452168746419,
+          "confirmationImprovementPercent": -0.7640878701050569,
           "failed": true
         },
         {
           "fromVus": 10,
           "toVus": 20,
           "initialImprovementPercent": 1.4474493832224544,
+          "confirmationImprovementPercent": 1.9839175385761632,
           "failed": true
         },
         {
           "fromVus": 20,
           "toVus": 40,
           "initialImprovementPercent": 0.049100309043126344,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 40,
           "toVus": 80,
           "initialImprovementPercent": -4.1137413394919164,
+          "confirmationImprovementPercent": null,
           "failed": true
         }
       ],
-      "levels": [
+      "initial": [
         {
           "vus": 5,
           "p50Ms": 11.268536000000001,
@@ -204,44 +264,88 @@
           "p95ThresholdExceeded": true,
           "errorBudgetExceeded": false
         }
+      ],
+      "confirmation": [
+        {
+          "vus": 5,
+          "p50Ms": 12.151342,
+          "p95Ms": 45.73694939999999,
+          "completedExpectedPerSecond": 270.475,
+          "measuredAttempted": 32457,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": false,
+          "errorBudgetExceeded": false
+        },
+        {
+          "vus": 10,
+          "p50Ms": 19.837167,
+          "p95Ms": 79.53120799999999,
+          "completedExpectedPerSecond": 268.40833333333336,
+          "measuredAttempted": 32209,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": false,
+          "errorBudgetExceeded": false
+        },
+        {
+          "vus": 20,
+          "p50Ms": 74.952122,
+          "p95Ms": 110.61064369999997,
+          "completedExpectedPerSecond": 273.73333333333335,
+          "measuredAttempted": 32848,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": true,
+          "errorBudgetExceeded": false
+        }
       ]
     },
     {
       "scenario": "S3",
       "p95ThresholdMs": 50,
+      "ladder": [
+        5,
+        10,
+        20,
+        40,
+        80
+      ],
       "firstFailingVus": 5,
       "precedingPassingVus": null,
       "capacityBoundary": "below-5-vus-not-localized",
       "firstFailureReasons": [
-        "initial-direct-failure"
+        "initial-direct-failure",
+        "confirmation-direct-failure"
       ],
       "throughputComparisons": [
         {
           "fromVus": 5,
           "toVus": 10,
           "initialImprovementPercent": -4.615729330047058,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 10,
           "toVus": 20,
           "initialImprovementPercent": 0.06577401926239901,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 20,
           "toVus": 40,
           "initialImprovementPercent": -4.7232264425560055,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 40,
           "toVus": 80,
           "initialImprovementPercent": -2.4540481939584913,
+          "confirmationImprovementPercent": null,
           "failed": true
         }
       ],
-      "levels": [
+      "initial": [
         {
           "vus": 5,
           "p50Ms": 6.394424,
@@ -292,51 +396,79 @@
           "p95ThresholdExceeded": true,
           "errorBudgetExceeded": false
         }
+      ],
+      "confirmation": [
+        {
+          "vus": 5,
+          "p50Ms": 7.7778425,
+          "p95Ms": 76.1333758,
+          "completedExpectedPerSecond": 175.15,
+          "measuredAttempted": 21018,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": true,
+          "errorBudgetExceeded": false
+        }
       ]
     },
     {
       "scenario": "S4",
       "p95ThresholdMs": 350,
+      "ladder": [
+        1,
+        2,
+        5,
+        10,
+        20,
+        40,
+        80
+      ],
       "firstFailingVus": 10,
       "precedingPassingVus": 5,
       "capacityBoundary": "5-10-vus",
       "firstFailureReasons": [
         "initial-direct-failure",
-        "initial-throughput-improvement-below-20-percent"
+        "confirmation-direct-failure",
+        "initial-throughput-improvement-below-20-percent",
+        "confirmation-throughput-improvement-below-20-percent"
       ],
       "throughputComparisons": [
         {
           "fromVus": 1,
           "toVus": 2,
           "initialImprovementPercent": 126.99256110520723,
+          "confirmationImprovementPercent": null,
           "failed": false
         },
         {
           "fromVus": 5,
           "toVus": 10,
           "initialImprovementPercent": 3.5555555555555562,
+          "confirmationImprovementPercent": 7.995398331895309,
           "failed": true
         },
         {
           "fromVus": 10,
           "toVus": 20,
           "initialImprovementPercent": 0.21459227467810482,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 20,
           "toVus": 40,
           "initialImprovementPercent": 0.2944325481798682,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 40,
           "toVus": 80,
           "initialImprovementPercent": 0.6938884440885973,
+          "confirmationImprovementPercent": null,
           "failed": true
         }
       ],
-      "levels": [
+      "initial": [
         {
           "vus": 1,
           "p50Ms": 101.104666,
@@ -407,44 +539,78 @@
           "p95ThresholdExceeded": true,
           "errorBudgetExceeded": false
         }
+      ],
+      "confirmation": [
+        {
+          "vus": 5,
+          "p50Ms": 152.417421,
+          "p95Ms": 284.89525840000005,
+          "completedExpectedPerSecond": 28.975,
+          "measuredAttempted": 3477,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": false,
+          "errorBudgetExceeded": false
+        },
+        {
+          "vus": 10,
+          "p50Ms": 262.835797,
+          "p95Ms": 525.1973264,
+          "completedExpectedPerSecond": 31.291666666666668,
+          "measuredAttempted": 3755,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": true,
+          "errorBudgetExceeded": false
+        }
       ]
     },
     {
       "scenario": "S6",
       "p95ThresholdMs": 150,
+      "ladder": [
+        5,
+        10,
+        20,
+        40,
+        80
+      ],
       "firstFailingVus": 5,
       "precedingPassingVus": null,
       "capacityBoundary": "below-5-vus-not-localized",
       "firstFailureReasons": [
-        "initial-direct-failure"
+        "initial-direct-failure",
+        "confirmation-direct-failure"
       ],
       "throughputComparisons": [
         {
           "fromVus": 5,
           "toVus": 10,
           "initialImprovementPercent": 2.711515359533223,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 10,
           "toVus": 20,
           "initialImprovementPercent": -3.8596491228070073,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 20,
           "toVus": 40,
           "initialImprovementPercent": 0.7473062217587589,
+          "confirmationImprovementPercent": null,
           "failed": true
         },
         {
           "fromVus": 40,
           "toVus": 80,
           "initialImprovementPercent": -0.1725030188028165,
+          "confirmationImprovementPercent": null,
           "failed": true
         }
       ],
-      "levels": [
+      "initial": [
         {
           "vus": 5,
           "p50Ms": 96.878342,
@@ -495,26 +661,46 @@
           "p95ThresholdExceeded": true,
           "errorBudgetExceeded": false
         }
+      ],
+      "confirmation": [
+        {
+          "vus": 5,
+          "p50Ms": 95.86939899999999,
+          "p95Ms": 167.50995625000002,
+          "completedExpectedPerSecond": 50.083333333333336,
+          "measuredAttempted": 6010,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": true,
+          "errorBudgetExceeded": false
+        }
       ]
     },
     {
       "scenario": "S1",
       "p95ThresholdMs": 550,
+      "ladder": [
+        1,
+        2,
+        5,
+        8
+      ],
       "firstFailingVus": 2,
       "precedingPassingVus": 1,
       "capacityBoundary": "1-2-vus",
       "firstFailureReasons": [
-        "initial-throughput-improvement-below-20-percent"
+        "initial-throughput-improvement-below-20-percent",
+        "confirmation-throughput-improvement-below-20-percent"
       ],
       "throughputComparisons": [
         {
           "fromVus": 1,
           "toVus": 2,
           "initialImprovementPercent": -9.667024704618687,
+          "confirmationImprovementPercent": -9.719222462203025,
           "failed": true
         }
       ],
-      "levels": [
+      "initial": [
         {
           "vus": 1,
           "p50Ms": 116.216921,
@@ -555,10 +741,42 @@
           "p95ThresholdExceeded": true,
           "errorBudgetExceeded": false
         }
+      ],
+      "confirmation": [
+        {
+          "vus": 1,
+          "p50Ms": 117.345351,
+          "p95Ms": 168.949441,
+          "completedExpectedPerSecond": 7.716666666666667,
+          "measuredAttempted": 926,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": false,
+          "errorBudgetExceeded": false
+        },
+        {
+          "vus": 2,
+          "p50Ms": 294.4078975,
+          "p95Ms": 319.69387224999997,
+          "completedExpectedPerSecond": 6.966666666666667,
+          "measuredAttempted": 836,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": false,
+          "errorBudgetExceeded": false
+        },
+        {
+          "vus": 5,
+          "p50Ms": 698.202383,
+          "p95Ms": 988.3268598,
+          "completedExpectedPerSecond": 7.075,
+          "measuredAttempted": 849,
+          "measuredUnexpected": 0,
+          "p95ThresholdExceeded": true,
+          "errorBudgetExceeded": false
+        }
       ]
     }
   ],
-  "confirmationPlan": [
+  "correctedConfirmationPlan": [
     {
       "scenario": "S0",
       "levels": [
