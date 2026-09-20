@@ -448,6 +448,19 @@ Recorded after PERF-P3 acceptance and before any PERF-P4 request:
 - Data/provider invariant: the soak is read-only, core row counts must remain
   unchanged, provider attempts and Anthropic calls must remain zero, and unavailable
   historical telemetry must be reported as a limitation rather than inferred.
+- Source reset: the P3 write evidence is already preserved, and a verified repeat
+  seed must restore zero current-date Pool A sessions before P4 token generation.
+  This is required by the existing token-source safety contract and does not change
+  the workload, thresholds, duration, or interpretation rules.
 
 This is the complete formal P4 workload. No additional scenario, repetition, or
 soak duration will be selected after seeing its result.
+
+### Rejected pre-measurement task
+
+The first P4 task exited before k6 started. It produced zero `PERF_RESULT` records
+and no benchmark request. The token-fixture generator correctly rejected the
+3,200 current-date Pool A sessions left by the completed P3 write experiment. This
+is retained as a harness/precondition rejection, not a performance result. The retry
+uses the same image, S4/5-VU load, 30-minute duration, and frozen acceptance rules
+after the required verified repeat seed.

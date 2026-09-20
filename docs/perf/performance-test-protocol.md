@@ -850,8 +850,10 @@ reconstructed.
 
 S4 reads only already-`ready` synthetic stories, so the expected provider-attempt
 delta and Anthropic call count are both zero. A read-only post-check confirms the
-database date and unchanged core row counts. No write fixture reset is required for
-this read-only soak.
+database date and unchanged core row counts. Although the soak itself is read-only,
+one verified repeat seed is required after PERF-P3 because the token-fixture source
+contract requires zero current-date Pool A sessions. This reset restores the accepted
+1,458,200-session source; it does not change the frozen P4 workload or thresholds.
 
 PERF-P5 is separate. It uses one dedicated staging character, one concurrent cold
 request batch, and no load-tool retry. The planned provider budget is one claimed
