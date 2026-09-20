@@ -2,7 +2,7 @@
 
 Last updated: 2026-09-20
 
-Status: PERF-P0 through PERF-P6 complete. Both the initial seed and the
+Status: PERF-P0 through PERF-P7 complete. Both the initial seed and the
 mapped-fixture repeat-seed passed full rollback and confirmed-commit execution
 against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. PERF-P2 preserved the accepted low-concurrency baseline. PERF-P3
@@ -12,7 +12,9 @@ accepted 30-minute S4 soak with stable latency and throughput, zero unexpected
 responses, and no application-error event. PERF-P5 accepted the bounded live-provider
 experiment and restored the canonical fixture. PERF-P6 accepted the transactional
 leaderboard rollup and separately confirmed its optimized S4 capacity boundary.
-PERF-P7 final reporting and staging cleanup are next.
+PERF-P7 published the accepted report, drained staging compute, removed temporary
+credentials from the current runtime-secret version, and recorded the sanitized
+final state without changing production resources.
 The first eighteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
@@ -347,8 +349,8 @@ never added to the application migration.
 | PERF-P7 | Publish the report, complete acceptance, and clean up staging | 1-2 hours |
 
 The original PERF-P2 through PERF-P7 estimate was 9-20 hours. PERF-P2 through
-PERF-P6, including the separately labelled optimized-S4 capacity extension, are
-complete. PERF-P7 reporting, final acceptance, and staging cleanup remain.
+PERF-P7, including the separately labelled optimized-S4 capacity extension, final
+reporting, acceptance, and safe staging cleanup, are complete.
 
 ## Safety and experiment boundaries
 
@@ -1117,3 +1119,22 @@ PERF-P7 publishes valid and invalid runs, raw environment fingerprints, derived
 thresholds, achieved throughput, error classifications, resource observations,
 provider usage and cost, and any limitations. Staging cleanup occurs only after the
 final acceptance gate and never targets production resources.
+
+### Verified PERF-P7 outcome
+
+The final report and accepted evidence were committed before cleanup. At
+`2026-09-20T21:18:09Z`, the staging API was verified at zero desired, running, and
+pending tasks, and the cluster contained zero running tasks. The current
+`chinstein/staging/runtime` secret version retained the database URL and JWT secret
+while excluding the temporary performance login password and Anthropic key. No
+secret value was copied into the cleanup artifact.
+
+The database branch, ECR images, CloudWatch logs, ECS service definition, and task
+definitions remain available for audit and recovery. No production resource was
+changed or deleted. The retained historical task definition is evidence rather than
+a restart-ready configuration because its former provider-secret reference was not
+rewritten. Secrets Manager version history and provider-account key revocation are
+outside the current-version runtime cleanup claim; permanent Anthropic-key
+invalidation requires a separate provider-console revocation.
+
+- [Sanitized P7 cleanup state](results/p7-cleanup-2026-09-20.json)

@@ -17,8 +17,8 @@ performance work is verified in staging before a separate production decision.
 | A3 | Isolated Neon staging branch, schema migration, and 365-character seed | Complete |
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
-| A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 through PERF-P6 complete. P3 confirmed the capacity boundaries and mixed/write baselines; P4 classified the 30-minute S4 soak as stable; P5 accepted one bounded live-provider claim and restored the fixture. P6 replaced the measured full-session leaderboard aggregate with a verified transactional rollup: isolated S4/5-VU p95 fell 86.94%, throughput rose 575.93%, 54,807 optimized requests had zero unexpected responses, and the final 1,461,400 sessions had zero rollup drift. The separate 200,649-request S4 extension confirmed the conservative composite boundary at 5-10 VUs while showing much higher useful throughput and delaying the initial latency-threshold crossing to 40-80 VUs. S6 and mixed-S5 tail regressions remain disclosed. Accepted artifacts and environment fingerprints are under `docs/perf/results/`; PERF-P7 reporting and cleanup are next. |
+| A5 | Logs, recovery runbook, rollback drill, provider-cost review, and post-PERF compute cleanup | Complete; staging compute is drained and evidence resources are retained |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 through PERF-P7 complete. P3 confirmed the capacity boundaries and mixed/write baselines; P4 classified the 30-minute S4 soak as stable; P5 accepted one bounded live-provider claim and restored the fixture. P6 replaced the measured full-session leaderboard aggregate with a verified transactional rollup: isolated S4/5-VU p95 fell 86.94%, throughput rose 575.93%, 54,807 optimized requests had zero unexpected responses, and the final 1,461,400 sessions had zero rollup drift. The separate 200,649-request S4 extension confirmed the conservative composite boundary at 5-10 VUs while showing much higher useful throughput and delaying the initial latency-threshold crossing to 40-80 VUs. S6 and mixed-S5 tail regressions remain disclosed. P7 published the report, drained staging compute, removed temporary credentials from the current runtime-secret version, and retained sanitized evidence under `docs/perf/results/`. |
 
 ## Evidence collected through A5
 
@@ -174,19 +174,19 @@ different system and make the result difficult to explain.
 | PERF-P4 | Complete: stable 30-minute S4 soak at 5 VUs with zero unexpected responses |
 | PERF-P5 | Complete: one accepted live provider claim, cache verification, controlled failure checks, and verified fixture restoration |
 | PERF-P6 | Complete: transactional leaderboard rollup retested against S4/S5/S6/S7; separate S4 extension confirmed the 5-10-VU composite boundary with zero unexpected responses and zero drift |
-| PERF-P7 | Publish the report and clean up staging resources after the final acceptance gate |
+| PERF-P7 | Complete: published the report, drained staging compute, removed current temporary credentials, and retained sanitized evidence |
 
 Main benchmark invariant:
 
 > When all benchmark stories are `ready`, Anthropic call count is zero.
 
-Estimated remaining time:
+Completion state:
 
 - PERF-P2 baseline: complete;
 - PERF-P6 optimized retest: complete;
 - post-P6 optimized S4 capacity extension: complete;
-- remaining PERF-P7 work: publish the final report, preserve limitations, and clean
-  up staging resources only after the evidence commit is verified.
+- PERF-P7 final report, limitations, evidence preservation, and safe staging cleanup:
+  complete.
 
 ## Safety and cost boundaries
 
@@ -196,4 +196,6 @@ Estimated remaining time:
 - Do not change Vercel Production or Render Production while testing staging.
 - Keep live Anthropic testing small and controlled; use cached synthetic stories for the main load test.
 - Keep automatic API credit reload disabled unless a deliberate budget is approved.
-- Do not delete the staging service or database branch until performance work and final cleanup are complete.
+- The completed safe cleanup retains the staging database branch, ECS definitions,
+  ECR images, and logs as evidence; future deletion requires a separate explicit
+  decision.

@@ -762,3 +762,32 @@ Artifacts:
 - [S4 capacity-extension summary](results/p6-s4-capacity-extension-2026-09-20.summary.json)
 - [S4 capacity-extension database post-check](results/p6-s4-capacity-extension-2026-09-20.postcheck.json)
 - [S4 capacity-extension environment manifest](results/p6-s4-capacity-extension-2026-09-20.manifest.json)
+
+## 2026-09-20 — PERF-P7 report and safe staging cleanup
+
+The accepted performance report was committed before any cleanup action. A guarded
+preflight verified one running staging API task on optimized task definition
+`default-chinstein-api-staging:8`, the exact four expected current runtime-secret
+keys, and an empty set of unrelated keys.
+
+The cleanup then completed with these verified outcomes:
+
+- ECS service `chinstein-api-staging` is `ACTIVE` at zero desired, running, and
+  pending tasks;
+- the cluster contains zero running tasks;
+- the current runtime-secret version retains the database URL and JWT secret;
+- the current runtime-secret version excludes the temporary performance login
+  password and Anthropic API key;
+- no secret value is retained in the cleanup artifact;
+- the database branch, ECR images, CloudWatch logs, ECS service definition, and task
+  definitions remain available as evidence and recovery resources; and
+- no production resource changed.
+
+This is deliberately described as current-runtime cleanup. Secrets Manager retains
+version history, and removing the key from the current staging secret does not
+revoke it at the Anthropic account. Permanent invalidation therefore remains a
+separate manual provider-console action. The historical optimized API task
+definition is retained for evidence and is not described as restart-ready because
+it still contains the former provider-secret reference.
+
+- [Sanitized cleanup state](results/p7-cleanup-2026-09-20.json)

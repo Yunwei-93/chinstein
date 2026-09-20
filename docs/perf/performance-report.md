@@ -2,7 +2,7 @@
 
 Date: 2026-09-20
 Environment: isolated AWS staging in `us-east-2` with Neon PostgreSQL
-Status: accepted measurement and optimization; operational cleanup pending
+Status: accepted measurement, optimization, reporting, and safe staging cleanup complete
 
 ## Executive conclusion
 
@@ -219,9 +219,19 @@ drift. The report does not claim that every endpoint meets every target or that 
 composite S4 knee moved; it claims the measured latency and throughput improvement,
 the preserved correctness invariants, and the recorded costs above.
 
-PERF-P7 is complete when this report and its source artifacts are committed, staging
-is drained, the temporary performance login credential and staging-only provider
-secret are removed, and the final sanitized cleanup state is recorded.
+PERF-P7 completed on 2026-09-20. The staging API was drained to zero desired,
+running, and pending tasks, with zero running tasks left in the cluster. The current
+runtime-secret version now retains only the database URL and JWT secret; the
+temporary performance login password and Anthropic key are absent. The database
+branch, ECR images, CloudWatch logs, ECS service definition, and task definitions
+were intentionally retained as evidence and recovery resources. No production
+resource changed.
+
+This operational cleanup does not claim provider-account revocation or destruction
+of historical Secrets Manager versions. The Anthropic key must be revoked separately
+in the provider console if permanent credential invalidation is required. Likewise,
+the retained historical task definition is evidence, not a restart-ready deployment,
+because it still describes the former provider-secret reference.
 
 ## Evidence index
 
@@ -235,6 +245,7 @@ secret are removed, and the final sanitized cleanup state is recorded.
 - [P6 covering-index diagnostic](results/p6-covering-index-diagnostic-2026-09-20.summary.json)
 - [P6 optimized comparison](results/p6-leaderboard-2026-09-20.summary.json)
 - [Optimized S4 capacity extension](results/p6-s4-capacity-extension-2026-09-20.summary.json)
+- [P7 sanitized cleanup state](results/p7-cleanup-2026-09-20.json)
 
 Each accepted cloud phase also retains its raw result, post-check, and sanitized
 environment manifest under [`docs/perf/results`](results/).
