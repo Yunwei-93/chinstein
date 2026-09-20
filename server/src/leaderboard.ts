@@ -1,36 +1,36 @@
 import { pool } from './db.js'
 
 export interface LeaderboardEntry {
-    userId: number
-    name: string
-    points: number
-    rank: number
+  userId: number
+  name: string
+  points: number
+  rank: number
 }
 
 export interface LeaderboardCurrentUser {
-    userId: number
-    name: string
-    points: number
-    rank: number | null
+  userId: number
+  name: string
+  points: number
+  rank: number | null
 }
 
 export interface Leaderboard {
-    entries: LeaderboardEntry[]
-    currentUser: LeaderboardCurrentUser
+  entries: LeaderboardEntry[]
+  currentUser: LeaderboardCurrentUser
 }
 
 interface LeaderboardRow {
-    entries: LeaderboardEntry[]
-    current_user: LeaderboardCurrentUser | null
+  entries: LeaderboardEntry[]
+  current_user: LeaderboardCurrentUser | null
 }
 
 const LEADERBOARD_SQL = `
 WITH studied AS (
   SELECT
     user_id,
-    SUM(points)::int AS points
-  FROM study_sessions
-  GROUP BY user_id
+    total_points::int AS points
+  FROM leaderboard_scores
+  WHERE session_count > 0
 ),
 ranked AS (
   SELECT
@@ -90,18 +90,16 @@ SELECT
   ) AS current_user
 `
 
-export async function getLeaderboard(
-    userId: number,
-): Promise<Leaderboard | null> {
-    const result = await pool.query<LeaderboardRow>(LEADERBOARD_SQL, [userId])
-    const row = result.rows[0]
+export async function getLeaderboard(userId: number): Promise<Leaderboard | null> {
+  const result = await pool.query<LeaderboardRow>(LEADERBOARD_SQL, [userId])
+  const row = result.rows[0]
 
-    if (!row?.current_user) {
-        return null
-    }
+  if (!row?.current_user) {
+    return null
+  }
 
-    return {
-        entries: row.entries,
-        currentUser: row.current_user,
-    }
+  return {
+    entries: row.entries,
+    currentUser: row.current_user,
+  }
 }

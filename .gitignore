@@ -17,6 +17,7 @@ dist-ssr
 
 # Personal notes
 INTERVIEW_PREP.md
+docs/perf/measurement-log.zh-CN.md
 
 # Editor directories and files
 .vscode/*
@@ -29,4 +30,3 @@ INTERVIEW_PREP.md
 *.sln
 *.sw?
 CLAUDE.md
-

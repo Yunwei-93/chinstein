@@ -1,0 +1,42 @@
+{
+  "check": "p4-soak-postcheck",
+  "environment": {
+    "hostFingerprint": "777c6ca41572",
+    "database": "neondb",
+    "current_date": "2026-09-20",
+    "wall_date": "2026-09-20",
+    "timezone": "GMT",
+    "server_version": "18.6 (6569466)",
+    "in_recovery": false
+  },
+  "source": {
+    "classification": "approved-perf-source",
+    "sourceSeedDate": "2026-09-20",
+    "currentDate": "2026-09-20",
+    "users": 8100,
+    "characters": 365,
+    "studySessions": 1458200,
+    "historicalSessions": 1458000,
+    "fixtureDateSessions": 200,
+    "poolAFixtureDateSessions": 0,
+    "poolBFixtureDateSessions": 200,
+    "sessionsOutsideDateRange": 0,
+    "invalidHistoricalSessions": 0,
+    "invalidReseedFixtureDateSessions": 0,
+    "sessionUserDateUnique": true
+  },
+  "stories": {
+    "characters": 365,
+    "readyStories": 365,
+    "generatingStories": 0,
+    "storyAttempts": 0
+  },
+  "connectionSnapshot": {
+    "databaseConnections": 5,
+    "activeConnections": 1,
+    "maxConnections": 901,
+    "historicalTimeSeriesAvailable": false
+  },
+  "readOnlyTransactions": true,
+  "writesPerformed": false
+}

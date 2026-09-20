@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P6-S4-CAPACITY-EXTENSION",
+  "check": "read-only-fixture-and-rollup-integrity",
+  "databaseDate": "2026-09-20",
+  "users": 8100,
+  "studySessions": 1458200,
+  "scoreRows": 8100,
+  "scoredSessions": 1458200,
+  "driftedUsers": 0,
+  "poolACurrentDateSessions": 0,
+  "poolBCurrentDateSessions": 200,
+  "readOnlyTransaction": true,
+  "writesPerformed": false
+}

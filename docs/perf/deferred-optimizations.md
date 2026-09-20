@@ -56,6 +56,40 @@ The live-provider gate was deliberately low volume and is not part of the load t
 Usage and estimated cost were recorded, but precise provider latency was not; that
 measurement remains part of the separate external-AI scenario.
 
+### Full profile calculation in `GET /api/characters/today`
+
+The authenticated daily-character route currently calls `getUserProfile()` only
+to obtain `learnedCharacterIds`. That executes the complete `PROFILE_SQL`, including
+the totals, streak gaps-and-islands calculation, badges, and last-session work, even
+though the route discards every profile field except the learned-character ID array.
+
+Measure this route independently because it is a likely high-frequency read path.
+If the query breakdown shows that the profile calculation is material, compare it
+with a narrowly scoped learned-character lookup such as:
+
+```sql
+SELECT DISTINCT character_id
+  FROM study_sessions
+ WHERE user_id = $1;
+```
+
+The existing `idx_sessions_user_date` index begins with `user_id`, but no query or
+index change should be made until the baseline and query plan confirm the benefit.
+
+### Coordination queries for non-ready stories
+
+When a story is absent and generation is enabled, `ensureStory()` first attempts
+the stale-exhausted transition and then the atomic claim. If neither statement
+updates the row, it performs a third query to re-read the story. A terminal
+`failed` row and a row currently claimed by another request therefore incur three
+database round trips before returning the fallback or a newly saved story.
+
+This does not affect the core benchmark because a non-null synthetic story returns
+before those queries. Measure it only in the separate PERF-P5 cold/non-ready path.
+One possible future direction is to select `story_status` with the character and
+short-circuit terminal states, but only adopt a change if the P5 measurements make
+the extra coordination cost material.
+
 ### Repeated profile calculation in `createSession()`
 
 The current request path makes approximately five database query calls:

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P6-S4-CAPACITY-EXTENSION",
+  "capturedAt": "2026-09-20T21:06:42Z",
+  "api": {
+    "sourceCommit": "a30ab999ead52092b8c9ea2a36a2ff981fccf498",
+    "taskDefinition": "default-chinstein-api-staging:8",
+    "imageDigest": "sha256:d3f50a1426349bdc0a24916307fcb349f46ab2404fd12ae5e91acd8b44cd7dee",
+    "cpu": 512,
+    "memoryMiB": 1024
+  },
+  "loadGenerator": {
+    "taskDefinition": "chinstein-p3-loadgen:3",
+    "imageDigest": "sha256:e7160971eb6097c57f158c5c9f89a9c4b778244a521cac35ed6d27df0ae115b6",
+    "initialTask": {
+      "taskId": "19731bc278854606a9abcd39159351cf",
+      "taskDefinition": "chinstein-p3-loadgen:3",
+      "lastStatus": "STOPPED",
+      "stopCode": "EssentialContainerExited",
+      "stoppedReason": "Essential container in task exited",
+      "startedAt": "2026-09-20T16:32:05.994000-04:00",
+      "stoppedAt": "2026-09-20T16:50:23.110000-04:00",
+      "containerExitCode": 0
+    },
+    "confirmationTask": {
+      "taskId": "645db8ee3524458ba491ac38196aad54",
+      "taskDefinition": "chinstein-p3-loadgen:3",
+      "lastStatus": "STOPPED",
+      "stopCode": "EssentialContainerExited",
+      "stoppedReason": "Essential container in task exited",
+      "startedAt": "2026-09-20T17:00:20.662000-04:00",
+      "stoppedAt": "2026-09-20T17:05:57.356000-04:00",
+      "containerExitCode": 0
+    }
+  },
+  "frozenLadder": [
+    1,
+    2,
+    5,
+    10,
+    20,
+    40,
+    80
+  ],
+  "confirmationLevels": [
+    5,
+    10
+  ],
+  "secretsRetained": false,
+  "databaseUrlRetained": false,
+  "rawApplicationMessagesRetained": false
+}

@@ -1,0 +1,1262 @@
+[
+  {
+    "label": "p2-S0-vu1-rep1",
+    "scenario": "S0",
+    "vus": 1,
+    "repetition": 1,
+    "duration": {
+      "min": 2.212305,
+      "med": 3.403659,
+      "p(95)": 5.6657915,
+      "max": 486.776769,
+      "count": 12331,
+      "avg": 3.982186665477261
+    },
+    "bytes": {
+      "count": 12331,
+      "avg": 49,
+      "min": 49,
+      "med": 49,
+      "p(95)": 49,
+      "max": 49
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 12331
+    },
+    "attempted": 18269,
+    "expected": 18269,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S0-vu1-rep2",
+    "scenario": "S0",
+    "vus": 1,
+    "repetition": 2,
+    "duration": {
+      "max": 268.351282,
+      "count": 10102,
+      "avg": 5.0231823052861015,
+      "min": 3.307596,
+      "med": 4.676443000000001,
+      "p(95)": 6.375462599999987
+    },
+    "bytes": {
+      "count": 10102,
+      "avg": 49,
+      "min": 49,
+      "med": 49,
+      "p(95)": 49,
+      "max": 49
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 10102
+    },
+    "attempted": 15737,
+    "expected": 15737,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S0-vu1-rep3",
+    "scenario": "S0",
+    "vus": 1,
+    "repetition": 3,
+    "duration": {
+      "med": 4.628305,
+      "p(95)": 6.315523,
+      "max": 309.932424,
+      "count": 10051,
+      "avg": 5.04831445448214,
+      "min": 3.448784
+    },
+    "bytes": {
+      "min": 49,
+      "med": 49,
+      "p(95)": 49,
+      "max": 49,
+      "count": 10051,
+      "avg": 49
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 10051
+    },
+    "attempted": 14719,
+    "expected": 14719,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S0-vu5-rep1",
+    "scenario": "S0",
+    "vus": 5,
+    "repetition": 1,
+    "duration": {
+      "p(95)": 67.1015193,
+      "max": 465.340367,
+      "count": 20960,
+      "avg": 12.179103284875916,
+      "min": 1.842617,
+      "med": 4.1687195
+    },
+    "bytes": {
+      "p(95)": 49,
+      "max": 49,
+      "count": 20960,
+      "avg": 49,
+      "min": 49,
+      "med": 49
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 20960
+    },
+    "attempted": 31638,
+    "expected": 31638,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S0-vu5-rep2",
+    "scenario": "S0",
+    "vus": 5,
+    "repetition": 2,
+    "duration": {
+      "min": 1.928367,
+      "med": 4.048253,
+      "p(95)": 66.79763469999999,
+      "max": 668.652097,
+      "count": 21459,
+      "avg": 11.804414527610833
+    },
+    "bytes": {
+      "med": 49,
+      "p(95)": 49,
+      "max": 49,
+      "count": 21459,
+      "avg": 49,
+      "min": 49
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 21459
+    },
+    "attempted": 31835,
+    "expected": 31835,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S0-vu5-rep3",
+    "scenario": "S0",
+    "vus": 5,
+    "repetition": 3,
+    "duration": {
+      "count": 21418,
+      "avg": 11.772202049444408,
+      "min": 1.860563,
+      "med": 4.2110835,
+      "p(95)": 66.4333637,
+      "max": 330.962086
+    },
+    "bytes": {
+      "max": 49,
+      "count": 21418,
+      "avg": 49,
+      "min": 49,
+      "med": 49,
+      "p(95)": 49
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 21418
+    },
+    "attempted": 32074,
+    "expected": 32074,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S1-vu1-rep1",
+    "scenario": "S1",
+    "vus": 1,
+    "repetition": 1,
+    "duration": {
+      "count": 451,
+      "avg": 131.68716765188466,
+      "min": 101.119353,
+      "med": 118.161781,
+      "p(95)": 170.004549,
+      "max": 418.230442
+    },
+    "bytes": {
+      "count": 451,
+      "avg": 202,
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 451
+    },
+    "attempted": 680,
+    "expected": 680,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S1-vu1-rep2",
+    "scenario": "S1",
+    "vus": 1,
+    "repetition": 2,
+    "duration": {
+      "count": 456,
+      "avg": 130.2721405416667,
+      "min": 102.356609,
+      "med": 117.5004525,
+      "p(95)": 169.257914,
+      "max": 311.577533
+    },
+    "bytes": {
+      "count": 456,
+      "avg": 202,
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 456
+    },
+    "attempted": 681,
+    "expected": 681,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S1-vu1-rep3",
+    "scenario": "S1",
+    "vus": 1,
+    "repetition": 3,
+    "duration": {
+      "count": 455,
+      "avg": 130.5139744703297,
+      "min": 100.665996,
+      "med": 118.308721,
+      "p(95)": 169.18790819999998,
+      "max": 323.204407
+    },
+    "bytes": {
+      "count": 455,
+      "avg": 202,
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 455
+    },
+    "attempted": 689,
+    "expected": 689,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S1-vu5-rep1",
+    "scenario": "S1",
+    "vus": 5,
+    "repetition": 1,
+    "duration": {
+      "min": 295.014521,
+      "med": 700.709642,
+      "p(95)": 991.51844235,
+      "max": 1198.902953,
+      "count": 418,
+      "avg": 716.356578107655
+    },
+    "bytes": {
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202,
+      "count": 418,
+      "avg": 202
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 418,
+      "rate": 0
+    },
+    "attempted": 628,
+    "expected": 628,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S1-vu5-rep2",
+    "scenario": "S1",
+    "vus": 5,
+    "repetition": 2,
+    "duration": {
+      "p(95)": 1007.5368867999999,
+      "max": 1401.647974,
+      "count": 419,
+      "avg": 715.1315893961815,
+      "min": 297.590203,
+      "med": 696.110229
+    },
+    "bytes": {
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202,
+      "count": 419,
+      "avg": 202
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 419,
+      "rate": 0
+    },
+    "attempted": 633,
+    "expected": 633,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S1-vu5-rep3",
+    "scenario": "S1",
+    "vus": 5,
+    "repetition": 3,
+    "duration": {
+      "med": 698.318263,
+      "p(95)": 987.258613,
+      "max": 1196.386618,
+      "count": 421,
+      "avg": 710.0148036294534,
+      "min": 291.322139
+    },
+    "bytes": {
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202,
+      "count": 421,
+      "avg": 202
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 421,
+      "rate": 0
+    },
+    "attempted": 633,
+    "expected": 633,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S2-vu1-rep1",
+    "scenario": "S2",
+    "vus": 1,
+    "repetition": 1,
+    "duration": {
+      "p(95)": 14.766620699999997,
+      "max": 522.597818,
+      "count": 4382,
+      "avg": 12.188232063441346,
+      "min": 9.466319,
+      "med": 11.0179145
+    },
+    "bytes": {
+      "med": 456,
+      "p(95)": 468,
+      "max": 484,
+      "count": 4382,
+      "avg": 457.2811501597444,
+      "min": 449
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 4382,
+      "rate": 0
+    },
+    "attempted": 6699,
+    "expected": 6699,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S2-vu1-rep2",
+    "scenario": "S2",
+    "vus": 1,
+    "repetition": 2,
+    "duration": {
+      "max": 2973.364566,
+      "count": 3266,
+      "avg": 16.885836663502715,
+      "min": 6.809662,
+      "med": 12.219825499999999,
+      "p(95)": 21.505307000000002
+    },
+    "bytes": {
+      "count": 3266,
+      "avg": 457.2103490508267,
+      "min": 449,
+      "med": 456,
+      "p(95)": 468,
+      "max": 485
+    },
+    "unexpectedRate": {
+      "fails": 3266,
+      "rate": 0,
+      "passes": 0
+    },
+    "attempted": 5141,
+    "expected": 5141,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S2-vu1-rep3",
+    "scenario": "S2",
+    "vus": 1,
+    "repetition": 3,
+    "duration": {
+      "med": 11.346463,
+      "p(95)": 18.300221199999996,
+      "max": 308.62385,
+      "count": 4097,
+      "avg": 13.132432608982203,
+      "min": 6.551283
+    },
+    "bytes": {
+      "med": 456,
+      "p(95)": 468,
+      "max": 485,
+      "count": 4097,
+      "avg": 457.27703197461557,
+      "min": 449
+    },
+    "unexpectedRate": {
+      "fails": 4097,
+      "rate": 0,
+      "passes": 0
+    },
+    "attempted": 6255,
+    "expected": 6255,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S2-vu5-rep1",
+    "scenario": "S2",
+    "vus": 5,
+    "repetition": 1,
+    "duration": {
+      "count": 13394,
+      "avg": 19.53401082820664,
+      "min": 5.679464,
+      "med": 12.3385635,
+      "p(95)": 55.38608005,
+      "max": 548.37222
+    },
+    "bytes": {
+      "max": 485,
+      "count": 13394,
+      "avg": 457.2457816932955,
+      "min": 449,
+      "med": 456,
+      "p(95)": 468
+    },
+    "unexpectedRate": {
+      "fails": 13394,
+      "rate": 0,
+      "passes": 0
+    },
+    "attempted": 19810,
+    "expected": 19810,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S2-vu5-rep2",
+    "scenario": "S2",
+    "vus": 5,
+    "repetition": 2,
+    "duration": {
+      "avg": 20.13847073443694,
+      "min": 5.780812,
+      "med": 13.889895500000002,
+      "p(95)": 51.249949799999996,
+      "max": 950.208584,
+      "count": 13108
+    },
+    "bytes": {
+      "avg": 457.1561641745499,
+      "min": 449,
+      "med": 456,
+      "p(95)": 468,
+      "max": 485,
+      "count": 13108
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 13108
+    },
+    "attempted": 19357,
+    "expected": 19357,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S2-vu5-rep3",
+    "scenario": "S2",
+    "vus": 5,
+    "repetition": 3,
+    "duration": {
+      "count": 13326,
+      "avg": 19.663102098604238,
+      "min": 5.362357,
+      "med": 12.2558305,
+      "p(95)": 56.130255000000005,
+      "max": 1021.599745
+    },
+    "bytes": {
+      "med": 456,
+      "p(95)": 468,
+      "max": 484,
+      "count": 13326,
+      "avg": 457.1985592075642,
+      "min": 449
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 13326
+    },
+    "attempted": 19820,
+    "expected": 19820,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S3-vu1-rep1",
+    "scenario": "S3",
+    "vus": 1,
+    "repetition": 1,
+    "duration": {
+      "avg": 5.512314965703512,
+      "min": 3.781364,
+      "med": 4.7601595,
+      "p(95)": 7.5802314499999985,
+      "max": 458.304456,
+      "count": 7960
+    },
+    "bytes": {
+      "avg": 1042,
+      "min": 1042,
+      "med": 1042,
+      "p(95)": 1042,
+      "max": 1042,
+      "count": 7960
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 7960
+    },
+    "attempted": 11887,
+    "expected": 11887,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S3-vu1-rep2",
+    "scenario": "S3",
+    "vus": 1,
+    "repetition": 2,
+    "duration": {
+      "min": 3.928467,
+      "med": 5.5028395,
+      "p(95)": 7.56551575,
+      "max": 447.123111,
+      "count": 7286,
+      "avg": 6.153725134092786
+    },
+    "bytes": {
+      "max": 1042,
+      "count": 7286,
+      "avg": 1042,
+      "min": 1042,
+      "med": 1042,
+      "p(95)": 1042
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 7286
+    },
+    "attempted": 10617,
+    "expected": 10617,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S3-vu1-rep3",
+    "scenario": "S3",
+    "vus": 1,
+    "repetition": 3,
+    "duration": {
+      "max": 181.075116,
+      "count": 7250,
+      "avg": 6.218743992827606,
+      "min": 4.216863,
+      "med": 5.528250999999999,
+      "p(95)": 8.0493496
+    },
+    "bytes": {
+      "avg": 1042,
+      "min": 1042,
+      "med": 1042,
+      "p(95)": 1042,
+      "max": 1042,
+      "count": 7250
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 7250
+    },
+    "attempted": 10915,
+    "expected": 10915,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S3-vu5-rep1",
+    "scenario": "S3",
+    "vus": 5,
+    "repetition": 1,
+    "duration": {
+      "med": 7.243189,
+      "p(95)": 79.63191579999997,
+      "max": 506.750105,
+      "count": 9557,
+      "avg": 23.71716305681691,
+      "min": 3.394767
+    },
+    "bytes": {
+      "med": 1048,
+      "p(95)": 1065,
+      "max": 1065,
+      "count": 9557,
+      "avg": 1051.2527989955006,
+      "min": 1042
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 9557
+    },
+    "attempted": 14200,
+    "expected": 14200,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S3-vu5-rep2",
+    "scenario": "S3",
+    "vus": 5,
+    "repetition": 2,
+    "duration": {
+      "avg": 24.647909058648803,
+      "min": 3.377671,
+      "med": 7.501346,
+      "p(95)": 79.98988440000001,
+      "max": 551.127581,
+      "count": 9429
+    },
+    "bytes": {
+      "avg": 1051.242019302153,
+      "min": 1042,
+      "med": 1048,
+      "p(95)": 1065,
+      "max": 1065,
+      "count": 9429
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 9429
+    },
+    "attempted": 14094,
+    "expected": 14094,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S3-vu5-rep3",
+    "scenario": "S3",
+    "vus": 5,
+    "repetition": 3,
+    "duration": {
+      "count": 9442,
+      "avg": 24.438973623173084,
+      "min": 3.366542,
+      "med": 7.278588,
+      "p(95)": 79.99909399999997,
+      "max": 654.987802
+    },
+    "bytes": {
+      "min": 1042,
+      "med": 1048,
+      "p(95)": 1065,
+      "max": 1065,
+      "count": 9442,
+      "avg": 1051.2509002330014
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 9442
+    },
+    "attempted": 14070,
+    "expected": 14070,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S4-vu1-rep1",
+    "scenario": "S4",
+    "vus": 1,
+    "repetition": 1,
+    "duration": {
+      "p(95)": 142.40658925,
+      "max": 446.6271,
+      "count": 540,
+      "avg": 109.29522834074062,
+      "min": 96.463393,
+      "med": 99.451563
+    },
+    "bytes": {
+      "avg": 712,
+      "min": 712,
+      "med": 712,
+      "p(95)": 712,
+      "max": 712,
+      "count": 540
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 540
+    },
+    "attempted": 705,
+    "expected": 705,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S4-vu1-rep2",
+    "scenario": "S4",
+    "vus": 1,
+    "repetition": 2,
+    "duration": {
+      "max": 591.665653,
+      "count": 573,
+      "avg": 103.00361102443281,
+      "min": 96.548696,
+      "med": 99.272357,
+      "p(95)": 108.8558022
+    },
+    "bytes": {
+      "min": 712,
+      "med": 712,
+      "p(95)": 712,
+      "max": 712,
+      "count": 573,
+      "avg": 712
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 573
+    },
+    "attempted": 859,
+    "expected": 859,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S4-vu1-rep3",
+    "scenario": "S4",
+    "vus": 1,
+    "repetition": 3,
+    "duration": {
+      "p(95)": 105.52604295,
+      "max": 543.437062,
+      "count": 574,
+      "avg": 102.7440873257839,
+      "min": 95.38623,
+      "med": 98.74871
+    },
+    "bytes": {
+      "max": 712,
+      "count": 574,
+      "avg": 712,
+      "min": 712,
+      "med": 712,
+      "p(95)": 712
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 574
+    },
+    "attempted": 862,
+    "expected": 862,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S4-vu5-rep1",
+    "scenario": "S4",
+    "vus": 5,
+    "repetition": 1,
+    "duration": {
+      "avg": 165.268488490808,
+      "min": 103.868918,
+      "med": 148.633989,
+      "p(95)": 280.6946548,
+      "max": 1006.20893,
+      "count": 1795
+    },
+    "bytes": {
+      "count": 1795,
+      "avg": 712,
+      "min": 712,
+      "med": 712,
+      "p(95)": 712,
+      "max": 712
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 1795
+    },
+    "attempted": 2376,
+    "expected": 2376,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S4-vu5-rep2",
+    "scenario": "S4",
+    "vus": 5,
+    "repetition": 2,
+    "duration": {
+      "count": 1801,
+      "avg": 164.7171948006662,
+      "min": 107.078496,
+      "med": 150.22974,
+      "p(95)": 281.619321,
+      "max": 593.444388
+    },
+    "bytes": {
+      "med": 712,
+      "p(95)": 712,
+      "max": 712,
+      "count": 1801,
+      "avg": 712,
+      "min": 712
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 1801
+    },
+    "attempted": 2702,
+    "expected": 2702,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S4-vu5-rep3",
+    "scenario": "S4",
+    "vus": 5,
+    "repetition": 3,
+    "duration": {
+      "p(95)": 282.11648019999996,
+      "max": 763.082584,
+      "count": 1770,
+      "avg": 167.7397189033897,
+      "min": 108.184289,
+      "med": 150.885353
+    },
+    "bytes": {
+      "med": 712,
+      "p(95)": 712,
+      "max": 712,
+      "count": 1770,
+      "avg": 712,
+      "min": 712
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 1770
+    },
+    "attempted": 2673,
+    "expected": 2673,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S5-vu1-rep1",
+    "scenario": "S5",
+    "vus": 1,
+    "repetition": 1,
+    "duration": {
+      "avg": 13.596525419999995,
+      "min": 10.906871,
+      "med": 13.302024,
+      "p(95)": 16.3727136,
+      "max": 19.154597,
+      "count": 50
+    },
+    "bytes": {
+      "avg": 105,
+      "min": 105,
+      "med": 105,
+      "p(95)": 105,
+      "max": 105,
+      "count": 50
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 50
+    },
+    "attempted": 55,
+    "expected": 55,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S5-vu1-rep2",
+    "scenario": "S5",
+    "vus": 1,
+    "repetition": 2,
+    "duration": {
+      "avg": 13.619277800000004,
+      "min": 11.195806,
+      "med": 12.808905,
+      "p(95)": 15.359844299999999,
+      "max": 45.6,
+      "count": 50
+    },
+    "bytes": {
+      "min": 105,
+      "med": 105,
+      "p(95)": 105,
+      "max": 105,
+      "count": 50,
+      "avg": 105
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 50
+    },
+    "attempted": 55,
+    "expected": 55,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S5-vu1-rep3",
+    "scenario": "S5",
+    "vus": 1,
+    "repetition": 3,
+    "duration": {
+      "count": 50,
+      "avg": 13.765101340000001,
+      "min": 11.458739,
+      "med": 13.8933435,
+      "p(95)": 15.13947255,
+      "max": 15.806248
+    },
+    "bytes": {
+      "count": 50,
+      "avg": 105,
+      "min": 105,
+      "med": 105,
+      "p(95)": 105,
+      "max": 105
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 50
+    },
+    "attempted": 55,
+    "expected": 55,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S5-vu5-rep1",
+    "scenario": "S5",
+    "vus": 5,
+    "repetition": 1,
+    "duration": {
+      "count": 50,
+      "avg": 39.971513400000006,
+      "min": 12.748906,
+      "med": 21.195473999999997,
+      "p(95)": 29.07459715,
+      "max": 939.200608
+    },
+    "bytes": {
+      "max": 105,
+      "count": 50,
+      "avg": 105,
+      "min": 105,
+      "med": 105,
+      "p(95)": 105
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 50
+    },
+    "attempted": 55,
+    "expected": 55,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S5-vu5-rep2",
+    "scenario": "S5",
+    "vus": 5,
+    "repetition": 2,
+    "duration": {
+      "count": 50,
+      "avg": 24.380640879999998,
+      "min": 13.834289,
+      "med": 23.7407985,
+      "p(95)": 34.66010525,
+      "max": 55.629758
+    },
+    "bytes": {
+      "p(95)": 105,
+      "max": 105,
+      "count": 50,
+      "avg": 105,
+      "min": 105,
+      "med": 105
+    },
+    "unexpectedRate": {
+      "fails": 50,
+      "rate": 0,
+      "passes": 0
+    },
+    "attempted": 55,
+    "expected": 55,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S5-vu5-rep3",
+    "scenario": "S5",
+    "vus": 5,
+    "repetition": 3,
+    "duration": {
+      "p(95)": 107.15568865,
+      "max": 130.172487,
+      "count": 50,
+      "avg": 56.00087744,
+      "min": 29.652309,
+      "med": 50.434593
+    },
+    "bytes": {
+      "avg": 105,
+      "min": 105,
+      "med": 105,
+      "p(95)": 105,
+      "max": 105,
+      "count": 50
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 50
+    },
+    "attempted": 55,
+    "expected": 55,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S6-vu1-rep1",
+    "scenario": "S6",
+    "vus": 1,
+    "repetition": 1,
+    "duration": {
+      "med": 28.623503,
+      "p(95)": 44.10687819999995,
+      "max": 476.386423,
+      "count": 1817,
+      "avg": 31.81400041662077,
+      "min": 8.183608
+    },
+    "bytes": {
+      "count": 1817,
+      "avg": 64,
+      "min": 64,
+      "med": 64,
+      "p(95)": 64,
+      "max": 64
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 1817
+    },
+    "attempted": 2742,
+    "expected": 2742,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S6-vu1-rep2",
+    "scenario": "S6",
+    "vus": 1,
+    "repetition": 2,
+    "duration": {
+      "count": 1779,
+      "avg": 32.527434414277664,
+      "min": 10.724,
+      "med": 28.610682,
+      "p(95)": 48.44204199999996,
+      "max": 526.600621
+    },
+    "bytes": {
+      "med": 64,
+      "p(95)": 64,
+      "max": 64,
+      "count": 1779,
+      "avg": 64,
+      "min": 64
+    },
+    "unexpectedRate": {
+      "fails": 1779,
+      "rate": 0,
+      "passes": 0
+    },
+    "attempted": 2653,
+    "expected": 2653,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S6-vu1-rep3",
+    "scenario": "S6",
+    "vus": 1,
+    "repetition": 3,
+    "duration": {
+      "min": 9.000583,
+      "med": 29.857979,
+      "p(95)": 48.21078834999998,
+      "max": 576.104342,
+      "count": 1742,
+      "avg": 33.27635498105623
+    },
+    "bytes": {
+      "min": 64,
+      "med": 64,
+      "p(95)": 64,
+      "max": 64,
+      "count": 1742,
+      "avg": 64
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 1742
+    },
+    "attempted": 2652,
+    "expected": 2652,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S6-vu5-rep1",
+    "scenario": "S6",
+    "vus": 5,
+    "repetition": 1,
+    "duration": {
+      "count": 2854,
+      "avg": 103.86757163980377,
+      "min": 14.590763,
+      "med": 98.12117950000001,
+      "p(95)": 170.11971949999997,
+      "max": 944.240591
+    },
+    "bytes": {
+      "count": 2854,
+      "avg": 64,
+      "min": 64,
+      "med": 64,
+      "p(95)": 64,
+      "max": 64
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 2854,
+      "rate": 0
+    },
+    "attempted": 4225,
+    "expected": 4225,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S6-vu5-rep2",
+    "scenario": "S6",
+    "vus": 5,
+    "repetition": 2,
+    "duration": {
+      "count": 2904,
+      "avg": 101.97147547348496,
+      "min": 16.386591,
+      "med": 97.269453,
+      "p(95)": 170.25346415,
+      "max": 664.685744
+    },
+    "bytes": {
+      "count": 2904,
+      "avg": 64,
+      "min": 64,
+      "med": 64,
+      "p(95)": 64,
+      "max": 64
+    },
+    "unexpectedRate": {
+      "fails": 2904,
+      "rate": 0,
+      "passes": 0
+    },
+    "attempted": 4284,
+    "expected": 4284,
+    "unexpected": null
+  },
+  {
+    "label": "p2-S6-vu5-rep3",
+    "scenario": "S6",
+    "vus": 5,
+    "repetition": 3,
+    "duration": {
+      "med": 98.250202,
+      "p(95)": 169.42084995000002,
+      "max": 1059.348511,
+      "count": 2802,
+      "avg": 105.95428040221293,
+      "min": 9.904811
+    },
+    "bytes": {
+      "min": 64,
+      "med": 64,
+      "p(95)": 64,
+      "max": 64,
+      "count": 2802,
+      "avg": 64
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 2802
+    },
+    "attempted": 4320,
+    "expected": 4320,
+    "unexpected": null
+  }
+]

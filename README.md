@@ -358,8 +358,8 @@ rows and constraints in a real PostgreSQL database.
 - [x] Story-generation attempt budget, terminal failure state, overall deadline, and concurrency tests
 - [x] Low-volume live Anthropic generation and cache validation in AWS staging
 - [x] ECS task-definition rollback and roll-forward drill
-- [ ] Reproducible performance baseline and measured optimization
-- [ ] Post-performance staging cleanup
+- [x] Reproducible performance baseline and measured optimization
+- [x] Post-performance staging compute and runtime-secret cleanup
 - [ ] Automated browser end-to-end coverage
 - [ ] Spaced repetition
 

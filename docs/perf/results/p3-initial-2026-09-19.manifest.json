@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P3",
+  "runKind": "initial",
+  "collectedAt": "2026-09-19T19:56:35Z",
+  "task": {
+    "taskArn": "arn:aws:ecs:us-east-2:959579700143:task/default/aca61d93b06e4455b5754b55cd024c26",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:959579700143:task-definition/chinstein-p3-loadgen:2",
+    "lastStatus": "STOPPED",
+    "stopCode": "EssentialContainerExited",
+    "stoppedReason": "Essential container in task exited",
+    "startedAt": "2026-09-19T13:51:18.145000-04:00",
+    "stoppedAt": "2026-09-19T15:16:21.605000-04:00",
+    "containerExitCode": 0
+  },
+  "logGroup": "/ecs/chinstein-p3-loadgen",
+  "logStream": "p3/load-generator/aca61d93b06e4455b5754b55cd024c26",
+  "loadGenerator": {
+    "taskDefinition": "chinstein-p3-loadgen:2",
+    "sourceCommit": "3444a88f6630fe6083d30b661afda0643e690054",
+    "imageDigest": "sha256:e7160971eb6097c57f158c5c9f89a9c4b778244a521cac35ed6d27df0ae115b6"
+  },
+  "application": {
+    "taskDefinition": "default-chinstein-api-staging:7",
+    "sourceCommit": "b33785f19178",
+    "imageDigest": "sha256:3136ff4c5a3dae72ef852d3fdb707ac6e64022432c2578c95e6de95ff6c89349"
+  },
+  "execution": {
+    "expectedResults": 33,
+    "completedResults": 33,
+    "failedRunEvents": 0,
+    "thresholdEvents": 24,
+    "measuredAttempted": 728078,
+    "measuredExpected": 728078,
+    "measuredUnexpected": 0
+  },
+  "confirmationPlan": [
+    {
+      "scenario": "S0",
+      "levels": [
+        2,
+        5
+      ]
+    },
+    {
+      "scenario": "S2",
+      "levels": [
+        5,
+        10
+      ]
+    },
+    {
+      "scenario": "S3",
+      "levels": [
+        5
+      ]
+    },
+    {
+      "scenario": "S4",
+      "levels": [
+        5,
+        10
+      ]
+    },
+    {
+      "scenario": "S6",
+      "levels": [
+        5
+      ]
+    },
+    {
+      "scenario": "S1",
+      "levels": [
+        1,
+        2
+      ]
+    }
+  ],
+  "databasePostcheck": {
+    "check": "p3-initial-postcheck",
+    "environment": {
+      "hostFingerprint": "777c6ca41572",
+      "database": "neondb",
+      "current_date": "2026-09-19",
+      "wall_date": "2026-09-19",
+      "timezone": "GMT",
+      "server_version": "18.6 (6569466)",
+      "in_recovery": false
+    },
+    "source": {
+      "classification": "approved-perf-source",
+      "mappingState": "present",
+      "sourceSeedDate": "2026-09-19",
+      "currentDate": "2026-09-19",
+      "users": 8100,
+      "characters": 365,
+      "studySessions": 1458200,
+      "historicalSessions": 1458000,
+      "fixtureDateSessions": 200,
+      "poolAFixtureDateSessions": 0,
+      "poolBFixtureDateSessions": 200,
+      "sessionsOutsideDateRange": 0,
+      "invalidHistoricalSessions": 0,
+      "invalidReseedFixtureDateSessions": 0,
+      "sessionUserDateUnique": true
+    },
+    "readOnlyTransaction": true,
+    "writesPerformed": false
+  },
+  "artifacts": {
+    "raw": "docs/perf/results/p3-initial-2026-09-19.raw.json",
+    "summary": "docs/perf/results/p3-initial-2026-09-19.summary.json",
+    "postcheck": "docs/perf/results/p3-initial-2026-09-19.postcheck.json"
+  },
+  "derivationCorrection": {
+    "timing": "recorded before final capacity classification",
+    "issue": "The first derived plan omitted the frozen exact-doubling throughput-improvement rule.",
+    "remedy": "Preserve all results and add the missing S2/5 and S1/1 confirmation observations."
+  }
+}

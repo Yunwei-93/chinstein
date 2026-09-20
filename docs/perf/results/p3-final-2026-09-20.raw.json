@@ -1,0 +1,886 @@
+[
+  {
+    "label": "p3-S7-mixed-baseline",
+    "phase": "P3",
+    "runKind": "mixed",
+    "scenario": "S7",
+    "mixedLoad": {
+      "readScenarioId": "S4",
+      "readVus": 5,
+      "writeIterations": 200,
+      "writeRate": 100,
+      "writeTimeUnit": "60s",
+      "writePreAllocatedVus": 5,
+      "writeMaxVus": 5,
+      "readP95ThresholdMs": 350,
+      "writeP95ThresholdMs": 50
+    },
+    "read": {
+      "scenarioId": "S4",
+      "duration": {
+        "count": 3497,
+        "avg": 169.3829691730054,
+        "min": 105.203341,
+        "med": 153.989693,
+        "p(95)": 281.76815819999996,
+        "max": 596.393403
+      },
+      "bytes": {
+        "count": 3497,
+        "avg": 712,
+        "min": 712,
+        "med": 712,
+        "p(95)": 712,
+        "max": 712
+      },
+      "checks": {
+        "passes": 3497,
+        "fails": 0,
+        "rate": 1
+      },
+      "unexpectedRate": {
+        "passes": 0,
+        "fails": 3497,
+        "rate": 0
+      },
+      "measuredAttempted": 3497,
+      "measuredExpected": 3497,
+      "measuredUnexpected": 0,
+      "unexpectedByCategory": {
+        "contract-error": 0,
+        "transport-error": 0,
+        "unauthorized": 0,
+        "unexpected-conflict": 0,
+        "rate-limited": 0,
+        "server-error": 0,
+        "unexpected-status": 0
+      }
+    },
+    "write": {
+      "scenarioId": "S5",
+      "duration": {
+        "avg": 30.365864605000006,
+        "min": 11.632136,
+        "med": 24.814108,
+        "p(95)": 52.43955289999998,
+        "max": 387.778878,
+        "count": 200
+      },
+      "bytes": {
+        "p(95)": 117,
+        "max": 117,
+        "count": 200,
+        "avg": 117,
+        "min": 117,
+        "med": 117
+      },
+      "checks": {
+        "rate": 1,
+        "passes": 200,
+        "fails": 0
+      },
+      "unexpectedRate": {
+        "fails": 200,
+        "rate": 0,
+        "passes": 0
+      },
+      "measuredAttempted": 200,
+      "measuredExpected": 200,
+      "measuredUnexpected": 0,
+      "unexpectedByCategory": {
+        "contract-error": 0,
+        "transport-error": 0,
+        "unauthorized": 0,
+        "unexpected-conflict": 0,
+        "rate-limited": 0,
+        "server-error": 0,
+        "unexpected-status": 0
+      }
+    },
+    "readP95ThresholdExceeded": false,
+    "writeP95ThresholdExceeded": true,
+    "droppedWriteIterations": 0,
+    "successfulWriteUsers": 200,
+    "mixedRunFailed": false
+  },
+  {
+    "label": "p3-S5-vu5-rep1",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 5,
+    "repetition": 1,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "count": 200,
+      "avg": 21.443559585000003,
+      "min": 9.817095,
+      "med": 17.074264499999998,
+      "p(95)": 46.52646959999963,
+      "max": 79.793
+    },
+    "bytes": {
+      "med": 117,
+      "p(95)": 117,
+      "max": 117,
+      "count": 200,
+      "avg": 117,
+      "min": 117
+    },
+    "checks": {
+      "fails": 0,
+      "rate": 1,
+      "passes": 200
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 922.552155,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu5-rep2",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 5,
+    "repetition": 2,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "max": 80.683584,
+      "count": 200,
+      "avg": 19.838401355000006,
+      "min": 9.841058,
+      "med": 18.564577,
+      "p(95)": 36.15153339999999
+    },
+    "bytes": {
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117,
+      "count": 200
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 200,
+      "rate": 0
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 854.570029,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu5-rep3",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 5,
+    "repetition": 3,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "p(95)": 47.68073324999997,
+      "max": 74.599408,
+      "count": 200,
+      "avg": 22.05804354500001,
+      "min": 9.939721,
+      "med": 18.440496
+    },
+    "bytes": {
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117,
+      "count": 200
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 950.116431,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu10-rep1",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 10,
+    "repetition": 1,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "count": 200,
+      "avg": 42.01096387499997,
+      "min": 14.180691,
+      "med": 26.754496,
+      "p(95)": 85.70741429999988,
+      "max": 147.985299
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "fails": 200,
+      "rate": 0,
+      "passes": 0
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 960.412859,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu10-rep2",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 10,
+    "repetition": 2,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "med": 21.6015585,
+      "p(95)": 74.78708194999994,
+      "max": 109.785971,
+      "count": 200,
+      "avg": 35.640354209999984,
+      "min": 11.816192
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 834.991766,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu10-rep3",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 10,
+    "repetition": 3,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "p(95)": 69.76294134999999,
+      "max": 80.526536,
+      "count": 200,
+      "avg": 33.538972660000006,
+      "min": 11.041609,
+      "med": 25.623571
+    },
+    "bytes": {
+      "med": 117,
+      "p(95)": 117,
+      "max": 117,
+      "count": 200,
+      "avg": 117,
+      "min": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "fails": 200,
+      "rate": 0,
+      "passes": 0
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 725.445362,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu20-rep1",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 20,
+    "repetition": 1,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "max": 179.315985,
+      "count": 200,
+      "avg": 76.28683859500002,
+      "min": 23.702045,
+      "med": 80.38896349999999,
+      "p(95)": 170.8473779
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 200,
+      "rate": 0
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 843.953714,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu20-rep2",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 20,
+    "repetition": 2,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "max": 101.964025,
+      "count": 200,
+      "avg": 68.55772954000001,
+      "min": 20.97422,
+      "med": 78.982948,
+      "p(95)": 95.78245005
+    },
+    "bytes": {
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117,
+      "count": 200,
+      "avg": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 200,
+      "rate": 0
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 815.267521,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu20-rep3",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 20,
+    "repetition": 3,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "max": 318.22773,
+      "count": 200,
+      "avg": 98.62989673500002,
+      "min": 20.737613,
+      "med": 89.8054425,
+      "p(95)": 242.83706589999997
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 1069.06176,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu40-rep1",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 40,
+    "repetition": 1,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "count": 200,
+      "avg": 158.94805332000007,
+      "min": 17.662078,
+      "med": 164.045167,
+      "p(95)": 238.44475039999998,
+      "max": 266.012061
+    },
+    "bytes": {
+      "med": 117,
+      "p(95)": 117,
+      "max": 117,
+      "count": 200,
+      "avg": 117,
+      "min": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 1040.143004,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu40-rep2",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 40,
+    "repetition": 2,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "count": 200,
+      "avg": 173.92769193000004,
+      "min": 71.35631,
+      "med": 182.6277875,
+      "p(95)": 242.59017275,
+      "max": 331.812915
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 1047.557672,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu40-rep3",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 40,
+    "repetition": 3,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "count": 200,
+      "avg": 203.72443080000008,
+      "min": 65.984099,
+      "med": 205.8245875,
+      "p(95)": 298.4248841999996,
+      "max": 342.546395
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 1239.2442,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu80-rep1",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 80,
+    "repetition": 1,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "avg": 203.41298396,
+      "min": 52.394022,
+      "med": 197.04548599999998,
+      "p(95)": 345.1191209499991,
+      "max": 407.076184,
+      "count": 200
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 934.105174,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu80-rep2",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 80,
+    "repetition": 2,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "count": 200,
+      "avg": 206.47480175500002,
+      "min": 28.611362,
+      "med": 192.1796155,
+      "p(95)": 396.28054125,
+      "max": 411.238037
+    },
+    "bytes": {
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117,
+      "count": 200,
+      "avg": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 200
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 900.353075,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S5-vu80-rep3",
+    "phase": "P3",
+    "runKind": "write",
+    "scenario": "S5",
+    "vus": 80,
+    "repetition": 3,
+    "iterationsPlanned": 200,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "p(95)": 506.6985968999996,
+      "max": 566.236504,
+      "count": 200,
+      "avg": 404.22945137999966,
+      "min": 249.222105,
+      "med": 405.03274999999996
+    },
+    "bytes": {
+      "count": 200,
+      "avg": 117,
+      "min": 117,
+      "med": 117,
+      "p(95)": 117,
+      "max": 117
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 200,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "fails": 200,
+      "rate": 0,
+      "passes": 0
+    },
+    "measuredAttempted": 200,
+    "measuredExpected": 200,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completionTimeMs": 1457.338143,
+    "finiteBatchCompletionRate": 1,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  }
+]

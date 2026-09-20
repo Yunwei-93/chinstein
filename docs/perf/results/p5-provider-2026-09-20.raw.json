@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P5",
+  "check": "p5-live-provider-experiment",
+  "startedAt": "2026-09-20T14:20:51.532Z",
+  "finishedAt": "2026-09-20T14:20:54.058Z",
+  "databaseDate": "2026-09-20",
+  "target": {
+    "sequence": 277,
+    "id": 277,
+    "character": "楼"
+  },
+  "workload": {
+    "concurrentRequests": 5,
+    "clientTimeoutMs": 50000,
+    "retries": 0,
+    "authorizedProviderClaims": 1
+  },
+  "batchStartedAt": "2026-09-20T14:20:52.245Z",
+  "batchFinishedAt": "2026-09-20T14:20:53.869Z",
+  "batch": [
+    {
+      "label": "concurrent-1",
+      "status": 200,
+      "durationMs": 1623.1507920000001,
+      "responseBytes": 455,
+      "characterId": 277,
+      "storyPresent": true
+    },
+    {
+      "label": "concurrent-2",
+      "status": 200,
+      "durationMs": 322.37725,
+      "responseBytes": 140,
+      "characterId": 277,
+      "storyPresent": false
+    },
+    {
+      "label": "concurrent-3",
+      "status": 200,
+      "durationMs": 245.405084,
+      "responseBytes": 130,
+      "characterId": 277,
+      "storyPresent": false
+    },
+    {
+      "label": "concurrent-4",
+      "status": 200,
+      "durationMs": 330.5799159999999,
+      "responseBytes": 137,
+      "characterId": 277,
+      "storyPresent": false
+    },
+    {
+      "label": "concurrent-5",
+      "status": 200,
+      "durationMs": 325.548125,
+      "responseBytes": 138,
+      "characterId": 277,
+      "storyPresent": false
+    }
+  ],
+  "batchSummary": {
+    "responses": 5,
+    "successfulStatuses": 5,
+    "storyResponses": 1,
+    "fallbackResponses": 4,
+    "minimumDurationMs": 245.405084,
+    "maximumDurationMs": 1623.1507920000001
+  },
+  "afterBatch": {
+    "sequence": 277,
+    "id": 277,
+    "character": "楼",
+    "storyPresent": true,
+    "storyFingerprint": "53d1501aec5f",
+    "status": "ready",
+    "source": "claude",
+    "attempts": 1,
+    "startedAt": null
+  },
+  "cache": {
+    "label": "cache-hit",
+    "status": 200,
+    "durationMs": 37.74545799999987,
+    "responseBytes": 466,
+    "characterId": 277,
+    "storyPresent": true
+  },
+  "afterCache": {
+    "sequence": 277,
+    "id": 277,
+    "character": "楼",
+    "storyPresent": true,
+    "storyFingerprint": "53d1501aec5f",
+    "status": "ready",
+    "source": "claude",
+    "attempts": 1,
+    "startedAt": null
+  },
+  "acceptance": {
+    "allResponsesSuccessful": true,
+    "exactlyOneClaim": true,
+    "storyPersisted": true,
+    "cacheDidNotIncreaseAttempts": true,
+    "providerUsagePendingManualCapture": false,
+    "cloudWatchPendingCollection": false
+  },
+  "tokensReturned": false,
+  "credentialsReturned": false,
+  "storyTextReturned": false,
+  "providerUsage": {
+    "baseline": {
+      "requests": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "estimatedCostUsd": 0
+    },
+    "after": {
+      "requests": 1,
+      "successfulRequests": 1,
+      "inputTokens": 342,
+      "outputTokens": 69,
+      "providerReportedLatencyMs": 1170,
+      "estimatedCostUsd": 0.000687
+    },
+    "delta": {
+      "requests": 1,
+      "successfulRequests": 1,
+      "inputTokens": 342,
+      "outputTokens": 69,
+      "providerReportedLatencyMs": 1170,
+      "estimatedCostUsd": 0.000687
+    },
+    "pricing": {
+      "model": "claude-haiku-4-5-20251001",
+      "inputUsdPerMillionTokens": 1,
+      "outputUsdPerMillionTokens": 5
+    },
+    "source": "manual provider Usage and request-log captures for 2026-09-20 UTC",
+    "automaticRecharge": "disabled",
+    "underBudget": true
+  }
+}

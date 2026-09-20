@@ -1,0 +1,602 @@
+[
+  {
+    "label": "p3-S0-vu2-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S0",
+    "vus": 2,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "count": 45014,
+      "avg": 4.396675030657125,
+      "min": 2.340775,
+      "med": 3.8911925,
+      "p(95)": 6.5391135999999985,
+      "max": 203.27803
+    },
+    "bytes": {
+      "count": 45014,
+      "avg": 49,
+      "min": 49,
+      "med": 49,
+      "p(95)": 49,
+      "max": 49
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 45014,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 45014,
+      "rate": 0
+    },
+    "measuredAttempted": 45014,
+    "measuredExpected": 45014,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 375.1166666666667,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S0-vu5-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S0",
+    "vus": 5,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "p(95)": 55.3613725,
+      "max": 648.503714,
+      "count": 54916,
+      "avg": 9.600601479605183,
+      "min": 2.169916,
+      "med": 4.219227
+    },
+    "bytes": {
+      "avg": 49,
+      "min": 49,
+      "med": 49,
+      "p(95)": 49,
+      "max": 49,
+      "count": 54916
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 54916,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 54916
+    },
+    "measuredAttempted": 54916,
+    "measuredExpected": 54916,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 457.6333333333333,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S2-vu5-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S2",
+    "vus": 5,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 100,
+    "duration": {
+      "count": 32457,
+      "avg": 16.567333233786222,
+      "min": 5.179202,
+      "med": 12.151342,
+      "p(95)": 45.73694939999999,
+      "max": 623.677112
+    },
+    "bytes": {
+      "med": 456,
+      "p(95)": 468,
+      "max": 488,
+      "count": 32457,
+      "avg": 457.1643097020673,
+      "min": 449
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 32457,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 32457
+    },
+    "measuredAttempted": 32457,
+    "measuredExpected": 32457,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 270.475,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S2-vu10-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S2",
+    "vus": 10,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 100,
+    "duration": {
+      "avg": 34.05423884215608,
+      "min": 6.392163,
+      "med": 19.837167,
+      "p(95)": 79.53120799999999,
+      "max": 916.900176,
+      "count": 32209
+    },
+    "bytes": {
+      "max": 485,
+      "count": 32209,
+      "avg": 457.16923841162406,
+      "min": 449,
+      "med": 456,
+      "p(95)": 467
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 32209,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 32209
+    },
+    "measuredAttempted": 32209,
+    "measuredExpected": 32209,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 268.40833333333336,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S2-vu20-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S2",
+    "vus": 20,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 100,
+    "duration": {
+      "count": 32848,
+      "avg": 68.90744912146874,
+      "min": 7.463817,
+      "med": 74.952122,
+      "p(95)": 110.61064369999997,
+      "max": 890.431769
+    },
+    "bytes": {
+      "min": 449,
+      "med": 456,
+      "p(95)": 467,
+      "max": 488,
+      "count": 32848,
+      "avg": 457.3005662445202
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 32848,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 32848
+    },
+    "measuredAttempted": 32848,
+    "measuredExpected": 32848,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 273.73333333333335,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S3-vu5-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S3",
+    "vus": 5,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 50,
+    "duration": {
+      "avg": 22.529867678418427,
+      "min": 3.721254,
+      "med": 7.7778425,
+      "p(95)": 76.1333758,
+      "max": 467.459132,
+      "count": 21018
+    },
+    "bytes": {
+      "count": 21018,
+      "avg": 1051.1699495670377,
+      "min": 1042,
+      "med": 1048,
+      "p(95)": 1065,
+      "max": 1065
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 21018,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 21018,
+      "rate": 0
+    },
+    "measuredAttempted": 21018,
+    "measuredExpected": 21018,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 175.15,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S4-vu5-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S4",
+    "vus": 5,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 350,
+    "duration": {
+      "count": 3477,
+      "avg": 170.57957596519975,
+      "min": 108.626614,
+      "med": 152.417421,
+      "p(95)": 284.89525840000005,
+      "max": 707.032867
+    },
+    "bytes": {
+      "count": 3477,
+      "avg": 712,
+      "min": 712,
+      "med": 712,
+      "p(95)": 712,
+      "max": 712
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 3477,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 3477
+    },
+    "measuredAttempted": 3477,
+    "measuredExpected": 3477,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 28.975,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S4-vu10-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S4",
+    "vus": 10,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 350,
+    "duration": {
+      "med": 262.835797,
+      "p(95)": 525.1973264,
+      "max": 1203.754087,
+      "count": 3755,
+      "avg": 317.2966153011977,
+      "min": 151.624365
+    },
+    "bytes": {
+      "count": 3755,
+      "avg": 712,
+      "min": 712,
+      "med": 712,
+      "p(95)": 712,
+      "max": 712
+    },
+    "checks": {
+      "fails": 0,
+      "rate": 1,
+      "passes": 3755
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 3755,
+      "rate": 0
+    },
+    "measuredAttempted": 3755,
+    "measuredExpected": 3755,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 31.291666666666668,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S6-vu5-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S6",
+    "vus": 5,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 150,
+    "duration": {
+      "med": 95.86939899999999,
+      "p(95)": 167.50995625000002,
+      "max": 936.145321,
+      "count": 6010,
+      "avg": 98.62768485091557,
+      "min": 10.46038
+    },
+    "bytes": {
+      "med": 64,
+      "p(95)": 64,
+      "max": 64,
+      "count": 6010,
+      "avg": 64,
+      "min": 64
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 6010,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "passes": 0,
+      "fails": 6010,
+      "rate": 0
+    },
+    "measuredAttempted": 6010,
+    "measuredExpected": 6010,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 50.083333333333336,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S1-vu1-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S1",
+    "vus": 1,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 550,
+    "duration": {
+      "med": 117.345351,
+      "p(95)": 168.949441,
+      "max": 404.525452,
+      "count": 926,
+      "avg": 128.3770292775378,
+      "min": 100.23906
+    },
+    "bytes": {
+      "max": 202,
+      "count": 926,
+      "avg": 202,
+      "min": 202,
+      "med": 202,
+      "p(95)": 202
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 926,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "fails": 926,
+      "rate": 0,
+      "passes": 0
+    },
+    "measuredAttempted": 926,
+    "measuredExpected": 926,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 7.716666666666667,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S1-vu2-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S1",
+    "vus": 2,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 550,
+    "duration": {
+      "p(95)": 319.69387224999997,
+      "max": 604.721577,
+      "count": 836,
+      "avg": 285.6557943755981,
+      "min": 197.611125,
+      "med": 294.4078975
+    },
+    "bytes": {
+      "count": 836,
+      "avg": 202,
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 836,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 836
+    },
+    "measuredAttempted": 836,
+    "measuredExpected": 836,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 6.966666666666667,
+    "p95ThresholdExceeded": false,
+    "errorBudgetExceeded": false
+  },
+  {
+    "label": "p3-S1-vu5-confirmation",
+    "phase": "P3",
+    "runKind": "confirmation",
+    "scenario": "S1",
+    "vus": 5,
+    "measuredSeconds": 120,
+    "p95ThresholdMs": 550,
+    "duration": {
+      "count": 849,
+      "avg": 704.1792853733806,
+      "min": 292.303408,
+      "med": 698.202383,
+      "p(95)": 988.3268598,
+      "max": 1695.571326
+    },
+    "bytes": {
+      "avg": 202,
+      "min": 202,
+      "med": 202,
+      "p(95)": 202,
+      "max": 202,
+      "count": 849
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 849,
+      "fails": 0
+    },
+    "unexpectedRate": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 849
+    },
+    "measuredAttempted": 849,
+    "measuredExpected": 849,
+    "measuredUnexpected": 0,
+    "unexpectedByCategory": {
+      "contract-error": 0,
+      "transport-error": 0,
+      "unauthorized": 0,
+      "unexpected-conflict": 0,
+      "rate-limited": 0,
+      "server-error": 0,
+      "unexpected-status": 0
+    },
+    "completedExpectedPerSecond": 7.075,
+    "p95ThresholdExceeded": true,
+    "errorBudgetExceeded": false
+  }
+]

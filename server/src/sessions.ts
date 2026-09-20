@@ -12,9 +12,8 @@ export class NotTodayCharacterError extends Error {}
 export async function createSession(
   userId: number,
   characterId: number,
-  answer: string
+  answer: string,
 ): Promise<Session> {
-
   // snapshot the badges before, so we can diff afterwards
   const before = await getUserProfile(userId)
   if (!before) throw new Error('User not found')
@@ -22,7 +21,7 @@ export async function createSession(
   // the correct answer comes from the DB; we never trust the client's verdict
   const { rows } = await pool.query<{ character: string; meaning: string }>(
     'SELECT character, meaning FROM characters WHERE id = $1',
-    [characterId]
+    [characterId],
   )
   const character = rows[0]
   if (!character) throw new CharacterNotFoundError()
@@ -35,15 +34,40 @@ export async function createSession(
   const gainedPoints = isCorrect ? TODAY_REWARD : 0
 
   try {
-
     // the server decides the date so nobody can backfill fake streaks
     await pool.query(
-      `INSERT INTO study_sessions (user_id, character_id, is_correct, points, studied_on)
-       VALUES ($1, $2, $3, $4, CURRENT_DATE)`,
-      [userId, characterId, isCorrect, gainedPoints]
+      `
+        WITH inserted_session AS (
+          INSERT INTO study_sessions (
+            user_id,
+            character_id,
+            is_correct,
+            points,
+            studied_on
+          )
+          VALUES ($1, $2, $3, $4, CURRENT_DATE)
+          RETURNING user_id, points
+        )
+        INSERT INTO leaderboard_scores (
+          user_id,
+          total_points,
+          session_count
+        )
+        SELECT
+          user_id,
+          points::bigint,
+          1::bigint
+        FROM inserted_session
+        ON CONFLICT (user_id) DO UPDATE
+        SET
+          total_points =
+            leaderboard_scores.total_points + EXCLUDED.total_points,
+          session_count =
+            leaderboard_scores.session_count + EXCLUDED.session_count
+      `,
+      [userId, characterId, isCorrect, gainedPoints],
     )
   } catch (err) {
-
     // 23505 is Postgres's unique_violation code
     if ((err as { code?: string }).code === '23505') {
       throw new AlreadyStudiedTodayError()

@@ -1,0 +1,17 @@
+{
+  "check": "p2-postbaseline-database",
+  "database": "neondb",
+  "hostFingerprint": "777c6ca41572",
+  "currentDate": "2026-09-19",
+  "wallDate": "2026-09-19",
+  "timezone": "GMT",
+  "p2WriteUsers": 330,
+  "p2TodaySessions": 330,
+  "p2UsersWithOneSession": 330,
+  "p2UsersWithInvalidSessionCount": 0,
+  "poolATodaySessions": 330,
+  "poolBTodaySessions": 200,
+  "totalSessions": 1458530,
+  "readOnly": true,
+  "writesPerformedByCheck": false
+}

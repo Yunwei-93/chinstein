@@ -1,0 +1,352 @@
+[
+  {
+    "scenario": "S0",
+    "vus": 1,
+    "repetitions": 3,
+    "runP50Ms": [
+      3.403659,
+      4.676443000000001,
+      4.628305
+    ],
+    "runP95Ms": [
+      5.6657915,
+      6.375462599999987,
+      6.315523
+    ],
+    "medianP50Ms": 4.628305,
+    "medianP95Ms": 6.315523,
+    "p50ThresholdMs": 50,
+    "p95ThresholdMs": 50,
+    "measuredRequests": 32484,
+    "attemptedRequests": 48725,
+    "expectedResponses": 48725,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 49
+  },
+  {
+    "scenario": "S0",
+    "vus": 5,
+    "repetitions": 3,
+    "runP50Ms": [
+      4.1687195,
+      4.048253,
+      4.2110835
+    ],
+    "runP95Ms": [
+      67.1015193,
+      66.79763469999999,
+      66.4333637
+    ],
+    "medianP50Ms": 4.1687195,
+    "medianP95Ms": 66.79763469999999,
+    "p50ThresholdMs": null,
+    "p95ThresholdMs": null,
+    "measuredRequests": 63837,
+    "attemptedRequests": 95547,
+    "expectedResponses": 95547,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 49
+  },
+  {
+    "scenario": "S1",
+    "vus": 1,
+    "repetitions": 3,
+    "runP50Ms": [
+      118.161781,
+      117.5004525,
+      118.308721
+    ],
+    "runP95Ms": [
+      170.004549,
+      169.257914,
+      169.18790819999998
+    ],
+    "medianP50Ms": 118.161781,
+    "medianP95Ms": 169.257914,
+    "p50ThresholdMs": 250,
+    "p95ThresholdMs": 550,
+    "measuredRequests": 1362,
+    "attemptedRequests": 2050,
+    "expectedResponses": 2050,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 202
+  },
+  {
+    "scenario": "S1",
+    "vus": 5,
+    "repetitions": 3,
+    "runP50Ms": [
+      700.709642,
+      696.110229,
+      698.318263
+    ],
+    "runP95Ms": [
+      991.51844235,
+      1007.5368867999999,
+      987.258613
+    ],
+    "medianP50Ms": 698.318263,
+    "medianP95Ms": 991.51844235,
+    "p50ThresholdMs": null,
+    "p95ThresholdMs": null,
+    "measuredRequests": 1258,
+    "attemptedRequests": 1894,
+    "expectedResponses": 1894,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 202
+  },
+  {
+    "scenario": "S2",
+    "vus": 1,
+    "repetitions": 3,
+    "runP50Ms": [
+      11.0179145,
+      12.219825499999999,
+      11.346463
+    ],
+    "runP95Ms": [
+      14.766620699999997,
+      21.505307000000002,
+      18.300221199999996
+    ],
+    "medianP50Ms": 11.346463,
+    "medianP95Ms": 18.300221199999996,
+    "p50ThresholdMs": 50,
+    "p95ThresholdMs": 100,
+    "measuredRequests": 11745,
+    "attemptedRequests": 18095,
+    "expectedResponses": 18095,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 468
+  },
+  {
+    "scenario": "S2",
+    "vus": 5,
+    "repetitions": 3,
+    "runP50Ms": [
+      12.3385635,
+      13.889895500000002,
+      12.2558305
+    ],
+    "runP95Ms": [
+      55.38608005,
+      51.249949799999996,
+      56.130255000000005
+    ],
+    "medianP50Ms": 12.3385635,
+    "medianP95Ms": 55.38608005,
+    "p50ThresholdMs": null,
+    "p95ThresholdMs": null,
+    "measuredRequests": 39828,
+    "attemptedRequests": 58987,
+    "expectedResponses": 58987,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 468
+  },
+  {
+    "scenario": "S3",
+    "vus": 1,
+    "repetitions": 3,
+    "runP50Ms": [
+      4.7601595,
+      5.5028395,
+      5.528250999999999
+    ],
+    "runP95Ms": [
+      7.5802314499999985,
+      7.56551575,
+      8.0493496
+    ],
+    "medianP50Ms": 5.5028395,
+    "medianP95Ms": 7.5802314499999985,
+    "p50ThresholdMs": 50,
+    "p95ThresholdMs": 50,
+    "measuredRequests": 22496,
+    "attemptedRequests": 33419,
+    "expectedResponses": 33419,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 1042
+  },
+  {
+    "scenario": "S3",
+    "vus": 5,
+    "repetitions": 3,
+    "runP50Ms": [
+      7.243189,
+      7.501346,
+      7.278588
+    ],
+    "runP95Ms": [
+      79.63191579999997,
+      79.98988440000001,
+      79.99909399999997
+    ],
+    "medianP50Ms": 7.278588,
+    "medianP95Ms": 79.98988440000001,
+    "p50ThresholdMs": null,
+    "p95ThresholdMs": null,
+    "measuredRequests": 28428,
+    "attemptedRequests": 42364,
+    "expectedResponses": 42364,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 1065
+  },
+  {
+    "scenario": "S4",
+    "vus": 1,
+    "repetitions": 3,
+    "runP50Ms": [
+      99.451563,
+      99.272357,
+      98.74871
+    ],
+    "runP95Ms": [
+      142.40658925,
+      108.8558022,
+      105.52604295
+    ],
+    "medianP50Ms": 99.272357,
+    "medianP95Ms": 108.8558022,
+    "p50ThresholdMs": 200,
+    "p95ThresholdMs": 350,
+    "measuredRequests": 1687,
+    "attemptedRequests": 2426,
+    "expectedResponses": 2426,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 712
+  },
+  {
+    "scenario": "S4",
+    "vus": 5,
+    "repetitions": 3,
+    "runP50Ms": [
+      148.633989,
+      150.22974,
+      150.885353
+    ],
+    "runP95Ms": [
+      280.6946548,
+      281.619321,
+      282.11648019999996
+    ],
+    "medianP50Ms": 150.22974,
+    "medianP95Ms": 281.619321,
+    "p50ThresholdMs": null,
+    "p95ThresholdMs": null,
+    "measuredRequests": 5366,
+    "attemptedRequests": 7751,
+    "expectedResponses": 7751,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 712
+  },
+  {
+    "scenario": "S5",
+    "vus": 1,
+    "repetitions": 3,
+    "runP50Ms": [
+      13.302024,
+      12.808905,
+      13.8933435
+    ],
+    "runP95Ms": [
+      16.3727136,
+      15.359844299999999,
+      15.13947255
+    ],
+    "medianP50Ms": 13.302024,
+    "medianP95Ms": 15.359844299999999,
+    "p50ThresholdMs": 50,
+    "p95ThresholdMs": 50,
+    "measuredRequests": 150,
+    "attemptedRequests": 165,
+    "expectedResponses": 165,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 105
+  },
+  {
+    "scenario": "S5",
+    "vus": 5,
+    "repetitions": 3,
+    "runP50Ms": [
+      21.195473999999997,
+      23.7407985,
+      50.434593
+    ],
+    "runP95Ms": [
+      29.07459715,
+      34.66010525,
+      107.15568865
+    ],
+    "medianP50Ms": 23.7407985,
+    "medianP95Ms": 34.66010525,
+    "p50ThresholdMs": null,
+    "p95ThresholdMs": null,
+    "measuredRequests": 150,
+    "attemptedRequests": 165,
+    "expectedResponses": 165,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 105
+  },
+  {
+    "scenario": "S6",
+    "vus": 1,
+    "repetitions": 3,
+    "runP50Ms": [
+      28.623503,
+      28.610682,
+      29.857979
+    ],
+    "runP95Ms": [
+      44.10687819999995,
+      48.44204199999996,
+      48.21078834999998
+    ],
+    "medianP50Ms": 28.623503,
+    "medianP95Ms": 48.21078834999998,
+    "p50ThresholdMs": 100,
+    "p95ThresholdMs": 150,
+    "measuredRequests": 5338,
+    "attemptedRequests": 8047,
+    "expectedResponses": 8047,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 64
+  },
+  {
+    "scenario": "S6",
+    "vus": 5,
+    "repetitions": 3,
+    "runP50Ms": [
+      98.12117950000001,
+      97.269453,
+      98.250202
+    ],
+    "runP95Ms": [
+      170.11971949999997,
+      170.25346415,
+      169.42084995000002
+    ],
+    "medianP50Ms": 98.12117950000001,
+    "medianP95Ms": 170.11971949999997,
+    "p50ThresholdMs": null,
+    "p95ThresholdMs": null,
+    "measuredRequests": 8560,
+    "attemptedRequests": 12829,
+    "expectedResponses": 12829,
+    "unexpectedResponses": 0,
+    "maximumUnexpectedRate": 0,
+    "medianResponseBytesP95": 64
+  }
+]

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P5",
+  "accepted": true,
+  "capturedAt": "2026-09-20T14:27:53Z",
+  "liveInterval": {
+    "startedAt": "2026-09-20T14:20:51.532Z",
+    "finishedAt": "2026-09-20T14:20:54.058Z"
+  },
+  "api": {
+    "serviceState": {
+      "status": "ACTIVE",
+      "desired": 1,
+      "running": 1,
+      "pending": 0
+    },
+    "taskDefinition": "default-chinstein-api-staging:7",
+    "imageDigest": "sha256:3136ff4c5a3dae72ef852d3fdb707ac6e64022432c2578c95e6de95ff6c89349",
+    "sourceCommit": "b33785f19178",
+    "cpu": "512",
+    "memory": "1024",
+    "requiredSecretReferencesPresent": true
+  },
+  "cloudWatch": {
+    "observedEvents": 0,
+    "generationFailureEvents": 0,
+    "unusableResponseEvents": 0,
+    "applicationErrorEvents": 0,
+    "rawMessagesRetained": false
+  },
+  "providerUsage": {
+    "baseline": {
+      "requests": 0,
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "estimatedCostUsd": 0
+    },
+    "after": {
+      "requests": 1,
+      "successfulRequests": 1,
+      "inputTokens": 342,
+      "outputTokens": 69,
+      "providerReportedLatencyMs": 1170,
+      "estimatedCostUsd": 0.000687
+    },
+    "delta": {
+      "requests": 1,
+      "successfulRequests": 1,
+      "inputTokens": 342,
+      "outputTokens": 69,
+      "providerReportedLatencyMs": 1170,
+      "estimatedCostUsd": 0.000687
+    },
+    "pricing": {
+      "model": "claude-haiku-4-5-20251001",
+      "inputUsdPerMillionTokens": 1,
+      "outputUsdPerMillionTokens": 5
+    },
+    "source": "manual provider Usage and request-log captures for 2026-09-20 UTC",
+    "automaticRecharge": "disabled",
+    "underBudget": true
+  },
+  "controlledEvidence": {
+    "tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "realProviderCalls": 0,
+    "covers": [
+      "deterministic concurrent loser fallback",
+      "35-second application deadline signal",
+      "provider rate-limit rejection",
+      "provider server-error rejection"
+    ]
+  },
+  "cleanup": {
+    "apiState": {
+      "status": "ACTIVE",
+      "desired": 0,
+      "running": 0,
+      "pending": 0
+    },
+    "initialRepeatSeedRejectedBeforeWrite": true,
+    "targetedBridgeRestore": {
+      "sequence": 277,
+      "rowsUpdated": 1,
+      "source": "perf-synthetic",
+      "attempts": 0,
+      "freshConnectionClassification": "approved-perf-source"
+    },
+    "repeatSeed": {
+      "dryRunRolledBack": true,
+      "dryRunRestorationVerified": true,
+      "committed": true,
+      "commitOutcome": "confirmed",
+      "postCommitVerified": true,
+      "studySessions": 1458200,
+      "historicalSessions": 1458000,
+      "poolACurrentDateSessions": 0,
+      "poolBCurrentDateSessions": 200
+    }
+  },
+  "limitations": [
+    "The deadline, provider-error, and provider-rate-limit paths were controlled tests, not induced live staging failures.",
+    "Provider cost is calculated from the frozen list-price formula and manually captured token counts.",
+    "The bounded CloudWatch query returned no matching application events, so it proves no captured failure event but not complete request-log coverage."
+  ]
+}

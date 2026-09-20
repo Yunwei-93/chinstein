@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P7",
+  "classification": "safe-staging-cleanup-complete",
+  "capturedAt": "2026-09-20T21:18:09Z",
+  "ecs": {
+    "service": "chinstein-api-staging",
+    "status": "ACTIVE",
+    "desired": 0,
+    "running": 0,
+    "pending": 0,
+    "runningTasksInCluster": 0
+  },
+  "runtimeSecretCurrentVersion": {
+    "databaseUrlRetained": true,
+    "jwtSecretRetained": true,
+    "anthropicApiKeyRetained": false,
+    "performanceLoginPasswordRetained": false,
+    "secretValuesRetainedInArtifact": false
+  },
+  "retainedEvidenceAndRecoveryResources": {
+    "databaseBranch": true,
+    "ecrImages": true,
+    "cloudWatchLogs": true,
+    "ecsServiceDefinition": true,
+    "taskDefinitions": true
+  },
+  "deletedResources": [],
+  "productionResourcesChanged": false
+}
