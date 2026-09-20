@@ -529,3 +529,21 @@ Recorded before changing the dedicated staging character or sending a P5 request
   injected dependencies. They will not be described as live staging failures.
 - Cleanup: after evidence collection, drain the API and restore the approved
   synthetic fixture through the verified repeat-seed path.
+
+### P5 live preflight and provider-usage baseline
+
+- The API reached 1 desired, 1 running, and 0 pending task on
+  `default-chinstein-api-staging:7`; health, the approved HTTPS origin, required
+  secret references, and non-empty secret values all passed without disclosure.
+- The API image remained commit `b33785f19178` at immutable digest
+  `sha256:3136ff4c5a3dae72ef852d3fdb707ac6e64022432c2578c95e6de95ff6c89349`.
+- The read-only database check retained date `2026-09-20`, 8,100 users,
+  1,458,200 sessions, 365 ready stories, zero generating stories, and zero total
+  story attempts. No database write or provider call occurred.
+- The dedicated daily target is stable character sequence 277 (`楼`), initially
+  `ready` from `perf-synthetic` with zero attempts and story fingerprint
+  `fa73d2fd4133`. Pool R user sequence 1 is present.
+- The provider Usage page was captured for `2026-09-20` UTC before the live run.
+  Organization-wide usage was zero input tokens, zero output tokens, and $0.00;
+  therefore the staging key also had zero usage. Automatic recharge was separately
+  confirmed disabled.
