@@ -901,6 +901,37 @@ cases use an existing controllable test mechanism; if staging cannot safely indu
 them without a code or configuration change, the report records that limitation
 instead of presenting simulated behavior as a live staging result.
 
+### Pre-registered PERF-P5 execution
+
+The live experiment uses the database-selected daily character and one approved
+synthetic Pool R user. After a guarded staging check, only that character is moved
+from the synthetic `ready` state to `pending` with a null story, null source, zero
+attempts, and no claim timestamp. Five authenticated `GET /api/characters/today`
+requests are released concurrently from one client with a 50-second client timeout
+and no retry. Their status, latency, and whether the allowlisted response contains a
+story are retained; response text, tokens, credentials, and the answer are not.
+
+The live batch is accepted only if every request returns `200`, exactly one provider
+claim is consumed, the target finishes `ready` with `story_source = 'claude'`, and
+no generation-failure or unusable-response event appears in the matching CloudWatch
+interval. Losing concurrent requests may return the null-story fallback while the
+winner is generating; a request that reaches the API after persistence may instead
+observe the saved story. The database claim count, rather than response ordering,
+is the authoritative one-winner check.
+
+After the batch, one cache-hit request must return `200` with a story and must leave
+the attempt count at one. The provider usage delta is then checked before any other
+live action; no second cold generation is authorized. The measured provider cost
+must remain at or below $0.01 with automatic recharge disabled.
+
+The existing deterministic integration test is the authoritative concurrent-loser
+fallback check because it holds the winning promise open before issuing the losing
+request. The 35-second application deadline, provider rejection, and provider rate
+limit are exercised only through injected test failures. They are reported as
+controlled behavior tests, not as live staging latency measurements. Finally, the
+API is drained and the verified repeat-seed procedure restores the canonical
+synthetic story and zero story attempts.
+
 ## Optimization and reporting rule
 
 PERF-P6 changes at most one independently attributable variable at a time. A query,

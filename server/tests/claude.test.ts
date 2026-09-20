@@ -109,4 +109,22 @@ describe('generateStory', () => {
             { signal },
         )
     })
+
+    it.each([
+        ['provider rate limit', 429],
+        ['provider server error', 503],
+    ])('degrades safely on a %s', async (_label, status) => {
+        process.env.ANTHROPIC_API_KEY = 'test-only-key'
+
+        vi.spyOn(console, 'error').mockImplementation(() => undefined)
+        messagesCreateMock.mockRejectedValueOnce(
+            Object.assign(new Error('simulated provider failure'), { status }),
+        )
+
+        await expect(
+            generateStory('測', 'cè', 'test'),
+        ).resolves.toBeNull()
+
+        expect(messagesCreateMock).toHaveBeenCalledTimes(1)
+    })
 })

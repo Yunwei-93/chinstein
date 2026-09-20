@@ -505,3 +505,27 @@ Artifacts:
 - [Derived P4 summary](results/p4-soak-2026-09-20.summary.json)
 - [P4 database post-check](results/p4-soak-2026-09-20.postcheck.json)
 - [P4 environment manifest](results/p4-soak-2026-09-20.manifest.json)
+
+## 2026-09-20 — Pre-registered P5 external-provider experiment
+
+Recorded before changing the dedicated staging character or sending a P5 request:
+
+- Live scope: one database-selected daily character, one synthetic Pool R identity,
+  and one batch of five concurrent authenticated daily-character requests.
+- Client behavior: all five requests are released together, use a 50-second timeout,
+  and are never retried. One later request measures the persisted cache-hit path.
+- Cost boundary: no more than one provider claim and $0.01 of measured provider
+  usage; automatic recharge remains disabled. Usage is checked before any further
+  live-provider action.
+- Acceptance: all live responses are `200`; the database records exactly one
+  attempt; the character finishes `ready` with source `claude`; the cache request
+  does not change the attempt count; and matching CloudWatch logs contain no
+  generation-failure or unusable-response event.
+- Concurrency interpretation: null-story responses are valid losing-request
+  fallbacks. Requests scheduled after persistence may see the saved story, so the
+  database attempt count is the authoritative one-winner result.
+- Controlled-only cases: concurrent fallback ordering, the 35-second application
+  deadline, provider rejection, and provider rate limiting are exercised with
+  injected dependencies. They will not be described as live staging failures.
+- Cleanup: after evidence collection, drain the API and restore the approved
+  synthetic fixture through the verified repeat-seed path.
