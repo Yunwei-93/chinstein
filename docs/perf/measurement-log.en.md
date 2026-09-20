@@ -628,4 +628,31 @@ The implementation is frozen before source changes:
 - Existing leaderboard response semantics and thresholds remain unchanged. P6
   remeasures S4 and also repeats S5, S6, and S7 so any write-path cost is reported.
 
+### Frozen P6 cloud retest
+
+- Optimized source commit: `a30ab999ead52092b8c9ea2a36a2ff981fccf498`.
+- Optimized immutable API image digest:
+  `sha256:d3f50a1426349bdc0a24916307fcb349f46ab2404fd12ae5e91acd8b44cd7dee`.
+- API task definition `default-chinstein-api-staging:8` completed its deployment
+  successfully. Post-deploy evidence showed `1/1/0`, the expected image, and an
+  accepted HTTPS health response.
+- The migration client reported a local read timeout after five seconds, but a
+  fresh read-only connection proved that the server transaction had committed:
+  8,100 rollup rows represented all 1,458,200 sessions, with one primary key, one
+  foreign key, and zero drift. The timeout is retained as client-observation noise,
+  not described as a database rollback or a second migration.
+- Formal traffic order is fixed as one unchanged P3 confirmation run of S4 at 5
+  VUs, one unchanged P3 confirmation run of S6 at 5 VUs, then the unchanged P3
+  final suite: S7 followed by all fifteen S5 batches at 5/10/20/40/80 VUs and three
+  repetitions. S4/S6 retain 30 seconds of excluded warm-up plus 120 measured
+  seconds. S7 and S5 retain their existing bounded definitions.
+- The timed pair therefore lasts about five measured-run minutes; the S7/S5 final
+  suite lasts about four minutes. The exact existing load-generator images are
+  reused. No application source, threshold, duration, ladder, or response contract
+  changes after this point.
+- The final acceptance gate requires zero unexpected responses, the exact expected
+  S7/S5 allocation, and a fresh full-outer-join rollup drift count of zero. S4 is
+  the primary benefit; S5, S6, and S7 expose any write or mixed-load cost. All
+  before/after values remain in the report even if the optimization regresses them.
+
 - [Covering-index diagnostic summary](results/p6-covering-index-diagnostic-2026-09-20.summary.json)

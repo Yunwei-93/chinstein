@@ -999,6 +999,26 @@ repeated because maintaining the rollup touches the successful-write path and mu
 not hide a write or conflict-path regression. All responses and the final rollup
 drift check are retained whether favorable or unfavorable.
 
+The exact cloud retest is fixed before optimized traffic. First, the unchanged P3
+timed runner repeats S4 at 5 VUs and S6 at 5 VUs once each, with the original
+30-second excluded warm-up and 120-second measured window. These are compared with
+the corresponding confirmed P3 observations, not used to derive new thresholds.
+Second, on the same canonical fixture and API sizing, the unchanged P3 final runner
+repeats the exact S7 mixture followed by the full isolated S5 envelope at
+5/10/20/40/80 VUs with three 200-write repetitions per level. Timed reads and
+conflicts run before any Pool A write. No new ladder point, response rule, duration,
+threshold, or load-generator image is introduced.
+
+The optimized API must use immutable task definition
+`default-chinstein-api-staging:8` and image digest
+`sha256:d3f50a1426349bdc0a24916307fcb349f46ab2404fd12ae5e91acd8b44cd7dee`
+from source commit `a30ab999ead52092b8c9ea2a36a2ff981fccf498`. Before traffic,
+the database must contain 8,100 rollup rows covering all 1,458,200 sessions with
+zero drift, Pool A must have zero current-date sessions, and Pool B must retain its
+200 anchors. After traffic, zero rollup drift and the exact S7/S5 user allocation
+are mandatory validity checks. Latency and throughput changes are reported whether
+favorable or unfavorable; they do not authorize changing a frozen threshold.
+
 - [Covering-index diagnostic summary](results/p6-covering-index-diagnostic-2026-09-20.summary.json)
 
 PERF-P7 publishes valid and invalid runs, raw environment fingerprints, derived
