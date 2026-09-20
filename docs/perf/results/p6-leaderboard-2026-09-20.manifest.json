@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P6",
+  "capturedAt": "2026-09-20T20:14:21Z",
+  "api": {
+    "sourceCommit": "a30ab999ead52092b8c9ea2a36a2ff981fccf498",
+    "taskDefinition": "default-chinstein-api-staging:8",
+    "imageDigest": "sha256:d3f50a1426349bdc0a24916307fcb349f46ab2404fd12ae5e91acd8b44cd7dee",
+    "cpu": 512,
+    "memoryMiB": 1024
+  },
+  "loadGenerators": {
+    "timed": {
+      "taskDefinition": "chinstein-p3-loadgen:3",
+      "imageDigest": "sha256:e7160971eb6097c57f158c5c9f89a9c4b778244a521cac35ed6d27df0ae115b6",
+      "task": {
+        "taskId": "f11b2bbe91bd48c387208a52db6cfbb9",
+        "lastStatus": "STOPPED",
+        "stopCode": "EssentialContainerExited",
+        "stoppedReason": "Essential container in task exited",
+        "startedAt": "2026-09-20T15:56:27.806000-04:00",
+        "stoppedAt": "2026-09-20T16:02:09.499000-04:00",
+        "containerExitCode": 0
+      }
+    },
+    "final": {
+      "taskDefinition": "chinstein-p3-loadgen:4",
+      "imageDigest": "sha256:7d85d80ed4a3e19bc8c184aef9a8e1b230d9433c83cad5dc8c79975648d12d4f",
+      "task": {
+        "taskId": "ddaa6a322e324314a2a1e47635b58e83",
+        "lastStatus": "STOPPED",
+        "stopCode": "EssentialContainerExited",
+        "stoppedReason": "Essential container in task exited",
+        "startedAt": "2026-09-20T16:06:54.293000-04:00",
+        "stoppedAt": "2026-09-20T16:10:50.510000-04:00",
+        "containerExitCode": 0
+      }
+    }
+  },
+  "frozenTrafficOrder": [
+    "S4@5",
+    "S6@5",
+    "S7",
+    "S5 envelope"
+  ],
+  "secretsRetained": false,
+  "databaseUrlRetained": false,
+  "rawApplicationMessagesRetained": false
+}

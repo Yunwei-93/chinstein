@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P6",
+  "classification": "leaderboard-rollup-retest-complete",
+  "optimization": {
+    "variable": "request-time full-session aggregation replaced by transactional per-user rollup",
+    "apiSourceCommit": "a30ab999ead52092b8c9ea2a36a2ff981fccf498",
+    "apiTaskDefinition": "default-chinstein-api-staging:8",
+    "apiImageDigest": "sha256:d3f50a1426349bdc0a24916307fcb349f46ab2404fd12ae5e91acd8b44cd7dee"
+  },
+  "timed": [
+    {
+      "scenario": "S4",
+      "vus": 5,
+      "p95ThresholdMs": 350,
+      "baseline": {
+        "p50Ms": 152.417421,
+        "p95Ms": 284.89525840000005,
+        "completedExpectedPerSecond": 28.975,
+        "measuredAttempted": 3477,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": false
+      },
+      "optimized": {
+        "p50Ms": 19.971657999999998,
+        "p95Ms": 37.216546300000005,
+        "completedExpectedPerSecond": 195.85,
+        "measuredAttempted": 23502,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": false
+      },
+      "changePercent": {
+        "p50": -86.89673538039986,
+        "p95": -86.93676177377895,
+        "completedExpectedPerSecond": 575.9275237273511
+      }
+    },
+    {
+      "scenario": "S6",
+      "vus": 5,
+      "p95ThresholdMs": 150,
+      "baseline": {
+        "p50Ms": 95.86939899999999,
+        "p95Ms": 167.50995625000002,
+        "completedExpectedPerSecond": 50.083333333333336,
+        "measuredAttempted": 6010,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": true
+      },
+      "optimized": {
+        "p50Ms": 99.017326,
+        "p95Ms": 180.5968315,
+        "completedExpectedPerSecond": 44.925,
+        "measuredAttempted": 5391,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": true
+      },
+      "changePercent": {
+        "p50": 3.283557665778214,
+        "p95": 7.812595467739536,
+        "completedExpectedPerSecond": -10.299500831946762
+      }
+    }
+  ],
+  "mixed": {
+    "load": {
+      "readScenarioId": "S4",
+      "readVus": 5,
+      "writeIterations": 200,
+      "writeRate": 100,
+      "writeTimeUnit": "60s",
+      "writePreAllocatedVus": 5,
+      "writeMaxVus": 5,
+      "readP95ThresholdMs": 350,
+      "writeP95ThresholdMs": 50
+    },
+    "read": {
+      "scenario": "S4",
+      "baseline": {
+        "p50Ms": 153.989693,
+        "p95Ms": 281.76815819999996,
+        "measuredAttempted": 3497,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": false
+      },
+      "optimized": {
+        "p50Ms": 21.413705999999998,
+        "p95Ms": 39.005210649999995,
+        "measuredAttempted": 22714,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": false
+      },
+      "changePercent": {
+        "p50": -86.09406539955891,
+        "p95": -86.15698420319234
+      }
+    },
+    "write": {
+      "scenario": "S5",
+      "baseline": {
+        "p50Ms": 24.814108,
+        "p95Ms": 52.43955289999998,
+        "measuredExpected": 200,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": true
+      },
+      "optimized": {
+        "p50Ms": 25.179685499999998,
+        "p95Ms": 73.10771024999993,
+        "measuredExpected": 200,
+        "measuredUnexpected": 0,
+        "p95ThresholdExceeded": true
+      },
+      "changePercent": {
+        "p50": 1.4732647250507602,
+        "p95": 39.413298182410614
+      }
+    },
+    "optimizedSuccessfulWriteUsers": 200,
+    "optimizedDroppedWriteIterations": 0,
+    "optimizedIntegrityFailed": false
+  },
+  "isolatedWriteEnvelope": {
+    "scenario": "S5",
+    "iterationsPerRun": 200,
+    "p95ThresholdMs": 50,
+    "levels": [
+      {
+        "vus": 5,
+        "repetitions": 3,
+        "baseline": {
+          "medianP50Ms": 18.440496,
+          "medianP95Ms": 46.52646959999963,
+          "p95MsByRun": [
+            46.52646959999963,
+            36.15153339999999,
+            47.68073324999997
+          ],
+          "thresholdExceededRuns": 0
+        },
+        "optimized": {
+          "medianP50Ms": 16.398253500000003,
+          "medianP95Ms": 45.18696744999996,
+          "p95MsByRun": [
+            45.18696744999996,
+            21.259688399999984,
+            197.38350519999992
+          ],
+          "thresholdExceededRuns": 1
+        },
+        "changePercent": {
+          "medianP50": -11.07476989772942,
+          "medianP95": -2.879010940472637
+        },
+        "optimizedMeasuredAttempted": 600,
+        "optimizedMeasuredUnexpected": 0
+      },
+      {
+        "vus": 10,
+        "repetitions": 3,
+        "baseline": {
+          "medianP50Ms": 25.623571,
+          "medianP95Ms": 74.78708194999994,
+          "p95MsByRun": [
+            85.70741429999988,
+            74.78708194999994,
+            69.76294134999999
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "optimized": {
+          "medianP50Ms": 23.499800999999998,
+          "medianP95Ms": 69.0381906,
+          "p95MsByRun": [
+            69.0381906,
+            76.86359214999992,
+            68.47364309999998
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "changePercent": {
+          "medianP50": -8.288345133471054,
+          "medianP95": -7.6870111790742985
+        },
+        "optimizedMeasuredAttempted": 600,
+        "optimizedMeasuredUnexpected": 0
+      },
+      {
+        "vus": 20,
+        "repetitions": 3,
+        "baseline": {
+          "medianP50Ms": 80.38896349999999,
+          "medianP95Ms": 170.8473779,
+          "p95MsByRun": [
+            170.8473779,
+            95.78245005,
+            242.83706589999997
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "optimized": {
+          "medianP50Ms": 67.88528600000001,
+          "medianP95Ms": 136.55933035,
+          "p95MsByRun": [
+            157.9437409,
+            136.55933035,
+            118.376767
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "changePercent": {
+          "medianP50": -15.553972778862835,
+          "medianP95": -20.069402276732273
+        },
+        "optimizedMeasuredAttempted": 600,
+        "optimizedMeasuredUnexpected": 0
+      },
+      {
+        "vus": 40,
+        "repetitions": 3,
+        "baseline": {
+          "medianP50Ms": 182.6277875,
+          "medianP95Ms": 242.59017275,
+          "p95MsByRun": [
+            238.44475039999998,
+            242.59017275,
+            298.4248841999996
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "optimized": {
+          "medianP50Ms": 104.02042700000001,
+          "medianP95Ms": 205.89575749999997,
+          "p95MsByRun": [
+            201.99552255,
+            259.3125871,
+            205.89575749999997
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "changePercent": {
+          "medianP50": -43.04238778559368,
+          "medianP95": -15.126093045745614
+        },
+        "optimizedMeasuredAttempted": 600,
+        "optimizedMeasuredUnexpected": 0
+      },
+      {
+        "vus": 80,
+        "repetitions": 3,
+        "baseline": {
+          "medianP50Ms": 197.04548599999998,
+          "medianP95Ms": 396.28054125,
+          "p95MsByRun": [
+            345.1191209499991,
+            396.28054125,
+            506.6985968999996
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "optimized": {
+          "medianP50Ms": 200.51784700000002,
+          "medianP95Ms": 397.0990013,
+          "p95MsByRun": [
+            394.4125146,
+            397.0990013,
+            397.80244849999997
+          ],
+          "thresholdExceededRuns": 3
+        },
+        "changePercent": {
+          "medianP50": 1.762212913621397,
+          "medianP95": 0.20653551330538367
+        },
+        "optimizedMeasuredAttempted": 600,
+        "optimizedMeasuredUnexpected": 0
+      }
+    ]
+  },
+  "integrity": {
+    "expectedTimedResults": 2,
+    "completedTimedResults": 2,
+    "expectedFinalResults": 16,
+    "completedFinalResults": 16,
+    "optimizedMeasuredAttempted": 54807,
+    "optimizedMeasuredUnexpected": 0,
+    "optimizedSuccessfulWriteUsers": 3200
+  }
+}

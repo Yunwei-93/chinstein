@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P6",
+  "check": "leaderboard-rollup-and-write-allocation",
+  "databaseDate": "2026-09-20",
+  "users": 8100,
+  "studySessions": 1461400,
+  "scoreRows": 8100,
+  "scoredSessions": 1461400,
+  "driftedUsers": 0,
+  "allocation": {
+    "poolASessions": 3200,
+    "poolAUsers": 3200,
+    "isolatedSessions": 3000,
+    "isolatedUsers": 3000,
+    "mixedSessions": 200,
+    "mixedUsers": 200,
+    "otherPoolASessions": 0,
+    "poolBSessions": 200
+  },
+  "readOnlyTransaction": true,
+  "writesPerformed": false
+}

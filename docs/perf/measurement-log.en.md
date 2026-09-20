@@ -656,3 +656,54 @@ The implementation is frozen before source changes:
   before/after values remain in the report even if the optimization regresses them.
 
 - [Covering-index diagnostic summary](results/p6-covering-index-diagnostic-2026-09-20.summary.json)
+
+### P6 optimized retest result
+
+All 18 frozen results completed successfully: the isolated S4/S6 pair plus S7 and
+the fifteen S5 batches. The optimized evidence contains 54,807 measured requests,
+zero unexpected responses, no failed run event, and clean task exits.
+
+| Comparison | Baseline | Optimized | Change |
+| --- | ---: | ---: | ---: |
+| S4/5-VU p50 | 152.417 ms | 19.972 ms | -86.90% |
+| S4/5-VU p95 | 284.895 ms | 37.217 ms | -86.94% |
+| S4/5-VU throughput | 28.975/s | 195.850/s | +575.93% |
+| S6/5-VU p50 | 95.869 ms | 99.017 ms | +3.28% |
+| S6/5-VU p95 | 167.510 ms | 180.597 ms | +7.81% |
+| S6/5-VU throughput | 50.083/s | 44.925/s | -10.30% |
+| S7 mixed S4 p95 | 281.768 ms | 39.005 ms | -86.16% |
+| S7 mixed S5 p50 | 24.814 ms | 25.180 ms | +1.47% |
+| S7 mixed S5 p95 | 52.440 ms | 73.108 ms | +39.41% |
+
+The S4 result confirms the diagnosis. Replacing request-time aggregation of 1.46
+million session rows with the 8,100-row rollup reduced both isolated and mixed p95
+by about 86%, while the fixed-VU isolated run completed 6.76 times as many expected
+responses per second. The mixed two-minute window likewise completed 22,714 S4
+reads instead of 3,497. This is a change in algorithmic work, not an index-only or
+network effect.
+
+The costs are reported separately:
+
+- S6 p95 increased 7.81% and throughput fell 10.30%. The conflict path never
+  commits a rollup update, and only one exact confirmation repeat was pre-registered,
+  so this is retained as an observed regression without claiming a proven cause.
+- Mixed S5 p95 increased 39.41%, although p50 increased only 1.47%. The optimized
+  S7 read side also generated far more completed requests at the same five VUs, so
+  the write tail was observed under substantially higher realized read throughput.
+- Isolated S5 median p95 changed by -2.88%, -7.69%, -20.07%, -15.13%, and +0.21%
+  at 5/10/20/40/80 VUs. This does not show a consistent isolated-write regression.
+  One 5-VU optimized repetition reached 197.384 ms, and remains in the raw result.
+
+The database post-check matched the traffic contract exactly: 3,000 isolated S5
+users, 200 S7 users, no other Pool A user, and the existing 200 Pool B anchors.
+Authoritative `study_sessions` and summed rollup `session_count` both equal
+1,461,400. The full-outer-join comparison found zero drift in user IDs, total
+points, or session counts. The optimization is retained with the S6 and mixed-S5
+tail observations documented as limitations for the final report.
+
+Artifacts:
+
+- [Raw P6 result](results/p6-leaderboard-2026-09-20.raw.json)
+- [P6 comparison summary](results/p6-leaderboard-2026-09-20.summary.json)
+- [P6 database post-check](results/p6-leaderboard-2026-09-20.postcheck.json)
+- [P6 environment manifest](results/p6-leaderboard-2026-09-20.manifest.json)

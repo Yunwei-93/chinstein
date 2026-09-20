@@ -1021,6 +1021,36 @@ favorable or unfavorable; they do not authorize changing a frozen threshold.
 
 - [Covering-index diagnostic summary](results/p6-covering-index-diagnostic-2026-09-20.summary.json)
 
+### PERF-P6 measured result
+
+The optimized retest completed all 18 expected results and 54,807 measured requests
+with zero unexpected responses. At the frozen isolated S4/5-VU point, p50 changed
+from 152.417 ms to 19.972 ms, p95 changed from 284.895 ms to 37.217 ms, and completed
+throughput changed from 28.975 to 195.850 responses per second. The same benefit
+survived S7: mixed S4 p95 changed from 281.768 ms to 39.005 ms while measured reads
+in the fixed two-minute window increased from 3,497 to 22,714.
+
+The write-side evidence is retained with the benefit. S6/5-VU p95 changed from
+167.510 ms to 180.597 ms and throughput changed from 50.083 to 44.925 responses per
+second. Mixed S5 p95 changed from 52.440 ms to 73.108 ms while p50 changed only from
+24.814 ms to 25.180 ms. Across the isolated three-run S5 envelope, median p95 changed
+by -2.88%, -7.69%, -20.07%, -15.13%, and +0.21% at 5/10/20/40/80 VUs. One optimized
+5-VU repetition reached 197.384 ms, so the full run-level evidence remains visible
+instead of being hidden by the median.
+
+The post-check proved exactly 3,200 Pool A writes, zero unallocated Pool A writes,
+1,461,400 authoritative sessions, 1,461,400 rollup sessions, and zero drift across
+user IDs, total points, and session counts. The optimization is retained for the
+final report because the primary isolated and mixed S4 improvement is repeatable
+and order-of-magnitude, the isolated S5 medians show no consistent regression, and
+all correctness gates passed. The observed S6 and mixed-S5 tail costs remain an
+explicit limitation rather than being averaged away.
+
+- [Raw P6 result](results/p6-leaderboard-2026-09-20.raw.json)
+- [P6 comparison summary](results/p6-leaderboard-2026-09-20.summary.json)
+- [P6 database post-check](results/p6-leaderboard-2026-09-20.postcheck.json)
+- [P6 environment manifest](results/p6-leaderboard-2026-09-20.manifest.json)
+
 PERF-P7 publishes valid and invalid runs, raw environment fingerprints, derived
 thresholds, achieved throughput, error classifications, resource observations,
 provider usage and cost, and any limitations. Staging cleanup occurs only after the
