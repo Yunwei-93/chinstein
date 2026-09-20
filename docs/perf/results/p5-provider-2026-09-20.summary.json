@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P5",
+  "classification": "accepted",
+  "target": {
+    "sequence": 277,
+    "id": 277,
+    "character": "楼"
+  },
+  "concurrentBatch": {
+    "requests": 5,
+    "successfulResponses": 5,
+    "storyResponses": 1,
+    "fallbackResponses": 4,
+    "minimumDurationMs": 245.405084,
+    "maximumDurationMs": 1623.1507920000001,
+    "requestDurationsMs": [
+      1623.1507920000001,
+      322.37725,
+      245.405084,
+      330.5799159999999,
+      325.548125
+    ]
+  },
+  "persistedState": {
+    "status": "ready",
+    "source": "claude",
+    "attempts": 1,
+    "storyPresent": true
+  },
+  "cacheHit": {
+    "status": 200,
+    "durationMs": 37.74545799999987,
+    "storyPresent": true,
+    "attemptsAfterCache": 1
+  },
+  "providerUsageDelta": {
+    "requests": 1,
+    "successfulRequests": 1,
+    "inputTokens": 342,
+    "outputTokens": 69,
+    "providerReportedLatencyMs": 1170,
+    "estimatedCostUsd": 0.000687
+  },
+  "automaticRecharge": "disabled",
+  "cloudWatch": {
+    "observedEvents": 0,
+    "generationFailureEvents": 0,
+    "unusableResponseEvents": 0,
+    "applicationErrorEvents": 0,
+    "rawMessagesRetained": false
+  },
+  "cleanup": {
+    "apiDesired": 0,
+    "apiRunning": 0,
+    "apiPending": 0,
+    "targetedRowsRestored": 1,
+    "canonicalSourceRestored": true,
+    "repeatSeedCommitted": true,
+    "repeatSeedPostCommitVerified": true,
+    "studySessions": 1458200,
+    "poolACurrentDateSessions": 0,
+    "poolBCurrentDateSessions": 200
+  },
+  "acceptance": {
+    "allLiveResponsesSuccessful": true,
+    "exactlyOneClaim": true,
+    "oneWinnerFourFallbacksObserved": true,
+    "exactlyOneProviderRequestRecorded": true,
+    "cacheDidNotIncreaseAttempts": true,
+    "costUnderOneCent": true,
+    "noApplicationErrorEvent": true,
+    "cleanupVerified": true
+  }
+}

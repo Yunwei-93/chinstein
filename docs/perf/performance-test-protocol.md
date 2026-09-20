@@ -932,6 +932,42 @@ controlled behavior tests, not as live staging latency measurements. Finally, th
 API is drained and the verified repeat-seed procedure restores the canonical
 synthetic story and zero story attempts.
 
+### Verified PERF-P5 outcome
+
+The guarded live experiment ran exactly once on `2026-09-20`. All five concurrent
+requests returned `200`: one winner returned the generated story in 1,623.151 ms,
+while four losing requests returned the approved null-story fallback in
+245.405-330.580 ms. The database recorded exactly one attempt and persisted the
+target as `ready` with source `claude`. A later cache hit returned the stored story
+in 37.745 ms without increasing the attempt count.
+
+The provider console recorded one successful request, 342 input tokens, 69 output
+tokens, and 1.17 seconds of provider-reported latency. The frozen pricing formula
+produces an estimated cost of `$0.000687`, below the `$0.01` limit, and automatic
+recharge remained disabled. The controlled behavior suite passed 17/17 tests; its
+deadline, rate-limit, and provider-error cases remain simulated evidence rather than
+live staging failures.
+
+The bounded CloudWatch lookup returned no matching events. It therefore found no
+captured generation-failure or application-error event, but it is not treated as
+proof of complete request-log coverage. The independent live-response, database,
+cache, and provider-console evidence is mutually consistent. PERF-P5 is classified
+as `accepted`.
+
+Cleanup drained staging to zero desired, running, and pending tasks. The initial
+generic repeat seed safely stopped before writing because the P5 target was no
+longer synthetic. A guarded bridge restore matched the exact accepted P5 row and
+fingerprint, restored one row, and verified `approved-perf-source` through a fresh
+connection. The complete repeat-seed dry-run then rolled back with restoration
+verified, followed by a confirmed commit and independent post-commit verification.
+The canonical result contains 1,458,200 sessions, zero current-date Pool A rows,
+and 200 current-date Pool B rows.
+
+- [Raw P5 result](results/p5-provider-2026-09-20.raw.json)
+- [P5 summary](results/p5-provider-2026-09-20.summary.json)
+- [P5 database post-check](results/p5-provider-2026-09-20.postcheck.json)
+- [P5 environment manifest](results/p5-provider-2026-09-20.manifest.json)
+
 ## Optimization and reporting rule
 
 PERF-P6 changes at most one independently attributable variable at a time. A query,

@@ -1,0 +1,33 @@
+{
+  "check": "p5-provider-postcheck",
+  "environment": {
+    "hostFingerprint": "777c6ca41572",
+    "database": "neondb",
+    "current_date": "2026-09-20",
+    "wall_date": "2026-09-20",
+    "timezone": "GMT",
+    "server_version": "18.6 (6569466)",
+    "in_recovery": false
+  },
+  "users": 8100,
+  "studySessions": 1458200,
+  "characters": 365,
+  "readyStories": 365,
+  "generatingStories": 0,
+  "claudeStories": 1,
+  "storyAttempts": 1,
+  "target": {
+    "sequence": 277,
+    "id": 277,
+    "character": "楼",
+    "storyPresent": true,
+    "storyFingerprint": "53d1501aec5f",
+    "status": "ready",
+    "source": "claude",
+    "attempts": 1,
+    "startedAt": null
+  },
+  "readOnly": true,
+  "writesPerformed": false,
+  "storyTextReturned": false
+}

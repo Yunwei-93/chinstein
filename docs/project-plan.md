@@ -172,7 +172,7 @@ different system and make the result difficult to explain.
 | PERF-P2 | Complete: accepted single-request and low-concurrency baselines |
 | PERF-P3 | Complete: confirmed endpoint capacity ladders, S7 mixed load, and the finite S5 write envelope |
 | PERF-P4 | Complete: stable 30-minute S4 soak at 5 VUs with zero unexpected responses |
-| PERF-P5 | In progress: run one pre-registered low-volume live generation and controlled failure checks |
+| PERF-P5 | Complete: one accepted live provider claim, cache verification, controlled failure checks, and verified fixture restoration |
 | PERF-P6 | Choose optimizations only from measured evidence and then repeat the same scenarios |
 | PERF-P7 | Publish the report and clean up staging resources after the final acceptance gate |
 
@@ -183,7 +183,7 @@ Main benchmark invariant:
 Estimated remaining time:
 
 - PERF-P2 baseline: complete;
-- remaining PERF-P5 through PERF-P7 work: retain the original phase estimates and
+- remaining PERF-P6 through PERF-P7 work: retain the original phase estimates and
   schedule each cloud run only after its pre-run evidence is captured.
 
 ## Safety and cost boundaries

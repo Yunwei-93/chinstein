@@ -547,3 +547,46 @@ Recorded before changing the dedicated staging character or sending a P5 request
   Organization-wide usage was zero input tokens, zero output tokens, and $0.00;
   therefore the staging key also had zero usage. Automatic recharge was separately
   confirmed disabled.
+
+### P5 live-provider result
+
+- The guarded experiment ran once from `2026-09-20T14:20:51.532Z` through
+  `14:20:54.058Z`. Five authenticated requests were released concurrently with no
+  retry; all five returned `200`.
+- Exactly one response contained the generated story and completed in 1,623.151 ms.
+  The other four returned the approved null-story fallback in 245.405-330.580 ms.
+- The database is the authoritative concurrency result: the target character became
+  `ready` with source `claude`, exactly one attempt, no claim timestamp, and retained
+  story fingerprint `53d1501aec5f`.
+- The subsequent cache hit returned `200` with the story in 37.745 ms and left the
+  attempt count at one.
+- The provider console recorded exactly one successful request: 342 input tokens,
+  69 output tokens, and 1.17 seconds of provider-reported latency. Under the frozen
+  pricing formula, the measured cost was `$0.000687`, below the `$0.01` budget;
+  automatic recharge remained disabled.
+- The bounded CloudWatch query returned zero matching application events. It found
+  no generation-failure, unusable-response, or application-error event, but because
+  it also returned no ordinary event, this is retained as incomplete request-log
+  coverage rather than proof of complete logging.
+- The controlled suite passed 17/17 tests without a real provider call. It covers
+  deterministic losing-request fallback plus injected deadline, rate-limit, and
+  provider-error behavior; those cases are not described as live staging failures.
+- Classification: `accepted`. Live response, database, cache, and provider-console
+  evidence agree on one provider claim and one persisted result.
+- Cleanup is complete. Staging was drained to zero desired, running, and pending
+  tasks. The first generic repeat-seed attempt stopped before writing because the
+  one P5 target correctly failed the all-synthetic ownership gate. A guarded bridge
+  restore then matched the exact accepted sequence, character, state, source,
+  attempt count, and story fingerprint; it restored exactly one row and verified
+  `approved-perf-source` through a fresh connection.
+- The full repeat-seed dry-run subsequently rolled back and verified restoration.
+  The committed repeat seed then completed with confirmed commit and independent
+  post-commit verification: 1,458,200 sessions, 1,458,000 historical sessions,
+  zero current-date Pool A rows, and 200 current-date Pool B rows.
+
+Artifacts:
+
+- [Raw P5 result](results/p5-provider-2026-09-20.raw.json)
+- [P5 summary](results/p5-provider-2026-09-20.summary.json)
+- [P5 database post-check](results/p5-provider-2026-09-20.postcheck.json)
+- [P5 environment manifest](results/p5-provider-2026-09-20.manifest.json)
