@@ -370,3 +370,57 @@ smallest attributable experiment rather than add more harness infrastructure.
   is required first because successful-write users must have no current-date session.
 - PERF-P6 must reuse this exact S7 mixture and S5 ladder so baseline and retest remain
   directly comparable.
+
+### Final P3 fixture reset
+
+- Database date: `2026-09-20`; all write work began outside the frozen UTC-midnight
+  exclusion window.
+- The staging API was drained to zero desired, running, and pending tasks before
+  either write transaction.
+- The rollback rehearsal accepted only `approved-perf-source`, rebuilt and verified
+  the complete fixture, then reported `committed: false`, `rolledBack: true`, and
+  `restorationVerified: true`.
+- The committed repeat seed reported `committed: true`, `commitOutcome: confirmed`,
+  and `postCommitVerified: true`. A fresh read-only connection verified both the
+  target identity and snapshot.
+- The new approved source contains 8,100 users, 365 characters, and 1,458,200
+  sessions: 1,458,000 historical rows, zero current-date Pool A rows, and 200
+  current-date Pool B rows. The current daily character is sequence 277.
+- The final load-generator image is source commit
+  `b970014477a6e861530c26e9c91aebf24b62e7ef` at immutable digest
+  `sha256:7d85d80ed4a3e19bc8c184aef9a8e1b230d9433c83cad5dc8c79975648d12d4f`.
+
+### P3 mixed and finite-write completion
+
+- The final task ran from `2026-09-20T02:06:35Z` through `02:10:09Z`, returned
+  all 16 expected results, produced no failed-run event, and exited with code 0.
+- S7 produced 3,497 measured S4 reads plus 200 successful S5 writes. Both paths
+  had zero unexpected responses, and the write executor dropped zero iterations.
+- Mixed S4 p50/p95 were 153.990/281.768 ms. Its isolated confirmed 5-VU p95 was
+  284.895 ms, so the pre-registered write mixture changed read p95 by -1.10% and
+  did not push S4 past its 350 ms limit.
+- Mixed S5 p50/p95 were 24.814/52.440 ms. All 200 writes succeeded, but its p95
+  was 2.440 ms above the frozen 50 ms target. The one mixed threshold event is
+  therefore a measured write-tail result, not a harness or integrity failure.
+
+| S5 VUs | Median p50 | Median p95 | Median batch time | Runs over 50 ms p95 |
+| ---: | ---: | ---: | ---: | ---: |
+| 5 | 18.440 ms | 46.526 ms | 922.552 ms | 0/3 |
+| 10 | 25.624 ms | 74.787 ms | 834.992 ms | 3/3 |
+| 20 | 80.389 ms | 170.847 ms | 843.954 ms | 3/3 |
+| 40 | 182.628 ms | 242.590 ms | 1,047.558 ms | 3/3 |
+| 80 | 197.045 ms | 396.281 ms | 934.105 ms | 3/3 |
+
+The isolated write envelope therefore passes at 5 VUs and crosses the frozen p95
+target between 5 and 10 VUs. Across S7 and all fifteen isolated write runs, 3,200
+distinct Pool A users wrote successfully and no unexpected response occurred.
+
+The read-only post-check found exactly 200 mixed-allocation rows, 3,000 isolated-
+allocation rows, zero other Pool A rows, and 200 Pool B rows on database date
+`2026-09-20`. Total sessions were exactly 1,461,400; uniqueness, fixture dates,
+and canonical-row checks all passed.
+
+- [Final P3 raw results](results/p3-final-2026-09-20.raw.json)
+- [Final P3 summary](results/p3-final-2026-09-20.summary.json)
+- [Final P3 database post-check](results/p3-final-2026-09-20.postcheck.json)
+- [Final P3 manifest](results/p3-final-2026-09-20.manifest.json)

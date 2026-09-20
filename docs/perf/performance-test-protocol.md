@@ -1,13 +1,13 @@
 # Chinstein Performance Test Protocol
 
-Last updated: 2026-09-18
+Last updated: 2026-09-20
 
-Status: PERF-P0 frozen and PERF-P1 complete. Both the initial seed and the
+Status: PERF-P0 through PERF-P3 complete. Both the initial seed and the
 mapped-fixture repeat-seed passed full rollback and confirmed-commit execution
 against `aws-staging`; the final replacement passed fresh guarded read-only
-verification. ECS staging was restored to 1 desired, 1 running, and 0 pending
-tasks for acceptance, then intentionally returned to 0 desired, 0 running, and 0
-pending tasks after closeout to control pause-period cost. PERF-P2 has not run yet.
+verification. PERF-P2 preserved the accepted low-concurrency baseline. PERF-P3
+preserved the initial and confirmation capacity ladders, the S7 mixed run, and the
+finite S5 write envelope with zero unexpected response. PERF-P4 is next.
 The first eighteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
@@ -341,8 +341,8 @@ never added to the application migration.
 | PERF-P6 | Select at most one evidence-backed optimization and repeat the protocol | 3-8 hours |
 | PERF-P7 | Publish the report, complete acceptance, and clean up staging | 1-2 hours |
 
-The original PERF-P2 through PERF-P7 estimate was 9-20 hours. PERF-P2 is now
-complete; PERF-P3 through PERF-P7 remain. If the measurements do not identify a
+The original PERF-P2 through PERF-P7 estimate was 9-20 hours. PERF-P2 and PERF-P3
+are now complete; PERF-P4 through PERF-P7 remain. If the measurements do not identify a
 credible bottleneck, PERF-P6 may conclude that no optimization is justified.
 
 ## Safety and experiment boundaries
@@ -791,6 +791,27 @@ share one token fixture and one Fargate task. PERF-P6 must reuse these numeric v
 rather than recalculating a more favorable mix. Login and registration are excluded
 so the experiment focuses on database-pool contention rather than bcrypt or IP
 limiting.
+
+### Verified PERF-P3 outcome
+
+The timed ladder and confirmation evidence contained 962,393 measured requests and
+zero unexpected responses. The confirmed capacity intervals were S0 at 2-5 VUs,
+S2 at 5-10, S3 below 5 and not localized, S4 at 5-10, S6 below 5 and not localized,
+and S1 at 1-2.
+
+The final S7 and isolated-write task completed 16 of 16 results with no failed run.
+S7 issued 3,497 measured S4 reads and 200 successful S5 writes with zero unexpected
+responses or dropped write iterations. S4 p95 was 281.768 ms, compared with
+284.895 ms in its isolated 5-VU confirmation (-1.10%), so this frozen write mixture
+did not measurably worsen leaderboard tail latency. Mixed S5 p95 was 52.440 ms,
+slightly above its frozen 50 ms target.
+
+The isolated S5 median p95 values across three 200-write repetitions were 46.526,
+74.787, 170.847, 242.590, and 396.281 ms at 5, 10, 20, 40, and 80 VUs. All three
+5-VU runs passed; all twelve runs at 10-80 VUs exceeded 50 ms. The write-envelope
+boundary is therefore between 5 and 10 VUs. The read-only database post-check found
+exactly 3,200 distinct current-date Pool A sessions in their pre-registered ranges,
+200 Pool B sessions, 1,461,400 total sessions, and no invalid or duplicate row.
 
 ## Error budget and k6 behavior
 

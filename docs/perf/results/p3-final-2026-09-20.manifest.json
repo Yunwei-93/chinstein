@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P3",
+  "runKind": "final-mixed-and-write",
+  "collectedAt": "2026-09-20T02:29:21Z",
+  "task": {
+    "taskArn": "arn:aws:ecs:us-east-2:959579700143:task/default/e93bb37f06c5491993a8a00e457ab90d",
+    "taskDefinitionArn": "arn:aws:ecs:us-east-2:959579700143:task-definition/chinstein-p3-loadgen:4",
+    "lastStatus": "STOPPED",
+    "stopCode": "EssentialContainerExited",
+    "stoppedReason": "Essential container in task exited",
+    "startedAt": "2026-09-19T22:06:35.792000-04:00",
+    "stoppedAt": "2026-09-19T22:10:35.692000-04:00",
+    "containerExitCode": 0
+  },
+  "logGroup": "/ecs/chinstein-p3-loadgen",
+  "logStream": "p3/load-generator/e93bb37f06c5491993a8a00e457ab90d",
+  "loadGenerator": {
+    "taskDefinition": "chinstein-p3-loadgen:4",
+    "sourceCommit": "b970014477a6e861530c26e9c91aebf24b62e7ef",
+    "imageDigest": "sha256:7d85d80ed4a3e19bc8c184aef9a8e1b230d9433c83cad5dc8c79975648d12d4f"
+  },
+  "application": {
+    "taskDefinition": "default-chinstein-api-staging:7",
+    "sourceCommit": "b33785f19178",
+    "imageDigest": "sha256:3136ff4c5a3dae72ef852d3fdb707ac6e64022432c2578c95e6de95ff6c89349"
+  },
+  "execution": {
+    "expectedResults": 16,
+    "completedResults": 16,
+    "failedRunEvents": 0,
+    "mixedThresholdEvents": 1,
+    "writeThresholdEvents": 12,
+    "totalSuccessfulWriteUsers": 3200,
+    "totalUnexpected": 0
+  },
+  "databasePostcheck": {
+    "check": "p3-final-postcheck",
+    "environment": {
+      "hostFingerprint": "777c6ca41572",
+      "database": "neondb",
+      "current_date": "2026-09-20",
+      "wall_date": "2026-09-20",
+      "timezone": "GMT",
+      "server_version": "18.6 (6569466)",
+      "in_recovery": false
+    },
+    "source": {
+      "classification": "approved-perf-source",
+      "mappingState": "present",
+      "sourceSeedDate": "2026-09-20",
+      "currentDate": "2026-09-20",
+      "users": 8100,
+      "characters": 365,
+      "studySessions": 1461400,
+      "historicalSessions": 1458000,
+      "fixtureDateSessions": 3400,
+      "poolAFixtureDateSessions": 3200,
+      "poolBFixtureDateSessions": 200,
+      "sessionsOutsideDateRange": 0,
+      "invalidHistoricalSessions": 0,
+      "invalidReseedFixtureDateSessions": 0,
+      "sessionUserDateUnique": true
+    },
+    "allocation": {
+      "currentDateSessions": 3400,
+      "poolASessions": 3200,
+      "poolAUsers": 3200,
+      "isolatedSessions": 3000,
+      "isolatedUsers": 3000,
+      "mixedSessions": 200,
+      "mixedUsers": 200,
+      "otherPoolASessions": 0,
+      "poolBSessions": 200
+    },
+    "readOnlyTransactions": true,
+    "writesPerformed": false
+  },
+  "artifacts": {
+    "raw": "docs/perf/results/p3-final-2026-09-20.raw.json",
+    "summary": "docs/perf/results/p3-final-2026-09-20.summary.json",
+    "postcheck": "docs/perf/results/p3-final-2026-09-20.postcheck.json"
+  }
+}

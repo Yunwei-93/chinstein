@@ -1,6 +1,6 @@
 # Chinstein Project Plan
 
-Last updated: 2026-09-19
+Last updated: 2026-09-20
 
 This plan separates the production application from the AWS staging environment.
 Production remains on Vercel, Render, and Neon. Infrastructure, resilience, and
@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 and PERF-P1 complete. PERF-P2 completed on 2026-09-19: all 42 planned combinations finished, 222,689 requests were formally measured, no unexpected response occurred, the database date remained unchanged, and all 330 bounded S5 writes passed the post-check. The accepted artifacts and environment fingerprint are preserved under `docs/perf/results/` and in the measurement log. PERF-P3 is next; before it runs, the protocol adds 1-VU and 2-VU resolution to the S0/S4 diagnostic pair while keeping every threshold and failure rule frozen. |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 through PERF-P3 complete. P3 preserved 962,393 timed requests with zero unexpected responses, confirmed six conservative capacity boundaries, then completed S7 plus the isolated S5 envelope with 3,200 successful writes and zero unexpected responses. S7 left S4 p95 effectively unchanged (-1.10% versus its isolated 5-VU confirmation), while S5 crossed its 50 ms p95 target between 5 and 10 VUs. Accepted artifacts and environment fingerprints are under `docs/perf/results/`; PERF-P4 is next. |
 
 ## Evidence collected through A5
 
@@ -170,8 +170,8 @@ different system and make the result difficult to explain.
 | PERF-P0 | Freeze scenarios, data volume, concurrency, p50/p95 targets, throughput, and error budget |
 | PERF-P1 | Seed synthetic users and fixed-size synthetic stories; mark benchmark stories `ready` |
 | PERF-P2 | Complete: accepted single-request and low-concurrency baselines |
-| PERF-P3 | Next: run frozen endpoint ladders, including the pre-registered S0/S4 low-load points and confirmation rule |
-| PERF-P4 | Run a bounded stability/soak test while observing ECS, CloudWatch, and Neon |
+| PERF-P3 | Complete: confirmed endpoint capacity ladders, S7 mixed load, and the finite S5 write envelope |
+| PERF-P4 | Next: run a bounded stability/soak test while observing ECS, CloudWatch, and Neon |
 | PERF-P5 | Separately test one cold generation, concurrent claim suppression, timeout, rate limiting, and fallback |
 | PERF-P6 | Choose optimizations only from measured evidence and then repeat the same scenarios |
 | PERF-P7 | Publish the report and clean up staging resources after the final acceptance gate |
@@ -183,7 +183,7 @@ Main benchmark invariant:
 Estimated remaining time:
 
 - PERF-P2 baseline: complete;
-- remaining PERF-P3 through PERF-P7 work: retain the original phase estimates and
+- remaining PERF-P4 through PERF-P7 work: retain the original phase estimates and
   schedule each cloud run only after its pre-run evidence is captured.
 
 ## Safety and cost boundaries
