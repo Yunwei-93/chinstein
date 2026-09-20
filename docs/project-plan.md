@@ -171,7 +171,7 @@ different system and make the result difficult to explain.
 | PERF-P1 | Seed synthetic users and fixed-size synthetic stories; mark benchmark stories `ready` |
 | PERF-P2 | Complete: accepted single-request and low-concurrency baselines |
 | PERF-P3 | Complete: confirmed endpoint capacity ladders, S7 mixed load, and the finite S5 write envelope |
-| PERF-P4 | Next: run a bounded stability/soak test while observing ECS, CloudWatch, and Neon |
+| PERF-P4 | In progress: run the pre-registered 30-minute S4 stability soak at 5 VUs |
 | PERF-P5 | Separately test one cold generation, concurrent claim suppression, timeout, rate limiting, and fallback |
 | PERF-P6 | Choose optimizations only from measured evidence and then repeat the same scenarios |
 | PERF-P7 | Publish the report and clean up staging resources after the final acceptance gate |

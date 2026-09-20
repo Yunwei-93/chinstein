@@ -828,10 +828,30 @@ exactly 3,200 distinct current-date Pool A sessions in their pre-registered rang
 
 ## Soak and external-provider separation
 
-PERF-P4 uses the frozen core dataset for a 30-minute bounded soak while observing
-ECS task count, CPU and memory, CloudWatch errors, Neon connections and utilization,
-latency drift, and provider usage. The exact load is selected from the valid P3
-sustainable point and then frozen for any PERF-P6 comparison.
+PERF-P4 uses the frozen core dataset for one 30-minute bounded S4 leaderboard soak
+at 5 constant VUs, the highest confirmed passing S4 level from PERF-P3. A 30-second
+warm-up is excluded from measurement. The measured interval is divided in advance
+into three consecutive 10-minute windows named opening, middle, and closing.
+
+The existing S4 p95 limit of 350 ms and below-1% unexpected-response budget apply
+to the overall interval and to every window. The stability comparison also requires
+closing-window p95 to be no more than 1.25 times opening-window p95 and closing
+throughput to retain at least 80% of opening throughput. These drift rules are frozen
+before the first PERF-P4 request and must be reused for any PERF-P6 comparison.
+
+The task ARN, immutable load-generator and API image digests, source commits, task
+definitions, database date, and run timestamps are retained. ECS desired/running/
+pending count, task replacement or restart, CloudWatch application errors, and ECS
+CPU and memory are observed over the same interval. CPU or memory at or above 80%
+for a sustained interval is diagnostic evidence, not a retroactive latency failure
+rule. Neon connections and utilization are recorded when the available staging
+telemetry exposes them; any missing historical telemetry is documented rather than
+reconstructed.
+
+S4 reads only already-`ready` synthetic stories, so the expected provider-attempt
+delta and Anthropic call count are both zero. A read-only post-check confirms the
+database date and unchanged core row counts. No write fixture reset is required for
+this read-only soak.
 
 PERF-P5 is separate. It uses one dedicated staging character, one concurrent cold
 request batch, and no load-tool retry. The planned provider budget is one claimed

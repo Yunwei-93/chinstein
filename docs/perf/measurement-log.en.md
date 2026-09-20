@@ -424,3 +424,30 @@ and canonical-row checks all passed.
 - [Final P3 summary](results/p3-final-2026-09-20.summary.json)
 - [Final P3 database post-check](results/p3-final-2026-09-20.postcheck.json)
 - [Final P3 manifest](results/p3-final-2026-09-20.manifest.json)
+
+## 2026-09-20 — Pre-registered P4 bounded soak
+
+Recorded after PERF-P3 acceptance and before any PERF-P4 request:
+
+- Purpose: test whether the confirmed S4 sustainable point remains stable over time,
+  without adding another broad capacity sweep.
+- Workload: S4 leaderboard only, 5 constant VUs, 30 seconds of excluded warm-up,
+  followed by 30 measured minutes.
+- Windows: the measured interval is frozen as three consecutive 10-minute windows:
+  opening, middle, and closing.
+- Latency and errors: S4 p95 must remain at or below the existing 350 ms limit in
+  every window and overall; unexpected responses must remain below 1%.
+- Drift: closing p95 may be at most 1.25 times opening p95, and closing throughput
+  must retain at least 80% of opening throughput.
+- Environment evidence: retain task ARN, task definitions, immutable API and
+  load-generator image digests, source commits, database date, and UTC start/end.
+- Operational evidence: record task replacement or restart, CloudWatch application
+  errors, ECS CPU and memory, plus Neon connection/utilization telemetry when
+  available. Sustained CPU or memory at or above 80% is diagnostic, not a new
+  pass/fail rule.
+- Data/provider invariant: the soak is read-only, core row counts must remain
+  unchanged, provider attempts and Anthropic calls must remain zero, and unavailable
+  historical telemetry must be reported as a limitation rather than inferred.
+
+This is the complete formal P4 workload. No additional scenario, repetition, or
+soak duration will be selected after seeing its result.
