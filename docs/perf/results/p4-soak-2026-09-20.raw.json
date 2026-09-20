@@ -1,0 +1,116 @@
+[
+  {
+    "label": "p4-S4-vu5-soak",
+    "phase": "P4",
+    "runKind": "soak",
+    "scenario": "S4",
+    "vus": 5,
+    "warmupSeconds": 30,
+    "measuredSeconds": 1800,
+    "p95ThresholdMs": 350,
+    "maximumP95GrowthRatio": 1.25,
+    "minimumThroughputRetentionRatio": 0.8,
+    "overall": {
+      "duration": {
+        "max": 818.967808,
+        "count": 54554,
+        "avg": 163.10697432490886,
+        "min": 97.693347,
+        "med": 148.7616175,
+        "p(95)": 274.20863169999996
+      },
+      "checks": {
+        "rate": 1,
+        "passes": 54554,
+        "fails": 0
+      },
+      "unexpectedRate": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 54554
+      },
+      "measuredAttempted": 54554,
+      "measuredExpected": 54554,
+      "measuredUnexpected": 0,
+      "unexpectedByCategory": {
+        "contract-error": 0,
+        "transport-error": 0,
+        "unauthorized": 0,
+        "unexpected-conflict": 0,
+        "rate-limited": 0,
+        "server-error": 0,
+        "unexpected-status": 0
+      }
+    },
+    "windows": [
+      {
+        "window": "opening",
+        "scenarioName": "p4_soak_opening",
+        "duration": {
+          "p(95)": 271.21565549999997,
+          "max": 713.229945,
+          "count": 18215,
+          "avg": 162.86068154987643,
+          "min": 100.712813,
+          "med": 148.815988
+        },
+        "unexpectedRate": {
+          "passes": 0,
+          "fails": 18215,
+          "rate": 0
+        },
+        "measuredAttempted": 18215,
+        "measuredExpected": 18215,
+        "measuredUnexpected": 0,
+        "completedExpectedPerSecond": 30.358333333333334
+      },
+      {
+        "window": "middle",
+        "scenarioName": "p4_soak_middle",
+        "duration": {
+          "p(95)": 274.72495675000005,
+          "max": 818.967808,
+          "count": 18266,
+          "avg": 162.40445857637332,
+          "min": 99.287945,
+          "med": 148.311469
+        },
+        "unexpectedRate": {
+          "rate": 0,
+          "passes": 0,
+          "fails": 18266
+        },
+        "measuredAttempted": 18266,
+        "measuredExpected": 18266,
+        "measuredUnexpected": 0,
+        "completedExpectedPerSecond": 30.44333333333333
+      },
+      {
+        "window": "closing",
+        "scenarioName": "p4_soak_closing",
+        "duration": {
+          "count": 18073,
+          "avg": 164.06522008155775,
+          "min": 97.693347,
+          "med": 149.147914,
+          "p(95)": 276.47576499999997,
+          "max": 812.035905
+        },
+        "unexpectedRate": {
+          "rate": 0,
+          "passes": 0,
+          "fails": 18073
+        },
+        "measuredAttempted": 18073,
+        "measuredExpected": 18073,
+        "measuredUnexpected": 0,
+        "completedExpectedPerSecond": 30.121666666666666
+      }
+    ],
+    "p95GrowthRatio": 1.0193945644114928,
+    "p95GrowthPercent": 1.9394564411492787,
+    "throughputRetentionRatio": 0.9922042272852044,
+    "throughputChangePercent": -0.779577271479559,
+    "stabilityFailed": false
+  }
+]

@@ -2,12 +2,14 @@
 
 Last updated: 2026-09-20
 
-Status: PERF-P0 through PERF-P3 complete. Both the initial seed and the
+Status: PERF-P0 through PERF-P4 complete. Both the initial seed and the
 mapped-fixture repeat-seed passed full rollback and confirmed-commit execution
 against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. PERF-P2 preserved the accepted low-concurrency baseline. PERF-P3
 preserved the initial and confirmation capacity ladders, the S7 mixed run, and the
-finite S5 write envelope with zero unexpected response. PERF-P4 is next.
+finite S5 write envelope with zero unexpected responses. PERF-P4 preserved an
+accepted 30-minute S4 soak with stable latency and throughput, zero unexpected
+responses, and no application-error event. PERF-P5 is next.
 The first eighteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
@@ -341,9 +343,10 @@ never added to the application migration.
 | PERF-P6 | Select at most one evidence-backed optimization and repeat the protocol | 3-8 hours |
 | PERF-P7 | Publish the report, complete acceptance, and clean up staging | 1-2 hours |
 
-The original PERF-P2 through PERF-P7 estimate was 9-20 hours. PERF-P2 and PERF-P3
-are now complete; PERF-P4 through PERF-P7 remain. If the measurements do not identify a
-credible bottleneck, PERF-P6 may conclude that no optimization is justified.
+The original PERF-P2 through PERF-P7 estimate was 9-20 hours. PERF-P2 through
+PERF-P4 are now complete; PERF-P5 through PERF-P7 remain. If the measurements do
+not identify a credible bottleneck, PERF-P6 may conclude that no optimization is
+justified.
 
 ## Safety and experiment boundaries
 
@@ -854,6 +857,40 @@ database date and unchanged core row counts. Although the soak itself is read-on
 one verified repeat seed is required after PERF-P3 because the token-fixture source
 contract requires zero current-date Pool A sessions. This reset restores the accepted
 1,458,200-session source; it does not change the frozen P4 workload or thresholds.
+
+### Verified PERF-P4 outcome
+
+The formal retry ran in one Fargate task from `2026-09-20T12:35:52Z` through
+`13:06:56Z` and exited with code `0`. The earlier rejected task remains diagnostic
+evidence only: it stopped before k6 and sent no benchmark request. The accepted
+retry produced 54,554 measured S4 responses, zero unexpected responses, zero
+threshold events, and zero application-error log events.
+
+| Window | p50 | p95 | Completed expected requests/s |
+| --- | ---: | ---: | ---: |
+| Opening | 148.816 ms | 271.216 ms | 30.358 |
+| Middle | 148.311 ms | 274.725 ms | 30.443 |
+| Closing | 149.148 ms | 276.476 ms | 30.122 |
+| Overall | 148.762 ms | 274.209 ms | 30.308 |
+
+Every window remained below the frozen 350 ms p95 threshold. Closing p95 was
+1.0194 times opening p95, a 1.94% increase against the maximum allowed 25%.
+Closing throughput retained 99.22% of opening throughput, a 0.78% decrease against
+the minimum required 80% retention. PERF-P4 is therefore classified as `stable`.
+
+Thirty-one ECS observations recorded average/maximum CPU of 7.78%/13.07% and
+average/maximum memory of 4.47%/4.59%; none of the average datapoints reached 80%.
+The read-only post-check retained database date `2026-09-20`, 1,458,200 sessions,
+zero current-date Pool A sessions, 200 current-date Pool B sessions, 365 ready
+stories, and zero story attempts. Historical Neon connection/utilization time
+series was unavailable through the staging CLI, so the report retains that as a
+limitation and records only the post-run snapshot of five database connections,
+one active connection, and a 901-connection maximum.
+
+- [Raw P4 result](results/p4-soak-2026-09-20.raw.json)
+- [Derived P4 summary](results/p4-soak-2026-09-20.summary.json)
+- [P4 database post-check](results/p4-soak-2026-09-20.postcheck.json)
+- [P4 environment manifest](results/p4-soak-2026-09-20.manifest.json)
 
 PERF-P5 is separate. It uses one dedicated staging character, one concurrent cold
 request batch, and no load-tool retry. The planned provider budget is one claimed

@@ -464,3 +464,44 @@ and no benchmark request. The token-fixture generator correctly rejected the
 is retained as a harness/precondition rejection, not a performance result. The retry
 uses the same image, S4/5-VU load, 30-minute duration, and frozen acceptance rules
 after the required verified repeat seed.
+
+### P4 bounded soak completion
+
+- The verified repeat seed restored the approved source before the retry: 8,100
+  users, 365 ready characters, 1,458,200 sessions, zero current-date Pool A rows,
+  200 current-date Pool B rows, and zero story attempts.
+- The accepted Fargate task `0e466d7301274f03bc52bfc5fa86214f` used task
+  definition `chinstein-p4-loadgen:1`, ran from `2026-09-20T12:35:52Z` through
+  `13:06:56Z`, returned its single expected result, and exited with code `0`.
+- The 30 measured minutes completed 54,554 expected S4 responses with zero
+  unexpected responses, zero threshold events, and zero API application-error
+  log events. Overall p50/p95 were 148.762/274.209 ms.
+
+| Window | p50 | p95 | Completed expected requests/s |
+| --- | ---: | ---: | ---: |
+| Opening | 148.816 ms | 271.216 ms | 30.358 |
+| Middle | 148.311 ms | 274.725 ms | 30.443 |
+| Closing | 149.148 ms | 276.476 ms | 30.122 |
+
+- Closing p95 grew 1.94% from opening, well inside the pre-registered 25% limit.
+  Closing throughput retained 99.22% of opening, above the required 80%.
+- Across 31 datapoints, ECS CPU averaged 7.78% and peaked at 13.07%; memory
+  averaged 4.47% and peaked at 4.59%. No average datapoint reached 80%.
+- The post-check found the database unchanged: date `2026-09-20`, 1,458,200
+  sessions, zero current-date Pool A rows, 200 Pool B rows, 365 ready stories, and
+  zero provider attempts.
+- Historical Neon connection/utilization time series was unavailable through the
+  staging CLI. The retained post-run snapshot showed five database connections,
+  one active connection, and a configured maximum of 901; this snapshot is not
+  presented as historical evidence.
+- Classification: `stable`. The 5-VU S4 workload showed no meaningful latency or
+  throughput degradation over the bounded 30-minute interval.
+- After evidence collection, the staging API was intentionally returned to zero
+  desired, zero running, and zero pending tasks.
+
+Artifacts:
+
+- [Raw P4 result](results/p4-soak-2026-09-20.raw.json)
+- [Derived P4 summary](results/p4-soak-2026-09-20.summary.json)
+- [P4 database post-check](results/p4-soak-2026-09-20.postcheck.json)
+- [P4 environment manifest](results/p4-soak-2026-09-20.manifest.json)

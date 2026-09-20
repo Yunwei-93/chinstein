@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 through PERF-P3 complete. P3 preserved 962,393 timed requests with zero unexpected responses, confirmed six conservative capacity boundaries, then completed S7 plus the isolated S5 envelope with 3,200 successful writes and zero unexpected responses. S7 left S4 p95 effectively unchanged (-1.10% versus its isolated 5-VU confirmation), while S5 crossed its 50 ms p95 target between 5 and 10 VUs. Accepted artifacts and environment fingerprints are under `docs/perf/results/`; PERF-P4 is next. |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 through PERF-P4 complete. P3 preserved 962,393 timed requests with zero unexpected responses, confirmed six conservative capacity boundaries, then completed S7 plus the isolated S5 envelope with 3,200 successful writes and zero unexpected responses. P4 completed a 30-minute S4 soak with 54,554 expected responses, zero unexpected responses, 1.94% p95 growth, 99.22% throughput retention, and low ECS utilization; it is classified as stable. Accepted artifacts and environment fingerprints are under `docs/perf/results/`; PERF-P5 is next. |
 
 ## Evidence collected through A5
 
@@ -171,8 +171,8 @@ different system and make the result difficult to explain.
 | PERF-P1 | Seed synthetic users and fixed-size synthetic stories; mark benchmark stories `ready` |
 | PERF-P2 | Complete: accepted single-request and low-concurrency baselines |
 | PERF-P3 | Complete: confirmed endpoint capacity ladders, S7 mixed load, and the finite S5 write envelope |
-| PERF-P4 | In progress: run the pre-registered 30-minute S4 stability soak at 5 VUs |
-| PERF-P5 | Separately test one cold generation, concurrent claim suppression, timeout, rate limiting, and fallback |
+| PERF-P4 | Complete: stable 30-minute S4 soak at 5 VUs with zero unexpected responses |
+| PERF-P5 | Next: separately test one cold generation, concurrent claim suppression, timeout, rate limiting, and fallback |
 | PERF-P6 | Choose optimizations only from measured evidence and then repeat the same scenarios |
 | PERF-P7 | Publish the report and clean up staging resources after the final acceptance gate |
 
@@ -183,7 +183,7 @@ Main benchmark invariant:
 Estimated remaining time:
 
 - PERF-P2 baseline: complete;
-- remaining PERF-P4 through PERF-P7 work: retain the original phase estimates and
+- remaining PERF-P5 through PERF-P7 work: retain the original phase estimates and
   schedule each cloud run only after its pre-run evidence is captured.
 
 ## Safety and cost boundaries

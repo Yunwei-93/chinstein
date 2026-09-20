@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P4",
+  "accepted": true,
+  "task": {
+    "id": "0e466d7301274f03bc52bfc5fa86214f",
+    "taskDefinition": "chinstein-p4-loadgen:1",
+    "startedAt": "2026-09-20T08:35:52.394000-04:00",
+    "stoppedAt": "2026-09-20T09:06:56.042000-04:00",
+    "exitCode": 0,
+    "launchType": "FARGATE",
+    "platformVersion": "1.4.0",
+    "logStream": "p4/load-generator/0e466d7301274f03bc52bfc5fa86214f"
+  },
+  "images": {
+    "api": {
+      "taskDefinition": "default-chinstein-api-staging:7",
+      "digest": "sha256:3136ff4c5a3dae72ef852d3fdb707ac6e64022432c2578c95e6de95ff6c89349",
+      "sourceCommit": "b33785f19178"
+    },
+    "loadGenerator": {
+      "taskDefinition": "chinstein-p4-loadgen:1",
+      "digest": "sha256:7f8f9dca39de81865f542d1863efc61bb56bc6edb2fa3bb6be36269984705c83",
+      "sourceCommit": "cfbe78d693e43100ed1f2d7d433d9743c15386be"
+    }
+  },
+  "apiServiceAfterRun": {
+    "status": "ACTIVE",
+    "desired": 1,
+    "running": 1,
+    "pending": 0
+  },
+  "databaseDateAfterRun": "2026-09-20",
+  "providerAttemptsAfterRun": 0,
+  "apiApplicationErrorLogEvents": 0,
+  "resourceTelemetry": {
+    "cpu": {
+      "available": true,
+      "datapoints": 31,
+      "averagePercent": 7.778118411980329,
+      "maximumPercent": 13.070101737976076,
+      "averageDatapointsAtOrAbove80Percent": 0
+    },
+    "memory": {
+      "available": true,
+      "datapoints": 31,
+      "averagePercent": 4.474336357526881,
+      "maximumPercent": 4.58984375,
+      "averageDatapointsAtOrAbove80Percent": 0
+    }
+  },
+  "limitations": [
+    "Historical Neon connection and utilization time series was not exposed by the available staging CLI; a read-only post-run connection snapshot is retained instead."
+  ]
+}
