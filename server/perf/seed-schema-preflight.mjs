@@ -1,6 +1,6 @@
 import { PerfSafetyError } from './staging-guard.mjs'
 
-const CORE_RELATIONS = ['characters', 'study_sessions', 'users']
+const CORE_RELATIONS = ['characters', 'leaderboard_scores', 'study_sessions', 'users']
 
 // Define only; this function is not called yet.
 // Verify the core objects are ordinary tables without hidden behavior.
@@ -198,6 +198,28 @@ export async function assertCoreColumns(client) {
                     'users',
                     'created_at',
                     'timestamp with time zone',
+                    FALSE,
+                    TRUE
+                ),
+
+                (
+                    'leaderboard_scores',
+                    'user_id',
+                    'integer',
+                    FALSE,
+                    FALSE
+                ),
+                (
+                    'leaderboard_scores',
+                    'total_points',
+                    'bigint',
+                    FALSE,
+                    TRUE
+                ),
+                (
+                    'leaderboard_scores',
+                    'session_count',
+                    'bigint',
                     FALSE,
                     TRUE
                 ),

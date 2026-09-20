@@ -9,12 +9,14 @@ import {
   createPerfMappings,
   assertPerfPasswordHash,
   createPerfUsers,
+  rebuildLeaderboardScores,
   seedHistoricalSessions,
   seedTodayConflictSessions,
   setSyntheticStories,
 } from './seed-operations.mjs'
 import {
   analyzeSeededTables,
+  verifyLeaderboardScores,
   verifySeededSessionQuality,
   verifySeededStructure,
   verifySeededUserDistribution,
@@ -112,11 +114,17 @@ export async function runRollbackSeedDryRun(client, { passwordHash: suppliedPass
     stage = 'seed-pool-b-sessions'
     const conflicts = await seedTodayConflictSessions(client, seedDate)
 
+    stage = 'rebuild-leaderboard-scores'
+    const leaderboardScores = await rebuildLeaderboardScores(client)
+
     stage = 'analyze-seeded-tables'
     const analysis = await analyzeSeededTables(client)
 
     stage = 'verify-seeded-structure'
     const structure = await verifySeededStructure(client, seedDate)
+
+    stage = 'verify-leaderboard-scores'
+    const leaderboard = await verifyLeaderboardScores(client)
 
     stage = 'verify-user-distribution'
     const distribution = await verifySeededUserDistribution(client, seedDate)
@@ -188,10 +196,12 @@ export async function runRollbackSeedDryRun(client, { passwordHash: suppliedPass
         stories,
         history,
         conflicts,
+        leaderboardScores,
         analysis,
       },
       verification: {
         structure,
+        leaderboard,
         distribution,
         sessionQuality,
         finalClock,

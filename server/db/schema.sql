@@ -85,3 +85,41 @@ CREATE TABLE IF NOT EXISTS study_sessions (
 
 CREATE INDEX IF NOT EXISTS idx_sessions_user_date
   ON study_sessions (user_id, studied_on DESC);
+
+CREATE TABLE IF NOT EXISTS leaderboard_scores (
+  user_id       INTEGER PRIMARY KEY
+                REFERENCES users(id) ON DELETE CASCADE,
+  total_points  BIGINT NOT NULL DEFAULT 0,
+  session_count BIGINT NOT NULL DEFAULT 0
+);
+
+COMMENT ON TABLE leaderboard_scores IS
+  'Transactionally maintained per-user rollup used by the leaderboard.';
+
+COMMENT ON COLUMN leaderboard_scores.session_count IS
+  'Distinguishes a zero-point studied user from a user with no sessions.';
+
+INSERT INTO leaderboard_scores AS scores (
+  user_id,
+  total_points,
+  session_count
+)
+SELECT
+  user_id,
+  SUM(points)::bigint,
+  COUNT(*)::bigint
+FROM study_sessions
+GROUP BY user_id
+ON CONFLICT (user_id) DO UPDATE
+SET
+  total_points = EXCLUDED.total_points,
+  session_count = EXCLUDED.session_count;
+
+DELETE FROM leaderboard_scores AS scores
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM study_sessions AS sessions
+  WHERE sessions.user_id = scores.user_id
+);
+
+ANALYZE leaderboard_scores;

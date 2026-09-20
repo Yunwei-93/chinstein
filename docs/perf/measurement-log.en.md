@@ -590,3 +590,42 @@ Artifacts:
 - [P5 summary](results/p5-provider-2026-09-20.summary.json)
 - [P5 database post-check](results/p5-provider-2026-09-20.postcheck.json)
 - [P5 environment manifest](results/p5-provider-2026-09-20.manifest.json)
+
+## 2026-09-20 — PERF-P6 diagnosis and optimization selection
+
+Before changing application or schema source, the exact S4 application query was
+captured with `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON)` against the restored
+1,458,200-session fixture. The first cold execution took 1,333.085 ms and the next
+execution took 512.469 ms. In both plans, nearly all time remained in the parallel
+sequential scan and aggregation of `study_sessions`; ranking and sorting 8,100
+aggregated users required only a few milliseconds.
+
+A reversible diagnostic transaction then compared three executions without an
+additional index against three executions after creating
+`study_sessions (user_id) INCLUDE (points)`. The index build took 892 ms. PostgreSQL
+selected the same parallel sequential scan in every indexed run and never used the
+covering index. Median execution changed from 451.352 ms to 443.119 ms, a 1.82%
+decrease that is retained as cache/run noise rather than an index benefit. The
+transaction was rolled back and a fresh connection confirmed the index was absent.
+
+The covering index is therefore rejected as the final optimization. It did not
+change the O(session rows) request-time aggregate. PERF-P6 selects one attributable
+architectural variable instead: replace request-time aggregation of 1.46 million
+session rows with a transactionally maintained `leaderboard_scores` rollup of about
+8,100 rows.
+
+The implementation is frozen before source changes:
+
+- `leaderboard_scores.user_id` is the primary key and foreign key to `users`;
+  `total_points` and `session_count` are `BIGINT` values.
+- Application session creation uses one data-modifying CTE so the session insert and
+  rollup upsert remain one atomic SQL statement. No database trigger or explicit
+  application transaction is introduced.
+- The seeder rebuilds the rollup once after bulk session insertion and analyzes the
+  new table before verification or measurement.
+- A full-outer-join drift check must prove exact agreement on user ID, total points,
+  and session count. Drift must be zero before and after cloud measurement.
+- Existing leaderboard response semantics and thresholds remain unchanged. P6
+  remeasures S4 and also repeats S5, S6, and S7 so any write-path cost is reported.
+
+- [Covering-index diagnostic summary](results/p6-covering-index-diagnostic-2026-09-20.summary.json)

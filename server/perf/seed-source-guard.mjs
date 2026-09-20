@@ -43,6 +43,7 @@ export async function lockApprovedSeedSource(client, dataset) {
       LOCK TABLE
         public.users,
         public.study_sessions,
+        public.leaderboard_scores,
         public.characters
       IN ACCESS EXCLUSIVE MODE
     `)
@@ -55,6 +56,7 @@ export async function lockApprovedSeedSource(client, dataset) {
       LOCK TABLE
         public.users,
         public.study_sessions,
+        public.leaderboard_scores,
         public.characters,
         public.perf_users,
         public.perf_characters

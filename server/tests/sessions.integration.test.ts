@@ -1,12 +1,5 @@
 import request from 'supertest'
-import {
-  afterAll,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { app } from '../src/app.js'
 import { pool } from '../src/db.js'
 
@@ -18,9 +11,7 @@ async function resetTestData() {
     throw new Error('Refusing to clear a database that is not the test database')
   }
 
-  await pool.query(
-    'TRUNCATE TABLE study_sessions, users, characters RESTART IDENTITY CASCADE',
-  )
+  await pool.query('TRUNCATE TABLE study_sessions, users, characters RESTART IDENTITY CASCADE')
 }
 
 async function seedCharacters() {
@@ -42,13 +33,11 @@ async function seedCharacters() {
 }
 
 async function registerTestUser(email: string) {
-  const response = await request(app)
-    .post('/api/auth/register')
-    .send({
-      name: 'Session Test User',
-      email,
-      password: 'test-password-123',
-    })
+  const response = await request(app).post('/api/auth/register').send({
+    name: 'Session Test User',
+    email,
+    password: 'test-password-123',
+  })
 
   expect(response.status).toBe(201)
 
@@ -69,6 +58,24 @@ async function getTodayCharacterId(token: string): Promise<number> {
   return response.body.id as number
 }
 
+async function getLeaderboardScore(userId: number) {
+  const result = await pool.query<{
+    total_points: number
+    session_count: number
+  }>(
+    `
+      SELECT
+        total_points::int,
+        session_count::int
+      FROM leaderboard_scores
+      WHERE user_id = $1
+    `,
+    [userId],
+  )
+
+  return result.rows[0] ?? null
+}
+
 describe('POST /api/sessions', () => {
   beforeEach(async () => {
     await resetTestData()
@@ -82,9 +89,7 @@ describe('POST /api/sessions', () => {
   })
 
   it("rejects a character that is not today's character", async () => {
-    const { token, userId } = await registerTestUser(
-      'session@example.com',
-    )
+    const { token, userId } = await registerTestUser('session@example.com')
 
     const todayCharacterId = await getTodayCharacterId(token)
 
@@ -131,9 +136,7 @@ describe('POST /api/sessions', () => {
   })
 
   it("accepts today's character and records the correct answer", async () => {
-    const { token, userId } = await registerTestUser(
-      'correct-session@example.com',
-    )
+    const { token, userId } = await registerTestUser('correct-session@example.com')
 
     const todayCharacterId = await getTodayCharacterId(token)
 
@@ -190,12 +193,15 @@ describe('POST /api/sessions', () => {
         points: 20,
       },
     ])
+
+    expect(await getLeaderboardScore(userId)).toEqual({
+      total_points: 20,
+      session_count: 1,
+    })
   })
 
   it('ignores client-supplied scoring and records an incorrect answer', async () => {
-    const { token, userId } = await registerTestUser(
-      'incorrect-session@example.com',
-    )
+    const { token, userId } = await registerTestUser('incorrect-session@example.com')
 
     const todayCharacterId = await getTodayCharacterId(token)
 
@@ -236,12 +242,15 @@ describe('POST /api/sessions', () => {
         points: 0,
       },
     ])
+
+    expect(await getLeaderboardScore(userId)).toEqual({
+      total_points: 0,
+      session_count: 1,
+    })
   })
 
   it('allows only one study session per user per day', async () => {
-    const { token, userId } = await registerTestUser(
-      'duplicate-session@example.com',
-    )
+    const { token, userId } = await registerTestUser('duplicate-session@example.com')
 
     const todayCharacterId = await getTodayCharacterId(token)
 
@@ -280,9 +289,7 @@ describe('POST /api/sessions', () => {
   })
 
   it('returns 404 when the character does not exist', async () => {
-    const { token, userId } = await registerTestUser(
-      'missing-character@example.com',
-    )
+    const { token, userId } = await registerTestUser('missing-character@example.com')
 
     const sessionResponse = await request(app)
       .post('/api/sessions')
@@ -311,9 +318,7 @@ describe('POST /api/sessions', () => {
   })
 
   it('allows only one concurrent study session per user per day', async () => {
-    const { token, userId } = await registerTestUser(
-      'concurrent-session@example.com',
-    )
+    const { token, userId } = await registerTestUser('concurrent-session@example.com')
 
     const todayCharacterId = await getTodayCharacterId(token)
     const characterResult = await pool.query<{ meaning: string }>(
@@ -327,19 +332,13 @@ describe('POST /api/sessions', () => {
     }
 
     const sendSession = () =>
-      request(app)
-        .post('/api/sessions')
-        .set('Authorization', `Bearer ${token}`)
-        .send(requestBody)
+      request(app).post('/api/sessions').set('Authorization', `Bearer ${token}`).send(requestBody)
 
-    const responses = await Promise.all([
-      sendSession(),
-      sendSession(),
-    ])
+    const responses = await Promise.all([sendSession(), sendSession()])
 
-    expect(responses.map(response => response.status).sort()).toEqual([201, 409])
+    expect(responses.map((response) => response.status).sort()).toEqual([201, 409])
 
-    const conflictResponse = responses.find(response => response.status === 409)
+    const conflictResponse = responses.find((response) => response.status === 409)
     expect(conflictResponse?.body).toEqual({
       error: 'Already studied today',
       code: 'ALREADY_STUDIED_TODAY',
@@ -360,21 +359,21 @@ describe('POST /api/sessions', () => {
       count: 1,
       points: 20,
     })
+
+    expect(await getLeaderboardScore(userId)).toEqual({
+      total_points: 20,
+      session_count: 1,
+    })
   })
 
   it('recovers a committed result after the original response is lost', async () => {
-    const { token, userId } = await registerTestUser(
-      'lost-response@example.com',
-    )
+    const { token, userId } = await registerTestUser('lost-response@example.com')
 
     const todayCharacterId = await getTodayCharacterId(token)
     const characterResult = await pool.query<{
       character: string
       meaning: string
-    }>(
-      'SELECT character, meaning FROM characters WHERE id = $1',
-      [todayCharacterId],
-    )
+    }>('SELECT character, meaning FROM characters WHERE id = $1', [todayCharacterId])
     const character = characterResult.rows[0]!
 
     const requestBody = {

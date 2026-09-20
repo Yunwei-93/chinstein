@@ -438,14 +438,75 @@ export async function verifySeededUserDistribution(client, seedDate) {
   }
 }
 
+// Prove that the leaderboard read model exactly matches its session source.
+export async function verifyLeaderboardScores(client) {
+  const result = await client.query(`
+    WITH session_totals AS (
+      SELECT
+        user_id,
+        SUM(points)::bigint AS total_points,
+        COUNT(*)::bigint AS session_count
+      FROM public.study_sessions
+      GROUP BY user_id
+    ),
+    drift AS (
+      SELECT COALESCE(source.user_id, scores.user_id) AS user_id
+      FROM session_totals AS source
+      FULL OUTER JOIN public.leaderboard_scores AS scores
+        ON scores.user_id = source.user_id
+      WHERE
+        source.user_id IS NULL
+        OR scores.user_id IS NULL
+        OR source.total_points IS DISTINCT FROM scores.total_points
+        OR source.session_count IS DISTINCT FROM scores.session_count
+    )
+    SELECT
+      (
+        SELECT COUNT(*) FROM public.leaderboard_scores
+      )::bigint AS score_rows,
+      (
+        SELECT COALESCE(SUM(session_count), 0)
+        FROM public.leaderboard_scores
+      )::bigint AS scored_sessions,
+      (
+        SELECT COUNT(*) FROM drift
+      )::bigint AS drifted_users
+  `)
+
+  const state = result.rows[0]
+  const scoreRows = Number(state.score_rows)
+  const scoredSessions = Number(state.scored_sessions)
+  const driftedUsers = Number(state.drifted_users)
+
+  if (
+    scoreRows !== TOTAL_USERS ||
+    scoredSessions !== HISTORICAL_SESSIONS + TODAY_SESSIONS ||
+    driftedUsers !== 0
+  ) {
+    throw new PerfSafetyError('Leaderboard score verification failed')
+  }
+
+  return {
+    scoreRows,
+    scoredSessions,
+    driftedUsers,
+  }
+}
+
 // Define only; this function is not called yet.
 // Refresh planner statistics after the complete dataset is seeded.
 export async function analyzeSeededTables(client) {
   await client.query('ANALYZE public.study_sessions')
+  await client.query('ANALYZE public.leaderboard_scores')
   await client.query('ANALYZE public.characters')
   await client.query('ANALYZE public.users')
 
   return {
-    tablesAnalyzed: ['public.study_sessions', 'public.characters', 'public.users'],
+    tablesAnalyzed: [
+      'public.study_sessions',
+      'public.leaderboard_scores',
+      'public.characters',
+      'public.users',
+    ],
   }
 }

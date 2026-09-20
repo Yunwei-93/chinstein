@@ -244,6 +244,34 @@ export async function seedTodayConflictSessions(client, seedDate) {
   }
 }
 
+// Rebuild the leaderboard read model after all fixture sessions are present.
+// The caller must already be inside the guarded seed transaction.
+export async function rebuildLeaderboardScores(client) {
+  await client.query('TRUNCATE TABLE public.leaderboard_scores')
+
+  const rebuilt = await client.query(`
+    INSERT INTO public.leaderboard_scores (
+      user_id,
+      total_points,
+      session_count
+    )
+    SELECT
+      user_id,
+      SUM(points)::bigint,
+      COUNT(*)::bigint
+    FROM public.study_sessions
+    GROUP BY user_id
+  `)
+
+  if (rebuilt.rowCount !== TOTAL_USERS) {
+    throw new PerfSafetyError('Unexpected leaderboard score count; the caller must roll back')
+  }
+
+  return {
+    usersRebuilt: rebuilt.rowCount,
+  }
+}
+
 // Define only; this function is not called yet.
 // The caller must verify staging, start a transaction,
 // prepare both mappings, and supply the database seed date.
@@ -469,6 +497,7 @@ export async function clearStagingDataset(client) {
         LOCK TABLE
             public.users,
             public.study_sessions,
+            public.leaderboard_scores,
             public.characters
         IN ACCESS EXCLUSIVE MODE
     `)
@@ -510,7 +539,7 @@ export async function clearStagingDataset(client) {
   )
 
   // Clear sessions without cascading to other tables or resetting IDs.
-  await client.query('TRUNCATE TABLE public.study_sessions')
+  await client.query('TRUNCATE TABLE public.study_sessions, public.leaderboard_scores')
 
   let mappedUsersDeleted = 0
 

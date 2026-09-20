@@ -112,6 +112,11 @@ export async function assertSeedPrivileges(client) {
                 ('public.study_sessions', 'TRUNCATE'),
                 ('public.study_sessions', 'MAINTAIN'),
 
+                ('public.leaderboard_scores', 'SELECT'),
+                ('public.leaderboard_scores', 'INSERT'),
+                ('public.leaderboard_scores', 'TRUNCATE'),
+                ('public.leaderboard_scores', 'MAINTAIN'),
+
                 ('public.characters', 'SELECT'),
                 ('public.characters', 'UPDATE'),
                 ('public.characters', 'REFERENCES'),

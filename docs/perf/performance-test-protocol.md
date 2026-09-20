@@ -975,6 +975,32 @@ pool, index, or cache change requires evidence from the frozen baseline, query p
 CloudWatch, Neon, or connection-wait observations. It is retested with the same
 scenario, logical data distribution, threshold formula, and frozen numeric load.
 
+### Pre-registered PERF-P6 leaderboard optimization
+
+The before-change S4 plan spends nearly all execution time scanning and aggregating
+1,458,200 `study_sessions` rows; ranking and sorting the resulting 8,100 users takes
+only a few milliseconds. A reversible covering-index diagnostic did not change the
+plan: all three indexed repetitions retained the parallel sequential scan, and the
+median changed only from 451.352 ms to 443.119 ms. The index was rolled back and is
+not an optimization candidate.
+
+PERF-P6 therefore changes one independently attributable variable: the leaderboard
+reads transactionally maintained per-user totals instead of aggregating every
+session on every request. The rollup stores a primary-keyed user ID, total points,
+and session count. Session creation maintains the session and rollup in one
+data-modifying SQL statement; database triggers are prohibited. Bulk fixture
+creation rebuilds the rollup once, analyzes it, and verifies zero drift against the
+authoritative session aggregate.
+
+Response shape, privacy masking, tie ranks, stable ordering, the unstudied-user null
+rank, thresholds, fixture distribution, API/container sizing, and load-generator
+settings remain frozen. S4 is the primary read comparison. S5, S6, and S7 are also
+repeated because maintaining the rollup touches the successful-write path and must
+not hide a write or conflict-path regression. All responses and the final rollup
+drift check are retained whether favorable or unfavorable.
+
+- [Covering-index diagnostic summary](results/p6-covering-index-diagnostic-2026-09-20.summary.json)
+
 PERF-P7 publishes valid and invalid runs, raw environment fingerprints, derived
 thresholds, achieved throughput, error classifications, resource observations,
 provider usage and cost, and any limitations. Staging cleanup occurs only after the

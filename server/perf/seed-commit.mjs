@@ -10,6 +10,7 @@ import {
   createPerfMappings,
   assertPerfPasswordHash,
   createPerfUsers,
+  rebuildLeaderboardScores,
   seedHistoricalSessions,
   seedTodayConflictSessions,
   setSyntheticStories,
@@ -17,6 +18,7 @@ import {
 
 import {
   analyzeSeededTables,
+  verifyLeaderboardScores,
   verifySeededSessionQuality,
   verifySeededStructure,
   verifySeededUserDistribution,
@@ -96,6 +98,9 @@ async function verifyCommittedSeedWithFreshConnection(seedDate, expectedDataset,
     stage = 'verify-post-commit-structure'
     const structure = await verifySeededStructure(client, seedDate)
 
+    stage = 'verify-post-commit-leaderboard-scores'
+    const leaderboard = await verifyLeaderboardScores(client)
+
     stage = 'verify-post-commit-distribution'
     const distribution = await verifySeededUserDistribution(client, seedDate)
 
@@ -128,6 +133,7 @@ async function verifyCommittedSeedWithFreshConnection(seedDate, expectedDataset,
       coreRelations,
       coreColumns,
       structure,
+      leaderboard,
       distribution,
       sessionQuality,
       approvedDataset,
@@ -193,11 +199,17 @@ async function buildAndVerifySeedInCurrentTransaction(client, seedDate, password
     stage = 'seed-pool-b-sessions'
     const conflicts = await seedTodayConflictSessions(client, seedDate)
 
+    stage = 'rebuild-leaderboard-scores'
+    const leaderboardScores = await rebuildLeaderboardScores(client)
+
     stage = 'analyze-seeded-tables'
     const analysis = await analyzeSeededTables(client)
 
     stage = 'verify-seeded-structure'
     const structure = await verifySeededStructure(client, seedDate)
+
+    stage = 'verify-leaderboard-scores'
+    const leaderboard = await verifyLeaderboardScores(client)
 
     stage = 'verify-user-distribution'
     const distribution = await verifySeededUserDistribution(client, seedDate)
@@ -220,10 +232,12 @@ async function buildAndVerifySeedInCurrentTransaction(client, seedDate, password
         stories,
         history,
         conflicts,
+        leaderboardScores,
         analysis,
       },
       verification: {
         structure,
+        leaderboard,
         distribution,
         sessionQuality,
         finalClock,

@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "phase": "PERF-P6",
+  "check": "reversible-covering-index-diagnostic",
+  "classification": "rejected-as-final-optimization",
+  "dataset": {
+    "studySessions": 1458200,
+    "users": 8100
+  },
+  "index": {
+    "definition": "CREATE INDEX ON study_sessions (user_id) INCLUDE (points)",
+    "buildDurationMs": 892,
+    "selectedByPlanner": false
+  },
+  "baseline": {
+    "executionTimesMs": [1056.724, 444.44, 451.352],
+    "medianExecutionTimeMs": 451.352,
+    "sessionAccess": "parallel sequential scan"
+  },
+  "coveringIndex": {
+    "executionTimesMs": [450.889, 429.469, 443.119],
+    "medianExecutionTimeMs": 443.119,
+    "sessionAccess": "parallel sequential scan"
+  },
+  "changePercent": -1.8240752228858954,
+  "interpretation": "The planner rejected the covering index and retained the same O(session rows) aggregate. The small timing change is not attributed to the index.",
+  "rollbackConfirmed": true,
+  "indexPresentAfterRun": false,
+  "committedWrites": false
+}
