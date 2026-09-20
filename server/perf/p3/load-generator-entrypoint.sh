@@ -25,7 +25,7 @@ if [ "$SUITE" = "timed" ] && [ "$RUN_KIND" = "confirmation" ] && [ -z "$LEVELS_O
 fi
 
 case "$SUITE" in
-  timed | write) ;;
+  timed | write | final) ;;
   *)
     echo "PERF_P3_INVALID_SUITE"
     exit 1
@@ -62,11 +62,30 @@ trap 'log_sweep_end 143' TERM
 
 echo "PERF_P3_SWEEP_STARTED $(date -u +%Y-%m-%dT%H:%M:%SZ) suite=${SUITE} run_kind=${RUN_KIND}"
 
-if [ "$SUITE" = "write" ]; then
+if [ "$SUITE" = "write" ] || [ "$SUITE" = "final" ]; then
   node /app/perf/p2/token-fixture-cli.mjs \
     --generate-token-fixture \
     --confirm-aws-staging \
     --confirm-private-output
+
+  if [ "$SUITE" = "final" ]; then
+    if k6 run /app/perf/p3/k6/mixed-run-runtime.js; then
+      :
+    else
+      run_exit_code="$?"
+
+      if [ "$run_exit_code" -eq 99 ]; then
+        echo "PERF_P3_MIXED_THRESHOLD S7"
+      else
+        echo "PERF_RUN_FAILED S7 mixed exit_code=${run_exit_code}"
+        RUN_FAILED=1
+
+        if [ "${PERF_P3_FAIL_FAST:-0}" = "1" ]; then
+          exit 1
+        fi
+      fi
+    fi
+  fi
 
   for repetition in 1 2 3; do
     for vus in 5 10 20 40 80; do

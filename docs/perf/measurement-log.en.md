@@ -350,3 +350,23 @@ throughput rule established earlier knees. No timed-capacity result was removed.
 - [Confirmation raw results](results/p3-confirmation-2026-09-19.raw.json)
 - [Confirmation database post-check](results/p3-confirmation-2026-09-19.postcheck.json)
 - [Confirmation manifest](results/p3-confirmation-2026-09-19.manifest.json)
+
+### Pre-registered P3 mixed and write workload
+
+The remaining P3 workload was frozen after the timed-capacity classification and
+before sending any S7 request. The purpose is to finish the assessment with the
+smallest attributable experiment rather than add more harness infrastructure.
+
+- S7 uses S4 leaderboard reads at 5 constant VUs: the highest confirmed passing
+  S4 level. It has 30 seconds of warm-up and 120 measured seconds.
+- The measured interval schedules exactly 200 S5 first writes at 100 per 60 seconds,
+  using only Pool A sequences 6901-7100. Five write VUs are preallocated and capped;
+  dropped iterations invalidate the mixed run.
+- The frozen p95 thresholds remain 350 ms for S4 and 50 ms for S5, with the existing
+  below-1% unexpected-response budget.
+- After S7, the existing isolated S5 ladder runs last at 5/10/20/40/80 VUs, three
+  200-write repetitions per level, using the disjoint 3000-user isolated allocation.
+- One token fixture and one Fargate task cover both workloads. A fresh repeat seed
+  is required first because successful-write users must have no current-date session.
+- PERF-P6 must reuse this exact S7 mixture and S5 ladder so baseline and retest remain
+  directly comparable.

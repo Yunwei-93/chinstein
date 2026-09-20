@@ -174,9 +174,12 @@ function validateScenarioPlan(plan) {
     if (scenario.id === 'S5') {
       const p2Range = POOL_A_ALLOCATIONS.p2WriteReserve
       const p3Range = POOL_A_ALLOCATIONS.baselineIsolated
+      const p3MixedRange = POOL_A_ALLOCATIONS.baselineMixed
       const sequenceIsApproved =
         (plan.userSequence >= p2Range.firstSeq && plan.userSequence <= p2Range.lastSeq) ||
-        (plan.userSequence >= p3Range.firstSeq && plan.userSequence <= p3Range.lastSeq)
+        (plan.userSequence >= p3Range.firstSeq && plan.userSequence <= p3Range.lastSeq) ||
+        (plan.userSequence >= p3MixedRange.firstSeq &&
+          plan.userSequence <= p3MixedRange.lastSeq)
 
       if (!sequenceIsApproved || plan.expectation.expectedCharacterId !== plan.body.characterId) {
         fail('S5 request plan is outside the approved PERF write allocations')

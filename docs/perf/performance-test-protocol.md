@@ -774,10 +774,23 @@ error rate under the label:
 
 S7 runs only after the isolated baselines so endpoint attribution remains possible.
 It uses Pool R for reads and exactly 200 distinct Pool A users for successful writes.
-The baseline selects and records a fixed mixed-load level from the isolated results;
-PERF-P6 must reuse that numeric level rather than recalculating a more favorable
-one. Login and registration are excluded from the mixture so the experiment focuses
-on database-pool contention rather than bcrypt or IP limiting.
+The timed-capacity evidence fixes the baseline mixture as follows before any S7
+request is sent:
+
+- S4 leaderboard reads run at 5 constant VUs, the highest confirmed passing level.
+- Reads warm up for 30 seconds and are then measured for 120 seconds.
+- During the measured interval, 200 S5 first writes use Pool A sequences 6901-7100.
+- Writes arrive at 100 per 60 seconds for 120 seconds, with 5 preallocated and
+  maximum write VUs. Dropped write iterations must remain zero.
+- The frozen p95 limits are 350 ms for S4 and 50 ms for S5; each scenario retains
+  the same below-1% unexpected-response budget.
+
+The S7 mixture runs first on a freshly repeated seed. The isolated S5 envelope then
+runs last, using the separate 3000-user baseline-isolated allocation. Both workloads
+share one token fixture and one Fargate task. PERF-P6 must reuse these numeric values
+rather than recalculating a more favorable mix. Login and registration are excluded
+so the experiment focuses on database-pool contention rather than bcrypt or IP
+limiting.
 
 ## Error budget and k6 behavior
 

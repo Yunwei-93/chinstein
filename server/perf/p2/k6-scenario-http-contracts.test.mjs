@@ -249,7 +249,7 @@ test('builds and classifies a successful S5 write', () => {
   assert.equal(outcome.status, 201)
 })
 
-test('accepts the P3 baseline S5 allocation and rejects other Pool A users', () => {
+test('accepts the P3 isolated and mixed S5 allocations and rejects other Pool A users', () => {
   const p3Plan = {
     ...buildScenarioRequestPlan({
       scenarioId: 'S5',
@@ -269,13 +269,23 @@ test('accepts the P3 baseline S5 allocation and rejects other Pool A users', () 
     }),
   )
 
+  assert.doesNotThrow(() =>
+    buildScenarioHttpRequest({
+      plan: { ...p3Plan, userSequence: 6901 },
+      baseUrl: BASE_URL,
+      phase: 'measured',
+      tokenUser: tokenUser(6901, 'A'),
+      responseCallback: { statuses: [201] },
+    }),
+  )
+
   assert.throws(
     () =>
       buildScenarioHttpRequest({
-        plan: { ...p3Plan, userSequence: 7000 },
+        plan: { ...p3Plan, userSequence: 7101 },
         baseUrl: BASE_URL,
         phase: 'measured',
-        tokenUser: tokenUser(7000, 'A'),
+        tokenUser: tokenUser(7101, 'A'),
         responseCallback: { statuses: [201] },
       }),
     /outside the approved PERF write allocations/,
