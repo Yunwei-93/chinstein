@@ -707,3 +707,26 @@ Artifacts:
 - [P6 comparison summary](results/p6-leaderboard-2026-09-20.summary.json)
 - [P6 database post-check](results/p6-leaderboard-2026-09-20.postcheck.json)
 - [P6 environment manifest](results/p6-leaderboard-2026-09-20.manifest.json)
+
+### Pre-registered optimized S4 capacity extension
+
+The core P6 result is already accepted and committed. This optional extension is
+added because the optimized S4/5-VU p95 of 37.217 ms is too far below the 350 ms
+limit to describe the new capacity boundary.
+
+- Repeat the canonical 1,458,200-session fixture before traffic and require zero
+  rollup drift, zero current-date Pool A sessions, and 200 Pool B anchors.
+- Reuse optimized API task definition `default-chinstein-api-staging:8` and the
+  unchanged timed load-generator image.
+- Run only S4 at `1 -> 2 -> 5 -> 10 -> 20 -> 40 -> 80` VUs. Each level retains the
+  original 30-second excluded warm-up and 120 measured seconds.
+- Keep the 350 ms p95 limit, below-1% unexpected-response budget, and original
+  exact-doubling throughput rule of at least 20% improvement.
+- Repeat the first failing level and its immediately preceding sampled level once.
+  If every level through 80 passes, repeat 40 and 80 and report only that the knee
+  is above 80 VUs. Apply the conservative disagreement rule.
+- Retain all results. Do not add a level above 80, change a threshold, or add another
+  scenario after observing the ladder.
+
+This is a separately labelled capacity extension, not a revision of P6 acceptance.
+The recorded S6 and mixed-S5 tail costs remain part of the final report.

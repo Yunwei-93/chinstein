@@ -1051,6 +1051,32 @@ explicit limitation rather than being averaged away.
 - [P6 database post-check](results/p6-leaderboard-2026-09-20.postcheck.json)
 - [P6 environment manifest](results/p6-leaderboard-2026-09-20.manifest.json)
 
+### Pre-registered post-P6 S4 capacity extension
+
+The accepted P6 comparison deliberately measured the frozen 5-VU point and did not
+claim a new capacity boundary. Because the optimized S4 result is far below its
+350 ms p95 limit, one optional extension now quantifies the new boundary without
+reopening the P6 acceptance decision.
+
+The canonical fixture is repeated before extension traffic. The optimized API image,
+512 CPU units, 1,024 MiB memory, database branch, request contract, token fixture,
+30-second excluded warm-up, 120-second measured window, 350 ms p95 threshold, and
+below-1% unexpected-response budget remain unchanged. Only S4 runs, at the original
+`1 -> 2 -> 5 -> 10 -> 20 -> 40 -> 80` VU ladder. Results at every level are retained.
+
+The original P3 knee rules remain unchanged. A level fails directly if p95 exceeds
+350 ms or the unexpected-response rate reaches 1%. An exact VU doubling also fails
+the throughput rule if completed expected responses per second improve by less than
+20%. After the initial ladder, the first failing level and its immediately preceding
+sampled level are repeated once. If no level fails through 80 VUs, 40 and 80 VUs are
+repeated and the result is reported only as a lower bound above 80 VUs. Disagreement
+uses the existing conservative rule. No level above 80, new threshold, or additional
+scenario may be added after seeing the data.
+
+This extension is reported separately from the accepted P6 before/after comparison.
+It may strengthen the capacity claim, but cannot erase the recorded S6 or mixed-S5
+tail observations and cannot retroactively change the P6 optimization decision.
+
 PERF-P7 publishes valid and invalid runs, raw environment fingerprints, derived
 thresholds, achieved throughput, error classifications, resource observations,
 provider usage and cost, and any limitations. Staging cleanup occurs only after the
