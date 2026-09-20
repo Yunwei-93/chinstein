@@ -18,7 +18,7 @@ performance work is verified in staging before a separate production decision.
 | A4 | Vercel Preview to AWS ECS to Neon browser integration | Complete |
 | A4.1 | Story-generation resilience | Complete, including disabled and live-provider staging acceptance |
 | A5 | Logs, recovery runbook, rollback drill, and provider-cost review | Complete; resource cleanup is deferred until PERF finishes |
-| PERF | Reproducible performance baseline and measured optimization | PERF-P0 through PERF-P6 complete. P3 confirmed the capacity boundaries and mixed/write baselines; P4 classified the 30-minute S4 soak as stable; P5 accepted one bounded live-provider claim and restored the fixture. P6 replaced the measured full-session leaderboard aggregate with a verified transactional rollup: isolated S4/5-VU p95 fell 86.94%, throughput rose 575.93%, 54,807 optimized requests had zero unexpected responses, and the final 1,461,400 sessions had zero rollup drift. S6 and mixed-S5 tail regressions remain disclosed. Accepted artifacts and environment fingerprints are under `docs/perf/results/`; PERF-P7 reporting and cleanup are next. |
+| PERF | Reproducible performance baseline and measured optimization | PERF-P0 through PERF-P6 complete. P3 confirmed the capacity boundaries and mixed/write baselines; P4 classified the 30-minute S4 soak as stable; P5 accepted one bounded live-provider claim and restored the fixture. P6 replaced the measured full-session leaderboard aggregate with a verified transactional rollup: isolated S4/5-VU p95 fell 86.94%, throughput rose 575.93%, 54,807 optimized requests had zero unexpected responses, and the final 1,461,400 sessions had zero rollup drift. The separate 200,649-request S4 extension confirmed the conservative composite boundary at 5-10 VUs while showing much higher useful throughput and delaying the initial latency-threshold crossing to 40-80 VUs. S6 and mixed-S5 tail regressions remain disclosed. Accepted artifacts and environment fingerprints are under `docs/perf/results/`; PERF-P7 reporting and cleanup are next. |
 
 ## Evidence collected through A5
 
@@ -173,7 +173,7 @@ different system and make the result difficult to explain.
 | PERF-P3 | Complete: confirmed endpoint capacity ladders, S7 mixed load, and the finite S5 write envelope |
 | PERF-P4 | Complete: stable 30-minute S4 soak at 5 VUs with zero unexpected responses |
 | PERF-P5 | Complete: one accepted live provider claim, cache verification, controlled failure checks, and verified fixture restoration |
-| PERF-P6 | Complete: transactional leaderboard rollup retested against S4/S5/S6/S7 with zero unexpected responses and zero drift |
+| PERF-P6 | Complete: transactional leaderboard rollup retested against S4/S5/S6/S7; separate S4 extension confirmed the 5-10-VU composite boundary with zero unexpected responses and zero drift |
 | PERF-P7 | Publish the report and clean up staging resources after the final acceptance gate |
 
 Main benchmark invariant:
@@ -184,6 +184,7 @@ Estimated remaining time:
 
 - PERF-P2 baseline: complete;
 - PERF-P6 optimized retest: complete;
+- post-P6 optimized S4 capacity extension: complete;
 - remaining PERF-P7 work: publish the final report, preserve limitations, and clean
   up staging resources only after the evidence commit is verified.
 

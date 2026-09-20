@@ -730,3 +730,35 @@ limit to describe the new capacity boundary.
 
 This is a separately labelled capacity extension, not a revision of P6 acceptance.
 The recorded S6 and mixed-S5 tail costs remain part of the final report.
+
+### Optimized S4 capacity-extension result
+
+The initial `1 -> 2 -> 5 -> 10 -> 20 -> 40 -> 80` ladder completed all seven
+results. The first frozen composite failure occurred at 10 VUs: p95 remained within
+the 350 ms limit, but completed throughput increased only 0.90% from 222.675/s at
+5 VUs to 224.675/s at 10 VUs. The pre-registered confirmation pair independently
+agreed: p95 was 41.974 ms at 5 VUs and 83.790 ms at 10 VUs, while throughput rose
+only 14.19% from 189.083/s to 215.908/s. The confirmed composite boundary is
+therefore `5-10 VUs` under the unchanged minimum-20% throughput-improvement rule.
+
+The complete extension contains 200,649 measured requests and zero unexpected
+responses. The initial latency-only observation remained below 350 ms through
+40 VUs (303.705 ms) and crossed the limit at 80 VUs (609.976 ms). This is retained
+as an initial latency-threshold interval, not substituted for the earlier composite
+failure. Compared with the baseline S4 ladder, the composite interval remains
+`5-10 VUs`, but initial 5-VU throughput increased from 30.000/s to 222.675/s and
+confirmation 5-VU throughput increased from 28.975/s to 189.083/s. Both optimized
+10-VU p95 observations were about 84% below their corresponding baseline values.
+
+The post-check remained read-only and preserved the canonical fixture: 1,458,200
+sessions, 8,100 score rows covering all sessions, zero drift, zero current-date
+Pool A sessions, and 200 Pool B anchors. The extension is accepted separately from
+the already accepted P6 optimization and does not remove the recorded S6 or mixed-S5
+limitations.
+
+Artifacts:
+
+- [Raw S4 capacity-extension result](results/p6-s4-capacity-extension-2026-09-20.raw.json)
+- [S4 capacity-extension summary](results/p6-s4-capacity-extension-2026-09-20.summary.json)
+- [S4 capacity-extension database post-check](results/p6-s4-capacity-extension-2026-09-20.postcheck.json)
+- [S4 capacity-extension environment manifest](results/p6-s4-capacity-extension-2026-09-20.manifest.json)

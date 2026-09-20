@@ -2,14 +2,17 @@
 
 Last updated: 2026-09-20
 
-Status: PERF-P0 through PERF-P4 complete. Both the initial seed and the
+Status: PERF-P0 through PERF-P6 complete. Both the initial seed and the
 mapped-fixture repeat-seed passed full rollback and confirmed-commit execution
 against `aws-staging`; the final replacement passed fresh guarded read-only
 verification. PERF-P2 preserved the accepted low-concurrency baseline. PERF-P3
 preserved the initial and confirmation capacity ladders, the S7 mixed run, and the
 finite S5 write envelope with zero unexpected responses. PERF-P4 preserved an
 accepted 30-minute S4 soak with stable latency and throughput, zero unexpected
-responses, and no application-error event. PERF-P5 is next.
+responses, and no application-error event. PERF-P5 accepted the bounded live-provider
+experiment and restored the canonical fixture. PERF-P6 accepted the transactional
+leaderboard rollup and separately confirmed its optimized S4 capacity boundary.
+PERF-P7 final reporting and staging cleanup are next.
 The first eighteen PERF-P2 tooling checkpoints have frozen the 1-VU and 5-VU
 execution rules, the bounded Pool A reserve, the response-classification
 contracts, the secret-free 8,100-user token-fixture contract, the injectable
@@ -344,9 +347,8 @@ never added to the application migration.
 | PERF-P7 | Publish the report, complete acceptance, and clean up staging | 1-2 hours |
 
 The original PERF-P2 through PERF-P7 estimate was 9-20 hours. PERF-P2 through
-PERF-P4 are now complete; PERF-P5 through PERF-P7 remain. If the measurements do
-not identify a credible bottleneck, PERF-P6 may conclude that no optimization is
-justified.
+PERF-P6, including the separately labelled optimized-S4 capacity extension, are
+complete. PERF-P7 reporting, final acceptance, and staging cleanup remain.
 
 ## Safety and experiment boundaries
 
@@ -1076,6 +1078,40 @@ scenario may be added after seeing the data.
 This extension is reported separately from the accepted P6 before/after comparison.
 It may strengthen the capacity claim, but cannot erase the recorded S6 or mixed-S5
 tail observations and cannot retroactively change the P6 optimization decision.
+
+### Post-P6 S4 capacity extension result
+
+The seven-level initial ladder and the pre-registered 5/10-VU confirmation pair
+completed normally. Together they contain 200,649 measured requests and zero
+unexpected responses. The frozen composite capacity boundary is confirmed at
+`5-10 VUs` because both exact 5-to-10 doublings failed the throughput-scaling rule:
+the initial run improved only 0.90%, from 222.675 to 224.675 responses per second,
+and the confirmation improved only 14.19%, from 189.083 to 215.908 responses per
+second. Both are below the required 20%.
+
+Latency tells a separate and favorable story. The 10-VU p95 remained below the
+350 ms limit in both observations at 80.581 ms and 83.790 ms. In the initial ladder,
+p95 remained below the limit through 40 VUs at 303.705 ms and first exceeded it at
+80 VUs at 609.976 ms. Because the frozen composite rule fails on throughput first,
+the report does not relabel 40-80 VUs as the overall capacity boundary; it records
+that interval only as the initial latency-threshold crossing.
+
+The composite interval is therefore unchanged from the baseline S4 `5-10 VUs`, but
+the work completed inside it is materially different. At 5 VUs, initial throughput
+rose from the baseline 30.000/s to 222.675/s and confirmation throughput rose from
+28.975/s to 189.083/s. At 10 VUs, both optimized p95 observations were about 84%
+lower than their corresponding baseline observations. The rollup increased useful
+capacity and delayed the latency failure even though the deliberately conservative
+throughput rule still identifies saturation between 5 and 10 VUs.
+
+The read-only post-check retained the canonical 1,458,200-session fixture, 8,100
+rollup rows covering exactly 1,458,200 sessions, zero rollup drift, zero current-date
+Pool A sessions, and 200 Pool B anchors.
+
+- [Raw S4 capacity-extension result](results/p6-s4-capacity-extension-2026-09-20.raw.json)
+- [S4 capacity-extension summary](results/p6-s4-capacity-extension-2026-09-20.summary.json)
+- [S4 capacity-extension database post-check](results/p6-s4-capacity-extension-2026-09-20.postcheck.json)
+- [S4 capacity-extension environment manifest](results/p6-s4-capacity-extension-2026-09-20.manifest.json)
 
 PERF-P7 publishes valid and invalid runs, raw environment fingerprints, derived
 thresholds, achieved throughput, error classifications, resource observations,
